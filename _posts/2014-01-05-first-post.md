@@ -6,7 +6,7 @@ This is my first post using jekyll.
 
 New section of information
 
-{% highlight c# %}
+{% highlight c# linenos %}
 class Program
 {
     public static void Main(string[] args)
