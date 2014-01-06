@@ -2,4 +2,7 @@
 ---
 This is my first post using jekyll.  
 
-** important text **
+# Section 1 
+
+New section of information
+
