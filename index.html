@@ -7,8 +7,16 @@ test: this is a test
   <body>
     <h1>Hello World</h1>
     <p>I'm hosted with GitHub Pages.</p>
-    <p>the date is {{ date }} </p>
-    <p>test 1 is {{ test }} </p>
-    <p>test 2 is {{ page.test }} </p>
+    <p>the date is {{ page.date }} </p>
+    <p>test is {{ page.test }} </p>
+    <p>List of posts</p>
+    <ul>
+      {% for post in site.posts %}
+        <li>
+          <a href="{{ post.url }}">{{ post.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+
   </body>
 </html>
