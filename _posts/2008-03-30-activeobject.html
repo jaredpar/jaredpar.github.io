@@ -1,0 +1,167 @@
+<p>I've been busy lately and neglected my series on <a href="http://blogs.msdn.com/jaredpar/archive/2008/01/28/active-objects-and-futures.aspx">Active Objects</a>.&#160; It's been a fairly busy time for me both in and out of work.&#160; Enough excuses, back to the fun.</p>  <p>With the basic <a href="http://blogs.msdn.com/jaredpar/archive/2008/03/02/pipesinglereader.aspx">PipeSingleReader</a> class, we now have the last piece necessary to create an ActiveObject.&#160; This article will focus on building the base ActiveObject which will take care of scheduling, construction, destruction and error handling.&#160; The goal is to make implementing an ActiveObject that actually does work easy.&#160; </p>  <p>Lets break down the implementation of an ActiveObject into the three phases of any object; construction, destruction and running behavior. </p>  <h3>Construction</h3>  <p>Active Objects are associated with and have an affinity to a particular thread.&#160; Constructing an ActiveObject mainly consists of creating a thread and initializing the member variables of the object.&#160; </p>  <p>There are a couple of requirements that need to be met when initializing the object.&#160; The first is getting the thread into a known state before returning out of the constructor.&#160; It's possible for coders to create and then immediately destroy an object.&#160; Part of destructing an object is understanding the state you are destructing.&#160; Returning from an ActiveObject constructor before the thread is up and running means that we can be destructed while in an inconsistent state.&#160; Normally this isn't much an issue with objects because they are single threaded.&#160; We will fix this by doing a simple wait until the thread is finished initializing.</p>  <pre class="code">        <span style="color: rgb(0,0,255)">protected</span> ActiveObject() {
+            m_thread = <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">Thread</span>(() =&gt; InitializeAndRunBackgroundThread());
+            m_thread.Start();
+            <span style="color: rgb(0,0,255)">while</span> (0 == m_backgroundInitialized) { <span style="color: rgb(43,145,175)">Thread</span>.Sleep(0); }
+        }</pre>
+<a href="http://11011.net/software/vspaste"></a><a href="http://11011.net/software/vspaste"></a>
+
+<p>Next is providing implementers with a way to initialize member variables on the new thread.&#160; There are many reasons for wanting to initialize members on the ActiveObject thread.&#160; Besides general consistency concerns, there is also the issue that objects can have affinity to a particular thread and including forcing initialization to occur on that thread.&#160; To make this simple part of the thread initialization code will call a virtual method allowing base classes to initialize variables.</p>
+
+<pre class="code">        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> InitializeAndRunBackgroundThread() {
+            <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_affinity, <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">ThreadAffinity</span>());
+            <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_pipe, <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">PipeSingleReader</span>&lt;<span style="color: rgb(43,145,175)">Future</span>&gt;());
+            InitializeMembersInBackground();
+            <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_backgroundInitialized, 1);
+            RunBackgroundActions();
+        }</pre>
+<a href="http://11011.net/software/vspaste"></a><a href="http://11011.net/software/vspaste"></a>
+
+<pre class="code">        <span style="color: rgb(0,0,255)">protected</span> <span style="color: rgb(0,0,255)">virtual</span> <span style="color: rgb(0,0,255)">void</span> InitializeMembersInBackground() {
+        }</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<h3>Running Behavior</h3>
+
+<p>Active Objects exist for one reason, to run Futures.&#160; The main behavior is to loop over the set of Futures and run them.&#160; The PipeSingleReader class takes care of most of the scheduling and threading work.&#160; This leaves the ActiveObject free to make policy decisions.&#160; </p>
+
+<p>One question that comes up is how to handle the case where a Future throws an exception?&#160; If we run the Future with no protection it will simple cause an unhandled exception and likely a process crash.&#160; We could catch and try to filter them but based on what criteria?&#160; IMHO there is no way to properly handle an exception in the Active Object base because we don't know what the purpose of that object is.&#160; Only the actual object implementer knows.&#160; Therefore we will make it their problem by passing unhandled exceptions into an abstract method.</p>
+
+<pre class="code">        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> RunBackgroundActions() {
+            <span style="color: rgb(0,0,255)">do</span> {
+                RunFuture(m_pipe.GetNextOutput());
+            } <span style="color: rgb(0,0,255)">while</span> (0 == m_backgroundFinished);
+            <span style="color: rgb(43,145,175)">Future</span> future;
+            <span style="color: rgb(0,0,255)">while</span> (m_pipe.TryGetOutput(<span style="color: rgb(0,0,255)">out</span> future)) {
+                RunFuture(future);
+            }
+        }
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> RunFuture(<span style="color: rgb(43,145,175)">Future</span> future) {
+            <span style="color: rgb(0,0,255)">try</span> {
+                m_affinity.Check();
+                future.Run();
+            }
+            <span style="color: rgb(0,0,255)">catch</span> (<span style="color: rgb(43,145,175)">Exception</span> ex) {
+                OnBackgroundUnhandledException(ex);
+            }
+        }</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p></p>
+
+<p>If the second loop looks a bit out of place, hopefully the destruction section will explain it's purpose.</p>
+
+<p>All that is left is to provide helper methods to let base classes queue up Futures to run.</p>
+
+<pre class="code">        <span style="color: rgb(0,0,255)">protected</span> <span style="color: rgb(43,145,175)">Future</span> RunInBackground(<span style="color: rgb(43,145,175)">Action</span> action) {
+            <span style="color: rgb(0,0,255)">var</span> f = <span style="color: rgb(43,145,175)">Future</span>.CreateNoRun(action);
+            m_pipe.AddInput(f);
+            <span style="color: rgb(0,0,255)">return</span> f;
+        }
+        <span style="color: rgb(0,0,255)">protected</span> <span style="color: rgb(43,145,175)">Future</span>&lt;T&gt; RunInBackground&lt;T&gt;(<span style="color: rgb(43,145,175)">Func</span>&lt;T&gt; func) {
+            <span style="color: rgb(0,0,255)">var</span> f = <span style="color: rgb(43,145,175)">Future</span>.CreateNoRun(func);
+            m_pipe.AddInput(f);
+            <span style="color: rgb(0,0,255)">return</span> f;
+        }</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<h3>Destruction</h3>
+
+<p>Destruction of an ActiveObject can be tricky with respect to handling pending actions.&#160; Should they be executed, aborted or just completely ignored?&#160; What happens if more input is added once we start the dispose process?&#160; If we don't allow more input where should we error?&#160; </p>
+
+<p>IMHO, the simplest user and programming model is the following.&#160; </p>
+
+<ol>
+  <li>Dispose is synchronous.&#160; It will block until the background thread is destroyed.&#160; Dispose is the equivalent of destruction so it follows that all resources including the thread will be destroyed when destruction completes.</li>
+
+  <li>Once dispose starts input will be stopped.&#160; This prevents live-lock scenarios where one thread is disposing the ActiveObject and another thread is constantly adding data.&#160; </li>
+
+  <li>If another thread tries to add an operation during the middle of disposing they will be given an exception at that time.</li>
+</ol>
+
+<p>In future posts, we'll explore how to create ActiveObjects with differing dispose semantics.&#160; </p>
+
+<p>Now how can we signal the background thread that we are done processing?&#160; Just add a future to the queue to be running.&#160; Because this will run on the only thread reading the int there is no need for an Interlocked operation.</p>
+
+<pre class="code">        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> Dispose(<span style="color: rgb(0,0,255)">bool</span> disposing) {
+            <span style="color: rgb(0,0,255)">if</span> (disposing) {
+                m_pipe.AddInput(<span style="color: rgb(43,145,175)">Future</span>.CreateNoRun(() =&gt; { m_backgroundFinished = 1; }));
+                m_pipe.CloseInput();
+                m_thread.Join();
+            }
+        }</pre>
+
+<p>Now that we've gone over the dispose code, hopefully the reason for the second loop in RunBackgroundActions is a little more apparent.&#160; Between the two calls to m_pipe in Dispose another thread can post a Future.&#160; Without the second loop the user will get no exception and the future will never run.&#160; Likely they would hopelessly deadlock.&#160;&#160; The second loop will run all Futures which get caught it this gap.&#160; </p>
+
+<h3>The Code</h3>
+
+<p>Here is the full version of the code. </p>
+
+<pre class="code">    <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">abstract</span> <span style="color: rgb(0,0,255)">class</span> <span style="color: rgb(43,145,175)">ActiveObject</span> :  <span style="color: rgb(43,145,175)">IDisposable</span> {
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(43,145,175)">PipeSingleReader</span>&lt;<span style="color: rgb(43,145,175)">Future</span>&gt; m_pipe;
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(43,145,175)">ThreadAffinity</span> m_affinity;
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(43,145,175)">Thread</span> m_thread;
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">int</span> m_backgroundInitialized;
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">int</span> m_backgroundFinished;
+
+        <span style="color: rgb(0,0,255)">protected</span> ActiveObject() {
+            m_thread = <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">Thread</span>(() =&gt; InitializeAndRunBackgroundThread());
+            m_thread.Start();
+            <span style="color: rgb(0,0,255)">while</span> (0 == m_backgroundInitialized) { <span style="color: rgb(43,145,175)">Thread</span>.Sleep(0); }
+        }
+<span style="color: rgb(0,0,255)">        #region</span> Dispose
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">void</span> Dispose() {
+            Dispose(<span style="color: rgb(0,0,255)">true</span>);
+            <span style="color: rgb(43,145,175)">GC</span>.SuppressFinalize(<span style="color: rgb(0,0,255)">this</span>);
+        }
+        ~ActiveObject() {
+            Dispose(<span style="color: rgb(0,0,255)">false</span>);
+        }
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> Dispose(<span style="color: rgb(0,0,255)">bool</span> disposing) {
+            <span style="color: rgb(0,0,255)">if</span> (disposing) {
+                m_pipe.AddInput(<span style="color: rgb(43,145,175)">Future</span>.CreateNoRun(() =&gt; { m_backgroundFinished = 1; }));
+                m_pipe.CloseInput();
+                m_thread.Join();
+            }
+        }
+<span style="color: rgb(0,0,255)">        #endregion
+</span>        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> InitializeAndRunBackgroundThread() {
+            <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_affinity, <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">ThreadAffinity</span>());
+            <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_pipe, <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">PipeSingleReader</span>&lt;<span style="color: rgb(43,145,175)">Future</span>&gt;());
+            InitializeMembersInBackground();
+            <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_backgroundInitialized, 1);
+            RunBackgroundActions();
+        }
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> RunBackgroundActions() {
+            <span style="color: rgb(0,0,255)">do</span> {
+                RunFuture(m_pipe.GetNextOutput());
+            } <span style="color: rgb(0,0,255)">while</span> (0 == m_backgroundFinished);
+            <span style="color: rgb(43,145,175)">Future</span> future;
+            <span style="color: rgb(0,0,255)">while</span> (m_pipe.TryGetOutput(<span style="color: rgb(0,0,255)">out</span> future)) {
+                RunFuture(future);
+            }
+        }
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> RunFuture(<span style="color: rgb(43,145,175)">Future</span> future) {
+            <span style="color: rgb(0,0,255)">try</span> {
+                m_affinity.Check();
+                future.Run();
+            }
+            <span style="color: rgb(0,0,255)">catch</span> (<span style="color: rgb(43,145,175)">Exception</span> ex) {
+                OnBackgroundUnhandledException(ex);
+            }
+        }
+        <span style="color: rgb(0,0,255)">protected</span> <span style="color: rgb(43,145,175)">Future</span> RunInBackground(<span style="color: rgb(43,145,175)">Action</span> action) {
+            <span style="color: rgb(0,0,255)">var</span> f = <span style="color: rgb(43,145,175)">Future</span>.CreateNoRun(action);
+            m_pipe.AddInput(f);
+            <span style="color: rgb(0,0,255)">return</span> f;
+        }
+        <span style="color: rgb(0,0,255)">protected</span> <span style="color: rgb(43,145,175)">Future</span>&lt;T&gt; RunInBackground&lt;T&gt;(<span style="color: rgb(43,145,175)">Func</span>&lt;T&gt; func) {
+            <span style="color: rgb(0,0,255)">var</span> f = <span style="color: rgb(43,145,175)">Future</span>.CreateNoRun(func);
+            m_pipe.AddInput(f);
+            <span style="color: rgb(0,0,255)">return</span> f;
+        }
+        <span style="color: rgb(0,0,255)">protected</span> <span style="color: rgb(0,0,255)">virtual</span> <span style="color: rgb(0,0,255)">void</span> InitializeMembersInBackground() {
+        }
+        <span style="color: rgb(0,0,255)">protected</span> <span style="color: rgb(0,0,255)">abstract</span> <span style="color: rgb(0,0,255)">void</span> OnBackgroundUnhandledException(<span style="color: rgb(43,145,175)">Exception</span> ex);
+    }</pre>
+<a href="http://11011.net/software/vspaste"></a></div>
+    

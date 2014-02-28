@@ -1,0 +1,137 @@
+<p>One argument I commonly hear against immutable collections is they are slow.&#160; I’ve held the opposite belief for some time but shamefully had yet to look at actual numbers on the CLR.&#160; Tonight I decided to change that by benchmarking one of <a href="http://code.msdn.com/BclExtras">my immutable collections</a> against a mutable collection in the BCL.&#160; The goal is not to decide the overall best collection but instead to get a sense of how they perform relative to each other in certain scenarios.</p>  <p>For the immutable version, I chose to use ImmutableCollection.&#160; This class is a slight variation of Eric Lippert’s <a href="http://blogs.msdn.com/ericlippert/archive/2008/02/12/immutability-in-c-part-eleven-a-working-double-ended-queue.aspx">Double Ended Queue</a> implementation.&#160; The core algorithm is the same but the style was changed to be more inline with other immutable collections I own. For the mutable class I chose to use the ever popular <a href="http://msdn.microsoft.com/en-us/library/6sh2ey19.aspx">List&lt;T&gt;</a> collection.&#160; </p>  <p>I chose to examine the following scenarios that I commonly use with collection style classes.</p>  <ul>   <li>Adding to the end of the collection </li>    <li>Adding to the front of the collection </li>    <li>Removing from the end of the collection </li>    <li>Removing from the beginning of the collection </li> </ul>  <p>Each scenario was run against collections of 100, 1000 and 10000 elements.&#160; For each count, the run was executed 1000 times and the total and average time was calculated.&#160; The full code for the benchmark is available at the end of this post.&#160; </p>  <p><strong>Looking at the data</strong></p>  <p>Now before I get into the results, please assume the usual caveats that come with any benchmark.&#160; That is, approach it with a skeptical eye.&#160; These scenarios are obviously not something I do <strong>exactly </strong>in everyday programming (especially removing thousands of elements from the front of List&lt;T&gt;).&#160; However they are representative of general operations that I do use.&#160; Also I find it interesting to see how the collections perform relative to each other in extreme scenarios.</p>  <p>Most of the results were unsurprising.&#160; Remove from end is a very simple operation on a List&lt;T&gt;.&#160; It comes down to a bounds check, decrementing an index and updating a couple of internal state variables.&#160;&#160; Removing the end of an immutable collection requires considerable updating of the internal structure.&#160; It ends up being roughly 1 order of magnitude slower.&#160;&#160;&#160; Adding to the end has similar implementation and numbers.</p>  <p>Operations on the front of the list were significantly slower on List&lt;T&gt; than ImmutableCollection for suitably large collections.&#160; This is unsurprising given that removal and insertion at the front of a List&lt;T&gt; requires all of the other elements in the underlying array to be shifted up or down.&#160; This is a non-trivial operation and is evident in the benchmark.&#160; </p>  <p>The most interesting item however, is to look at how each collection scales.&#160; In almost all scenarios, ImmutableCollection scaled very closely to the size of the input.&#160; That is, an order of magnitude more input resulted in an order of magnitude of more time.&#160; List&lt;T&gt; does not have that behavior for all scenarios.&#160; Scenarios dealing with the front of the collection saw time rises faster relative to input size.&#160; In fact there is a very dramatic jump in both front scenarios between 1000 and 1000 elements.&#160; Each case resulted in roughly 2 orders of magnitude more time.&#160; </p>  <p><strong>Conclusion</strong></p>  <p>Winner of each category … </p>  <ul>   <li>Add to End: List&lt;T&gt; </li>    <li>Add to Front: ImmutableCollection&lt;T&gt; </li>    <li>Remove from End: List&lt;T&gt; </li>    <li>Remove from Front: ImmutableCollection&lt;T&gt; </li> </ul>  <p>No single benchmark is definitive and this one won’t change that.&#160; This benchmark says nothing about the general use of the two classes.&#160; However it can provide some insight into these specific scenarios.&#160; It also serves as some level of proof that immutable collections can have acceptable performance for these scenarios.</p>  <p><strong>Data</strong></p>  <pre>Add to End 100 Elements
+       List: Total: 00:00:00.0060473 Average: 00:00:00.0000060
+  Immutable: Total: 00:00:00.0267079 Average: 00:00:00.0000267
+Add to End 1000 Elements
+       List: Total: 00:00:00.0337505 Average: 00:00:00.0000337
+  Immutable: Total: 00:00:00.2240444 Average: 00:00:00.0002240
+Add to End 10000 Elements
+       List: Total: 00:00:00.4266014 Average: 00:00:00.0004266
+  Immutable: Total: 00:00:02.6715789 Average: 00:00:00.0026715
+Add to Front 100 Elements
+       List: Total: 00:00:00.0162186 Average: 00:00:00.0000162
+  Immutable: Total: 00:00:00.0213764 Average: 00:00:00.0000213
+Add to Front 1000 Elements
+       List: Total: 00:00:00.4028523 Average: 00:00:00.0004028
+  Immutable: Total: 00:00:00.2055935 Average: 00:00:00.0002055
+Add to Front 10000 Elements
+       List: Total: 00:00:38.5943722 Average: 00:00:00.0385943
+  Immutable: Total: 00:00:02.6212590 Average: 00:00:00.0026212
+Remove From End 100 Elements
+       List: Total: 00:00:00.0031299 Average: 00:00:00.0000031
+  Immutable: Total: 00:00:00.0213737 Average: 00:00:00.0000213
+Remove From End 1000 Elements
+       List: Total: 00:00:00.0187998 Average: 00:00:00.0000187
+  Immutable: Total: 00:00:00.1623739 Average: 00:00:00.0001623
+Remove From End 10000 Elements
+       List: Total: 00:00:00.1773381 Average: 00:00:00.0001773
+  Immutable: Total: 00:00:01.9615781 Average: 00:00:00.0019615
+Remove From Front 100 Elements
+       List: Total: 00:00:00.0142981 Average: 00:00:00.0000142
+  Immutable: Total: 00:00:00.0192679 Average: 00:00:00.0000192
+Remove From Front 1000 Elements
+       List: Total: 00:00:00.4407993 Average: 00:00:00.0004407
+  Immutable: Total: 00:00:00.1879243 Average: 00:00:00.0001879
+Remove From Front 10000 Elements
+       List: Total: 00:00:39.7832085 Average: 00:00:00.0397832
+  Immutable: Total: 00:00:02.2451406 Average: 00:00:00.0022451</pre>
+
+<p><strong>The Code</strong></p>
+
+<pre class="code"><span style="color: blue">public class </span><span style="color: #2b91af">Program </span>{
+    <span style="color: blue">public static void </span>ImmutableCollectionAddToEnd(<span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt; list) {
+        <span style="color: blue">var </span>col = <span style="color: #2b91af">ImmutableCollection</span>&lt;<span style="color: blue">string</span>&gt;.Empty;
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>item <span style="color: blue">in </span>list) {
+            col = col.AddBack(item);
+        }
+    }
+    <span style="color: blue">public static void </span>ListAddToEnd(<span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt; list) {
+        <span style="color: blue">var </span>col = <span style="color: blue">new </span><span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt;();
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>item <span style="color: blue">in </span>list) {
+            col.Add(item);
+        }
+    }
+    <span style="color: blue">public static void </span>RunAddToEnd(<span style="color: blue">int </span>count) {
+        <span style="color: blue">var </span>list = <span style="color: #2b91af">Enumerable</span>.Range(0, count).Select(x =&gt; x.ToString()).ToList();
+        <span style="color: #2b91af">Console</span>.WriteLine(<span style="color: #a31515">&quot;Add to End {0} Elements&quot;</span>, count);
+        RunScenario(<span style="color: #a31515">&quot;List&quot;</span>, ListAddToEnd, () =&gt; list);
+        RunScenario(<span style="color: #a31515">&quot;Immutable&quot;</span>, ImmutableCollectionAddToEnd, () =&gt; list);
+    }
+    <span style="color: blue">public static void </span>ImmutableCollectionAddToFront(<span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt; list) {
+        <span style="color: blue">var </span>col = <span style="color: #2b91af">ImmutableCollection</span>&lt;<span style="color: blue">string</span>&gt;.Empty;
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>item <span style="color: blue">in </span>list) {
+            col = col.AddFront(item);
+        }
+    }
+    <span style="color: blue">public static void </span>ListAddToFront(<span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt; list) {
+        <span style="color: blue">var </span>col = <span style="color: blue">new </span><span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt;();
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>item <span style="color: blue">in </span>list) {
+            col.Insert(0, item);
+        }
+    }
+    <span style="color: blue">public static void </span>RunAddToFront(<span style="color: blue">int </span>count) {
+        <span style="color: blue">var </span>list = <span style="color: #2b91af">Enumerable</span>.Range(0, count).Select(x =&gt; x.ToString()).ToList();
+        <span style="color: #2b91af">Console</span>.WriteLine(<span style="color: #a31515">&quot;Add to Front {0} Elements&quot;</span>, count);
+        RunScenario(<span style="color: #a31515">&quot;List&quot;</span>, ListAddToFront, () =&gt; list);
+        RunScenario(<span style="color: #a31515">&quot;Immutable&quot;</span>, ImmutableCollectionAddToFront, () =&gt; list);
+    }
+    <span style="color: blue">public static void </span>ImmutableCollectionRemoveFromEnd(<span style="color: #2b91af">ImmutableCollection</span>&lt;<span style="color: blue">string</span>&gt; col) {
+        <span style="color: blue">while </span>(!col.IsEmpty) {
+            col = col.RemoveBack();
+        }
+    }
+    <span style="color: blue">public static void </span>ListRemoveFromEnd(<span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt; list) {
+        <span style="color: blue">while </span>(list.Count &gt; 0) {
+            list.RemoveAt(list.Count - 1);
+        }
+    }
+    <span style="color: blue">public static void </span>RunRemoveFromEnd(<span style="color: blue">int </span>count) {
+        <span style="color: #2b91af">Func</span>&lt;<span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt;&gt; listInputFunc = () =&gt; <span style="color: #2b91af">Enumerable</span>.Range(0, count).Select(x =&gt; x.ToString()).ToList();
+        <span style="color: #2b91af">Func</span>&lt;<span style="color: #2b91af">ImmutableCollection</span>&lt;<span style="color: blue">string</span>&gt;&gt; colInputFunc = () =&gt; <span style="color: #2b91af">ImmutableCollection</span>.Create(listInputFunc());
+        <span style="color: #2b91af">Console</span>.WriteLine(<span style="color: #a31515">&quot;Remove From End {0} Elements&quot;</span>, count);
+        RunScenario(<span style="color: #a31515">&quot;List&quot;</span>, ListRemoveFromEnd, listInputFunc);
+        RunScenario(<span style="color: #a31515">&quot;Immutable&quot;</span>, ImmutableCollectionRemoveFromEnd, colInputFunc);
+    }
+    <span style="color: blue">public static void </span>ImmutableCollectionRemoveFromFront(<span style="color: #2b91af">ImmutableCollection</span>&lt;<span style="color: blue">string</span>&gt; col) {
+        <span style="color: blue">while </span>(!col.IsEmpty) {
+            col = col.RemoveFront();
+        }
+    }
+    <span style="color: blue">public static void </span>ListRemoveFromFront(<span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt; col) {
+        <span style="color: blue">while </span>(col.Count &gt; 0) {
+            col.RemoveAt(0);
+        }
+    }
+    <span style="color: blue">public static void </span>RunRemoveFromFront(<span style="color: blue">int </span>count) {
+        <span style="color: #2b91af">Func</span>&lt;<span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt;&gt; listInputFunc = () =&gt; <span style="color: #2b91af">Enumerable</span>.Range(0, count).Select(x =&gt; x.ToString()).ToList();
+        <span style="color: #2b91af">Func</span>&lt;<span style="color: #2b91af">ImmutableCollection</span>&lt;<span style="color: blue">string</span>&gt;&gt; colInputFunc = () =&gt; <span style="color: #2b91af">ImmutableCollection</span>.Create(listInputFunc());
+        <span style="color: #2b91af">Console</span>.WriteLine(<span style="color: #a31515">&quot;Remove From Front {0} Elements&quot;</span>, count);
+        RunScenario(<span style="color: #a31515">&quot;List&quot;</span>, ListRemoveFromFront, listInputFunc);
+        RunScenario(<span style="color: #a31515">&quot;Immutable&quot;</span>, ImmutableCollectionRemoveFromFront, colInputFunc);
+    }
+    <span style="color: blue">public static void </span>RunScenario&lt;T&gt;(<span style="color: blue">string </span>description, <span style="color: #2b91af">Action</span>&lt;T&gt; del, <span style="color: #2b91af">Func</span>&lt;T&gt; getInputFunc) {
+        <span style="color: green">// Run once to jit
+        </span>del(getInputFunc());
+        <span style="color: blue">const int </span>times = 1000;
+        <span style="color: blue">var </span>total = <span style="color: blue">new </span><span style="color: #2b91af">TimeSpan</span>();
+        <span style="color: blue">for </span>(<span style="color: blue">var </span>i = 0; i &lt; times; i++) {
+            <span style="color: green">// get the input outside the timer so input creation is not calculated 
+            </span><span style="color: blue">var </span>input = getInputFunc();
+            <span style="color: blue">var </span>watch = <span style="color: blue">new </span><span style="color: #2b91af">Stopwatch</span>();
+            watch.Start();
+            del(input);
+            watch.Stop();
+            total += watch.Elapsed;
+        }
+        <span style="color: blue">var </span>average = <span style="color: #2b91af">TimeSpan</span>.FromTicks(total.Ticks / times);
+        <span style="color: #2b91af">Console</span>.WriteLine(<span style="color: #a31515">&quot;{0,11}: Total: {1} Average: {2}&quot;</span>, description, total, average);
+    }
+    <span style="color: blue">static void </span>Main(<span style="color: blue">string</span>[] args) {
+        <span style="color: blue">var </span>list = <span style="color: blue">new int</span>[] { 100, 1000, 10000 };
+        list.ForEach(RunAddToEnd);
+        list.ForEach(RunAddToFront);
+        list.ForEach(RunRemoveFromEnd);
+        list.ForEach(RunRemoveFromFront);
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a></div>
+    

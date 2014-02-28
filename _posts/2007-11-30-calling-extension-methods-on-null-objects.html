@@ -1,0 +1,14 @@
+<p>One of the gotchas for Extension Methods is that it's legal to call them on Null References.&nbsp; This isn't really surprising when you think about the feature.&nbsp; Boiled down to a fundamental level, extension methods are just syntactic sugar for calling a static method and automatically passing the first parameter [1].&nbsp; However it can catch the unwary off guard.&nbsp; </p> <p>The two items that are a little bit different between calling an Instance vs Extension method on a null reference is </p> <ol> <li>The exception (if thrown) will be at the method site instead of the call site.&nbsp; Not really an issue because you can just jump down the stack frame.&nbsp; </li> <li>There may not be an exception thrown.&nbsp; As long as you don't actually use the extension method target, the code will not necessary throw[2].&nbsp; For instance consider the following code</li></ol><pre class="code">    &lt;Extension()&gt; _
+    <span style="color: rgb(0,0,255)">Public</span> <span style="color: rgb(0,0,255)">Function</span> IsNothing(<span style="color: rgb(0,0,255)">ByVal</span> o <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Object</span>) <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Boolean
+</span>        <span style="color: rgb(0,0,255)">Return</span> o <span style="color: rgb(0,0,255)">Is</span> <span style="color: rgb(0,0,255)">Nothing
+</span>    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Function
+
+
+</span>    <span style="color: rgb(0,0,255)">Sub</span> Test()
+        <span style="color: rgb(0,0,255)">Dim</span> x <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">String</span> = <span style="color: rgb(0,0,255)">Nothing
+</span>        <span style="color: rgb(0,0,255)">Dim</span> b = x.IsNothing()   <span style="color: rgb(0,128,0)">' b = True
+</span>    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Sub</span></pre><a href="http://11011.net/software/vspaste"></a>
+<p>This is legal and will not throw.&nbsp; However I don't recomend that you write it.&nbsp; </p>
+<p>[1] Then again you could also claim that instance methods are just syntactic sugar for calling static methods without having to pass this/Me as the first parameter.&nbsp; </p>
+<p>[2] In some ways this is similar to C++.&nbsp; C++ doesn't do NULL reference checking automatically (it waits for you to access data on a NULL reference and then crashes if you're lucky).&nbsp; If you call a method on a NULL pointer but don't actually access any member variables, it will likely run fine.&nbsp; </p></div>
+    

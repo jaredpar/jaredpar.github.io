@@ -1,0 +1,29 @@
+<p>The <a href="http://blogs.msdn.com/jaredpar/archive/2008/02/12/building-the-base-future.aspx">last post</a> dealt with building the base Future class.&#160; Now we'll build the child class used to run <a href="http://msdn2.microsoft.com/en-us/library/bb534960.aspx">Func&lt;TResult&gt;</a>'s.&#160; </p>  <p>The basic implementation is straight forward.&#160; The class will run a delegate typed to <a href="http://msdn2.microsoft.com/en-us/library/bb534960.aspx">Func&lt;TResult&gt;</a> in the override of RunCore.&#160; The trickiest part is how to store the value.&#160; The value is set on one thread and read off of another.&#160; </p>  <p>When a value is read and written on multiple threads there are a couple of options for synchronization between threads.&#160; One of them is to use the volatile keyword for the data.&#160; This forces the CLR to read the value from memory every time and prevents caching issues between threads.&#160; Unfortunately volatile cannot be applied to an unbounded generic.&#160; </p>  <p>To get around this I've declared the value to be of type object.&#160; Whenever the value is accessed by the user of Future&lt;T&gt; a cast is applied to the appropriate type.&#160; This incurs boxing overhead but it's minimal and in the typical case will be limited to one box and unbox per value type.&#160; </p>  <p>In addition Future&lt;T&gt; adds one new method; Wait;&#160; It's a combination of calling WaitEmpty followed by returning the value.&#160; </p>  <p>In a perfect world WaitEmpty in Future would really be called Wait and be virtual.&#160; Future&lt;T&gt; would override the method and alter the return type to be T.&#160; Unfortunately C#/VB don't support covariant return types on virtual method overrides so it's not possible.&#160; Truthfully I don't know if this is a C#/VB limitation or a CLR one.&#160; </p>  <pre class="code">    <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">class</span> <span style="color: rgb(43,145,175)">Future</span>&lt;T&gt; : <span style="color: rgb(43,145,175)">Future
+</span>    {
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(43,145,175)">Func</span>&lt;T&gt; m_function;
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">volatile</span> <span style="color: rgb(0,0,255)">object</span> m_value;
+
+        <span style="color: rgb(0,0,255)">public</span> T Value
+        {
+            <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> Wait(); }
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> Future(<span style="color: rgb(43,145,175)">Func</span>&lt;T&gt; function)
+        {
+            m_function = function;
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> T Wait()
+        {
+            <span style="color: rgb(0,0,255)">base</span>.WaitEmpty();
+            <span style="color: rgb(0,0,255)">return</span> (T)m_value;
+        }
+
+        <span style="color: rgb(0,0,255)">protected</span> <span style="color: rgb(0,0,255)">override</span> <span style="color: rgb(0,0,255)">void</span> RunCore()
+        {
+            m_value = m_function();
+        }
+
+    }</pre>
+Next time I'll go over the implementation of Futures which return no values.&#160; </div>
+    

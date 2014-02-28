@@ -1,0 +1,43 @@
+<p>A few days ago, I recklessly added a [Serialization] attribute to a few of my immutable collection types.&#160; I needed to pass data between AppDomain's and adding [Serialization] was the quick and dirty fix.&#160; Compiled, ran and I didn't think much about it.&#160; </p>  <p>Luckily I was updating some unit tests last night and I remembered this and added a couple of serialization sanity tests.&#160; Most of the tests passed first time but for my ImmutableStack class[1] was throwing an exception.&#160; Well, it was actually my ImmutableQueue but it was failing in one of the inner ImmutableStack instances.&#160; The test code was fairly straight forward</p>  <pre class="code"><span style="color: blue">var </span>stack = <span style="color: #2b91af">ImmutableStack</span>.Create(<span style="color: blue">new int</span>[] { 1, 2, 3 });
+<span style="color: blue">using </span>(<span style="color: blue">var </span>stream = <span style="color: blue">new </span><span style="color: #2b91af">MemoryStream</span>()) {
+    <span style="color: blue">var </span>f = <span style="color: blue">new </span><span style="color: #2b91af">BinaryFormatter</span>();
+    f.Serialize(stream,stack);
+    stream.Position = 0;
+    <span style="color: blue">var </span>obj = f.Deserialize(stream);
+    <span style="color: blue">var </span>stack2 = (<span style="color: #2b91af">ImmutableStack</span>&lt;<span style="color: blue">int</span>&gt;)obj;
+    <span style="color: blue">var </span>stack3 = stack2.Reverse();
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>I did a bit of digging and discovered the exception was coming from the stack2.Reverse() call.&#160; Jumped through the code and didn't see much wrong.&#160; I had several existing tests around ImmutableStack.Reverse() and I couldn't see why Serialization would make any difference.&#160; </p>
+
+<pre class="code"><span style="color: blue">public </span><span style="color: #2b91af">ImmutableStack</span>&lt;T&gt; Reverse() {
+    <span style="color: blue">var </span>r = <span style="color: #2b91af">ImmutableStack</span>&lt;T&gt;.Empty;
+    <span style="color: blue">var </span>current = <span style="color: blue">this</span>;
+    <span style="color: blue">while </span>(current != <span style="color: #2b91af">ImmutableStack</span>&lt;T&gt;.Empty) {
+        r = r.Push(current.Peek());
+        current = current.Pop();
+    }
+
+    <span style="color: blue">return </span>r;
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Can you see what's wrong with the code?</p>
+
+<p>It took me a few minutes of debugging and frustration.&#160; The bug is in the while loop conditional.&#160; Until you introduce serialization this code is just fine.&#160; ImmutableStack&lt;T&gt;.Empty is a static readonly declaration.&#160; The code implementation only allows for one to be created so it a singleton and equality can be done with a quick reference check. </p>
+
+<pre class="code"><span style="color: blue">private static readonly </span><span style="color: #2b91af">EmptyImmutableStack </span>s_empty = <span style="color: blue">new </span><span style="color: #2b91af">EmptyImmutableStack</span>();
+
+<span style="color: blue">public static </span><span style="color: #2b91af">ImmutableStack</span>&lt;T&gt; Empty {
+    <span style="color: blue">get </span>{ <span style="color: blue">return </span>s_empty; }
+}</pre>
+
+<p>Unfortunately serialization breaks the assumption that EmptyImmutableStack is a singleton.&#160; The EmptyImmutableStack class is a singleton by convention only.&#160; It's a private nested class that's only instantiated once per AppDomain.&#160; There is nothing stopping the CLR or Serialization for that matter from creating a second instance.&#160; In the case of deserialization that's exactly what happens.&#160; The serializer isn't built to recognize this pattern and instead simply creates a new instance of EmptyImmutableStack upon deserialization.&#160; </p>
+
+<p>This essentially prevents you from safely using a functional style Empty pattern inside a serializable collection.&#160; </p>
+
+<p>The fix is simple enough, alter the conditional to be (!current.IsEmpty).&#160; </p>
+
+<p>[1] The version of ImmutableStack I'm using is heavily based off of <a href="http://blogs.msdn.com/ericlippert/archive/2007/12/04/immutability-in-c-part-two-a-simple-immutable-stack.aspx">Eric Lippert's implementation</a>.</p></div>
+    

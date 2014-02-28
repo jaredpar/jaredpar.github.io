@@ -1,0 +1,28 @@
+<p>I constantly get tripped up in my powershell scripts/commands because I run them against a binary file.&#160; In particular when I’m searching through a directory structure looking for a particular string or regex.&#160; I’ve found the simplest way to avoid this problem is to use a simple regex check to filter out the known binary files.&#160; </p>  <pre class="code">#==============================================================================
+# Is this an extension for a binary file type? 
+#==============================================================================
+function Is-BinaryExtension() {
+    param ( [string]$extension = $(throw &quot;Need an extension&quot; ) ) 
+
+    $binRegex= &quot;^(\.)?(lib|exe|obj|bin|tlb|pdb|doc|ncb|dll|pch)$&quot;
+    return $extension -match $binRegex
+}
+
+function Is-BinaryFileName() { 
+    param ( [string]$fileName = $(throw &quot;Need a file Name&quot;) )
+    return (Is-BinaryExtension [IO.Path]::GetExtension($fileName))
+}</pre>
+
+<p>Now running a recursive search on a directory structure is quick and easy</p>
+
+<pre class="code">function Select-StringRecurse() {
+    param ( [string]$text = $(throw &quot;Need text to search for&quot;),
+            [string[]]$include = &quot;*&quot;,
+            [switch]$all= $false)
+
+    gci -re -in $include | 
+        ? { -not $_.PSIsContainer } | 
+        ? { ($all) -or (-not (Is-BinaryExtension $_.Extension)) } |
+        % { write-debug &quot;Considering: $($_.FullName)&quot;; ss $text $_.FullName }
+}   </pre></div>
+    

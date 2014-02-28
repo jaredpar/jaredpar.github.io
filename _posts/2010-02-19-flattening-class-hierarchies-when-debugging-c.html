@@ -1,0 +1,132 @@
+<p>One piece of feedback I heard in the MVP sessions this week is that debugging deep class hierarchies in C# is painful.&#160; By default C# will only display the fields and properties declared on a given type.&#160; To get to base class members you must expand the base node.&#160; For large hierarchies this can take several rounds of expansions to get to the desired value.&#160; </p>  <p>Take for instance the following class hierarchy&#160; </p>  <pre class="code"><span style="color: blue">class </span><span style="color: #2b91af">Animal </span>{
+    <span style="color: blue">public string </span>name;
+    <span style="color: blue">public </span>Animal(<span style="color: blue">string </span>name) {
+        <span style="color: blue">this</span>.name = name;
+    }
+}
+
+<span style="color: blue">class </span><span style="color: #2b91af">Dog </span>: <span style="color: #2b91af">Animal </span>{
+    <span style="color: blue">public string </span>color;
+    <span style="color: blue">public </span>Dog(<span style="color: blue">string </span>name, <span style="color: blue">string </span>color)
+        : <span style="color: blue">base</span>(name) {
+        <span style="color: blue">this</span>.color = color;
+    }
+}
+
+<span style="color: blue">class </span><span style="color: #2b91af">Mutt </span>: <span style="color: #2b91af">Dog </span>{
+    <span style="color: blue">public </span><span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt; breeds;
+    <span style="color: blue">public </span>Mutt(<span style="color: blue">string </span>name, <span style="color: blue">string </span>color, <span style="color: blue">params string</span>[] breeds)
+        : <span style="color: blue">base</span>(name, color) {
+        <span style="color: blue">this</span>.breeds = <span style="color: blue">new </span><span style="color: #2b91af">List</span>&lt;<span style="color: blue">string</span>&gt;(breeds);
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>When you are working with an instance of Mutt in the debugger, it takes 3 rounds of clicking to see what it’s name is.</p>
+
+<p><a href="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/FlatteningclasshierarchieswhendebuggingC_A418/image_2.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/FlatteningclasshierarchieswhendebuggingC_A418/image_thumb.png" width="651" height="287" /></a> </p>
+
+<p>The bigger hierarchy the more clicks that are needed to get the the value that is desired.&#160; This can lead to a bit of frustration when you have significantly deep object hierarchies.&#160; </p>
+
+<p>Several MVP’s asked for an option to flatten the hierarchies in a debugging session so they could get at their data quicker.&#160; The bad news is this option does not exist today and will not be present in Visual Studio 2010.&#160; The good news though is that you can still get this behavior in Visual Studio today by taking advantage of the existing debugging infrastructure.&#160; </p>
+
+<p>In Visual Studio 2005 the debugging team added a set of attributes to the BCL which allowed end users to customize their debugging experience.&#160; We can use three of these attributes to create a flattened hierarchy for a given object.&#160;&#160; </p>
+
+<ul>
+  <li><a href="http://msdn.microsoft.com/en-us/library/system.diagnostics.debuggertypeproxyattribute.aspx">DebuggerTypeProxy</a> – When expanding a value in the debugger instead of showing the children of the current value create an instance of this type and display it’s children instead</li>
+
+  <li><a href="http://msdn.microsoft.com/en-us/library/system.diagnostics.debuggerbrowsableattribute.aspx">DebuggerBrowsable</a> – Allows the developer to manipulate the display of a single field or property in a Type</li>
+
+  <li><a href="http://msdn.microsoft.com/en-us/library/system.diagnostics.debuggerdisplayattribute.aspx">DebuggerDisplay</a> – Allows the developer to control what is displayed in the Name, Value and Type columns for instances of a Type</li>
+</ul>
+
+<p>The basic strategy for flattening a hierarchy is to do the following in our type proxy.</p>
+
+<ol>
+  <li>Create a new type to hold the Tuple of name, value and type for every member.&#160; Lets call it Member</li>
+
+  <li>Add a DebuggerDisplay attribute to Member to make it’s display emulate how an equivalent member would normally be displayed in the debugger</li>
+
+  <li>Use reflection to grab all of the fields and properties defined for a value wrapping them in Member instances</li>
+
+  <li>Expose all of the Members for a value through a property as a strongly typed array</li>
+
+  <li>Attribute the property with DebuggerBrowsable.RootHidden.&#160; This has the effect of hiding the wrapping property and instead promoting all of it’s children in it’s place which effectively inlines all of the Member instances as children of the proxy</li>
+</ol>
+
+<p>The result is a type proxy which will display all of the members of an object inline.&#160; Here is the full code sample&#160; </p>
+
+<p>&#160;</p>
+
+<pre class="code"><span style="color: blue">internal sealed class </span><span style="color: #2b91af">FlattenHierarchyProxy </span>{
+
+    [<span style="color: #2b91af">DebuggerDisplay</span>(<span style="color: #a31515">&quot;{Value}&quot;</span>, Name = <span style="color: #a31515">&quot;{Name,nq}&quot;</span>, Type = <span style="color: #a31515">&quot;{Type.ToString(),nq}&quot;</span>)]
+    <span style="color: blue">internal struct </span><span style="color: #2b91af">Member </span>{
+        <span style="color: blue">internal string </span>Name;
+        <span style="color: blue">internal object </span>Value;
+        <span style="color: blue">internal </span><span style="color: #2b91af">Type </span>Type;
+        <span style="color: blue">internal </span>Member(<span style="color: blue">string </span>name, <span style="color: blue">object </span>value, <span style="color: #2b91af">Type </span>type) {
+            Name = name;
+            Value = value;
+            Type = type;
+        }
+    }
+
+    [<span style="color: #2b91af">DebuggerBrowsable</span>(<span style="color: #2b91af">DebuggerBrowsableState</span>.Never)]
+    <span style="color: blue">private readonly object </span>_target;
+    [<span style="color: #2b91af">DebuggerBrowsable</span>(<span style="color: #2b91af">DebuggerBrowsableState</span>.Never)]
+    <span style="color: blue">private </span><span style="color: #2b91af">Member</span>[] _memberList;
+
+    [<span style="color: #2b91af">DebuggerBrowsable</span>(<span style="color: #2b91af">DebuggerBrowsableState</span>.RootHidden)]
+    <span style="color: blue">internal </span><span style="color: #2b91af">Member</span>[] Items {
+        <span style="color: blue">get </span>{
+            <span style="color: blue">if </span>(_memberList == <span style="color: blue">null</span>) {
+                _memberList = BuildMemberList().ToArray();
+            }
+            <span style="color: blue">return </span>_memberList;
+        }
+    }
+
+    <span style="color: blue">public </span>FlattenHierarchyProxy(<span style="color: blue">object </span>target) {
+        _target = target;
+    }
+
+    <span style="color: blue">private </span><span style="color: #2b91af">List</span>&lt;<span style="color: #2b91af">Member</span>&gt; BuildMemberList() {
+        <span style="color: blue">var </span>list = <span style="color: blue">new </span><span style="color: #2b91af">List</span>&lt;<span style="color: #2b91af">Member</span>&gt;();
+        <span style="color: blue">if </span>( _target == <span style="color: blue">null </span>) {
+            <span style="color: blue">return </span>list;
+        }
+
+        <span style="color: blue">var </span>flags = <span style="color: #2b91af">BindingFlags</span>.Public | <span style="color: #2b91af">BindingFlags</span>.NonPublic | <span style="color: #2b91af">BindingFlags</span>.Instance;
+        <span style="color: blue">var </span>type = _target.GetType();
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>field <span style="color: blue">in </span>type.GetFields(flags)) {
+            <span style="color: blue">var </span>value = field.GetValue(_target);
+            list.Add(<span style="color: blue">new </span><span style="color: #2b91af">Member</span>(field.Name, value, field.FieldType));
+        }
+
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>prop <span style="color: blue">in </span>type.GetProperties(flags)) {
+            <span style="color: blue">object </span>value = <span style="color: blue">null</span>;
+            <span style="color: blue">try </span>{
+                value = prop.GetValue(_target, <span style="color: blue">null</span>);
+            }
+            <span style="color: blue">catch </span>(<span style="color: #2b91af">Exception </span>ex) {
+                value = ex;
+            }
+            list.Add(<span style="color: blue">new </span><span style="color: #2b91af">Member</span>(prop.Name, value, prop.PropertyType));
+        }
+
+        <span style="color: blue">return </span>list;
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>The last step is to attribute the root of our type hierarchy with this type proxy.&#160; </p>
+
+<pre class="code">[<span style="color: #2b91af">DebuggerTypeProxy</span>(<span style="color: blue">typeof</span>(<span style="color: #2b91af">FlattenHierarchyProxy</span>))]
+<span style="color: blue">class </span><span style="color: #2b91af">Animal </span>{</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Now when when debugging instances which derive from Animal developers will see a flattened hierarchy of values.&#160; </p>
+
+<p><a href="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/FlatteningclasshierarchieswhendebuggingC_A418/image_4.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" title="image" border="0" alt="image" src="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/FlatteningclasshierarchieswhendebuggingC_A418/image_thumb_1.png" width="651" height="287" /></a></p></div>
+    

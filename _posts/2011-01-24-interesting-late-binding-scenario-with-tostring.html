@@ -1,0 +1,51 @@
+<p>Not to long ago I received an email from a customer who wanted to report a bug in the VB.Net debugger.&#160; They believed that there was a bug invoking ToString on Integer types in the immediate window and provided the following sample as evidence</p>  <pre class="code">i = 100
+? i
+100 {Integer}
+    Integer: 100
+? i.ToString(&quot;c02&quot;)
+{&quot;Conversion from string &quot;c02&quot; to type 'Integer' is not valid.&quot;}
+    _HResult: -2147467262
+    _message: &quot;Conversion from string &quot;c02&quot; to type 'Integer' is not valid.&quot;
+    Data: {System.Collections.ListDictionaryInternal}
+    HelpLink: Nothing
+    HResult: -2147467262
+    InnerException: {&quot;Input string was not in a correct format.&quot;}
+    IsTransient: False
+    Message: &quot;Conversion from string &quot;c02&quot; to type 'Integer' is not valid.&quot;
+    Source: &quot;Microsoft.VisualBasic&quot;
+    StackTrace: &quot;   at Microsoft.VisualBasic.CompilerServices.Conversions.ToInteger(String Value)&quot;
+    TargetSite: {Int32 ToInteger(System.String)}</pre>
+
+<p>The customer expected the method Integer.ToString(String) to be invoked and found the conversion to Integer to be a bug.&#160; Surprisingly to the user, and several people on the team, this behavior is “By Design” [1].&#160; To understand why we have to get a better picture of how exactly this is evaluated in the immediate window.&#160; There are two particular areas of importance here.&#160; </p>
+
+<ol>
+  <li>The static type of the variable <strong>i </strong>is Object not Integer.&#160; The first expression “i = 1” declares a variable named <strong>i </strong>in the context of the debugger and assigns it the value 100.&#160; The ability to declare variables in the debugger predates type inference and uses Option Explicit Off semantics resulting in a type of Object for the variable</li>
+
+  <li>The debugger does not inherit project settings for Option Strict and instead evaluates all expressions with Option Strict Off.&#160; </li>
+</ol>
+
+<p>These two combine together to mean that almost every expression evaluated on a variable declared in the immediate window will be done in a late bound fashion.&#160; It also means the above code sample is most accurately represented by the following real code.</p>
+
+<pre class="code">    <span style="color: blue">Sub </span>Main()
+        <span style="color: blue">Dim </span>i <span style="color: blue">As Object </span>= 100
+        <span style="color: blue">Dim </span>result = i.ToString(<span style="color: #a31515">&quot;co2&quot;</span>)
+    <span style="color: blue">End Sub
+
+</span></pre>
+
+<p>Compiling and running that code will indeed cause the exact same exception as viewed in the immediate window.&#160; But why? </p>
+
+<p>Remember earlier I said that <strong>almost</strong> every expression would be evaluated it a late bound fashion.&#160; The compiler will use late binding when it can’t find a suitable method to bind to statically and late binding is otherwise allowed.&#160; In this case the type of the variable is Object and hence Object.ToString() can be bound to statically and indeed that’s what happens in this case.&#160; Further in VB.Net it’s possible to call a method that has no parameters without parens: ex i.ToString is legal.&#160; This results in the (“c02”) portion of the expression being interpreted as an indexer expression into the resulting string.&#160; Because Option Strict is off the compiler allows a silent narrowing conversion between String and Integer.&#160; The result of all of this is the code is actually evaluated as </p>
+
+<pre class="code">    <span style="color: blue">Sub </span>Main()
+        <span style="color: blue">Dim </span>i <span style="color: blue">As Object </span>= 100
+        <span style="color: blue">Dim </span>result = i.ToString()(<span style="color: blue">CInt</span>(<span style="color: #a31515">&quot;co2&quot;</span>))
+    <span style="color: blue">End Sub
+
+</span></pre>
+
+
+<p>I certainly found this interesting the first time I encountered it. </p>
+
+<p>[1] Please don’t confuse me saying an issue is “By Design” with me thinking the behavior is ideal.&#160; It’s merely a statement that the behavior conforms to the specification at the time of this writing. </p><div style="clear:both;"></div></div>
+    

@@ -1,0 +1,10 @@
+<p>If you've ever been debugging a managed app, only to be unable to evaluate any of the locals or parameters because the code was &quot;optimized&quot;, check out the article below.&#160; It shows a quick trick to disable optimizations by way of a .ini file.&#160; This is great because it doesn't force you to recompile the application and takes only seconds to implement. </p>  <p>The short version is create an .ini file (i.e. myapp.ini) with the following contents. </p>  <p></p>  <pre>[.NET Framework Debugging Control]
+GenerateTrackingInfo=1
+AllowOptimize=0</pre>
+
+<p></p>
+
+<p>This has really saved me time debugging recently.&#160; It's been blogged about by several others but given that I've had to search for this solution 3 times in as many weeks, I figured blogging about it would make it easier to find next time :)</p>
+
+<p><a title="http://msdn.microsoft.com/en-us/library/9dd8z24x.aspx" href="http://msdn.microsoft.com/en-us/library/9dd8z24x.aspx">http://msdn.microsoft.com/en-us/library/9dd8z24x.aspx</a></p></div>
+    

@@ -1,0 +1,34 @@
+<p>While playing around with a batch of Orcas code recently I found a welcome change to the C# type inference rules for Orcas.&nbsp; The return type of a generic delegate can now be inferred from the actual return values.&nbsp; Here is some sample code demonstrating the problem.&nbsp; </p><pre>    <span style="color: blue">class</span> Program
+    {
+        <span style="color: blue">public</span> <span style="color: blue">delegate</span> T Operation&lt;T&gt;();
+
+        <span style="color: blue">public</span> <span style="color: blue">static</span> <span style="color: blue">void</span> M&lt;T&gt;(Operation&lt;T&gt; del)
+        {
+
+        }
+
+        <span style="color: blue">static</span> <span style="color: blue">void</span> Main(<span style="color: blue">string</span>[] args)
+        {
+            M(<span style="color: blue">delegate</span> { <span style="color: blue">return</span> <span style="color: maroon">42</span>; });
+        }
+    }
+</pre>
+<p>In Whidbey the above code will fail with a compiler error.</p>
+<p>error CS0411: The type arguments for method 'ConsoleApplication34.Program.M&lt;T&gt;(ConsoleApplication34.Program.Operation&lt;T&gt;)' cannot be inferred from the usage. Try specifying the type arguments explicitly.</p>
+<p>This is really frustrating in Whidbey because the you have to modify the call to include the actual type specifier.&nbsp; </p><pre>            M&lt;<span style="color: blue">int</span>&gt;(<span style="color: blue">delegate</span> { <span style="color: blue">return</span> <span style="color: maroon">42</span>; });
+</pre>
+<p>However this code now works without modification in Orcas.&nbsp; This is a welcome and extremely useful change.&nbsp; </p>
+<p>And yes, the same inference is possible with VB in Orcas.&nbsp; In Whidbey this was not an issue because VB did not support lambda expressions.&nbsp; </p><pre><span style="color: blue">Module</span> Module1
+
+    <span style="color: blue">Public</span> <span style="color: blue">Delegate</span> <span style="color: blue">Function</span> Operation(Of T)() <span style="color: blue">As</span> T
+
+    <span style="color: blue">Public</span> <span style="color: blue">Sub</span> M(Of T)(<span style="color: blue">ByVal</span> del <span style="color: blue">As</span> Operation(Of T))
+
+    <span style="color: blue">End</span> <span style="color: blue">Sub</span>
+
+    <span style="color: blue">Sub</span> Main()
+        M(<span style="color: blue">Function</span>() <span style="color: maroon">1</span>)
+    <span style="color: blue">End</span> <span style="color: blue">Sub</span>
+
+<span style="color: blue">End</span> <span style="color: blue">Module</span></pre></div>
+    

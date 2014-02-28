@@ -1,0 +1,33 @@
+<p>The goal of the debugger is to provide rich inspection capabilities for a process.&#160; The main method of inspection is through the evaluation of textual expressions which is handled by a language specific component known as the <a href="http://msdn.microsoft.com/en-us/library/bb144988.aspx">expression evaluator</a>. This component is the data provider for a good portion of the debugger windows (watch, locals, autos, etc …)</p>  <p>The expression evaluators go to great lengths to ensure that expression in the debugger evaluate exactly as it would if the expression was typed at the current place in the file where the debugger was stopped.&#160; To do otherwise only leads to user confusion.&#160; Often making it harder to track down the issue you’re currently debugging and resulting in a loss in faith in the quality of the debugger and language.</p>  <p>Occasionally, or not so occasionally, the goals of providing high fidelity in evaluation and rich inspection conflict.&#160; When this occurs we have to weight the tradeoffs of confusing users by changing the semantics of the language vs. the resulting increased capabilities in the debugger.&#160; </p>  <p>One example is accessibility.&#160; Languages have strong notions of accessibility which is enforced by the compiler and CLR.&#160; In order to provide rich inspection though the debugger must be able to access all available data including items which are not accessible by the language.&#160; To do otherwise might arbitrarily hide that one piece of data a developer needs to solve the problem at hand.&#160;&#160; Hence accessibility is one case where the expression evaluators bend language rules and allow expressions to access data without accessibility checks.&#160; </p>  <p>One the surface this doesn’t seem like a big change.&#160; It’s an additive change allowing users to see more fields, properties and methods.&#160; In the majority case it’s as simple as that and leads to little confusion.&#160; </p>  <p>However even seemingly simple changes like removing accessibility checks can lead to very surprising behavior for our users.&#160; Recently our QA team filed a bug that illustrates this point.&#160; </p>  <pre class="code"><span style="color: blue">Module </span><span style="color: #2b91af">Module1
+    </span><span style="color: blue">Class </span><span style="color: #2b91af">Base
+        </span><span style="color: blue">Private </span>Field1 <span style="color: blue">As Integer </span>= 55
+    <span style="color: blue">End Class
+
+    Class </span><span style="color: #2b91af">Derived
+        </span><span style="color: blue">Inherits </span><span style="color: #2b91af">Base
+        </span><span style="color: blue">Sub </span>Method1()
+            Field1 = 72
+            <span style="color: blue">Stop
+        End Sub
+    End Class
+
+    Sub </span>Main()
+        <span style="color: blue">Dim </span>x <span style="color: blue">As New </span><span style="color: #2b91af">Derived
+        </span>x.Method1()
+    <span style="color: blue">End Sub
+
+End Module
+Module </span><span style="color: #2b91af">Module2
+    </span><span style="color: blue">Public </span>Field1 <span style="color: blue">As Integer
+End Module
+
+</span></pre>
+
+<p>QA noted that if they ran this code and typed Field1 in the watch window that the value showed 55 instead of 72.&#160; This was noted as a bug because Field1 was set to 72 on the line before.&#160; </p>
+
+<p>Interestingly enough though is that this behavior, while very confusing, is actually “By Design”.&#160; </p>
+
+<p>The reason why is that when evaluating expressions in the debugger nothing is private.&#160; Knowing this reconsider what it means to evaluate Field1 inside of Method1 with both instances being Public.&#160; The correct binding is Base::Field1 since the VB language prefers instance fields over Module fields if they are both accessible.&#160; The expression evaluator correctly evaluates this as 55.</p>
+
+<p>However when the code was compiled accessibility checks were in place.&#160; This mean that Base::Field1 was not considered since it was private and inaccessible.&#160; The compiler instead correctly bound to Module2::Field1 and this is the field which is used when the code is running.&#160; Developers can verify this by evaluating Module2.Field1 in any of the debugger windows.&#160; </p></div>
+    

@@ -1,0 +1,66 @@
+<p>After my recent postings on the <a href="http://blogs.msdn.com/jaredpar/archive/2008/04/28/properly-implementing-equality-in-vb.aspx">rules of Equality</a>, I thought it would be a good idea to post a simple example of equality.&nbsp; The class in question, Example, has only one field of type Integer name m_field1.&nbsp; Two instances of Example are equal if m_field1 has the same value.&nbsp; So the real equality check is just a single Integer comparison.&nbsp; </p> <p>Unfortunately, as my posts alluded to, even though the check is simple getting it right is not necessarily so.&nbsp; The equality portion of example takes roughly 20 lines of code while the actual equality check represents only 1 of those lines [1].&nbsp; Not a good ratio.&nbsp; The good and bad news about the other 19 lines is they are boiler plate so once you know them you don't have to think about them.&nbsp; For my own purposes I've converted those 19 lines into a snippet which automates the process but doesn't make it any easier on the eye. </p><pre class="code"><span style="color: rgb(0,0,255)">Class</span> Example
+    <span style="color: rgb(0,0,255)">Implements</span> IEquatable(<span style="color: rgb(0,0,255)">Of</span> Example)
+
+    <span style="color: rgb(0,0,255)">Private</span> <span style="color: rgb(0,0,255)">ReadOnly</span> m_field1 <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Integer
+</span>    <span style="color: rgb(0,0,255)">Public</span> <span style="color: rgb(0,0,255)">Sub</span> <span style="color: rgb(0,0,255)">New</span>(<span style="color: rgb(0,0,255)">ByVal</span> field <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Integer</span>)
+        m_field1 = field
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Sub
+
+</span>    <span style="color: rgb(0,0,255)">Public</span> <span style="color: rgb(0,0,255)">Function</span> Equals1(<span style="color: rgb(0,0,255)">ByVal</span> other <span style="color: rgb(0,0,255)">As</span> Example) <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Boolean</span> <span style="color: rgb(0,0,255)">Implements</span> System.IEquatable(<span style="color: rgb(0,0,255)">Of</span> Example).Equals
+        <span style="color: rgb(0,0,255)">If</span> other <span style="color: rgb(0,0,255)">Is</span> <span style="color: rgb(0,0,255)">Nothing</span> <span style="color: rgb(0,0,255)">Then
+</span>            <span style="color: rgb(0,0,255)">Return</span> <span style="color: rgb(0,0,255)">False
+</span>        <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">If
+
+</span>        <span style="color: rgb(0,0,255)">Return</span> m_field1 = other.m_field1
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Function
+
+</span>    <span style="color: rgb(0,0,255)">Public</span> <span style="color: rgb(0,0,255)">Overrides</span> <span style="color: rgb(0,0,255)">Function</span> Equals(<span style="color: rgb(0,0,255)">ByVal</span> obj <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Object</span>) <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Boolean
+</span>        <span style="color: rgb(0,0,255)">Return</span> Equals1(<span style="color: rgb(0,0,255)">TryCast</span>(obj, Example))
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Function
+
+</span>    <span style="color: rgb(0,0,255)">Public</span> <span style="color: rgb(0,0,255)">Overrides</span> <span style="color: rgb(0,0,255)">Function</span> GetHashCode() <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Integer
+</span>        <span style="color: rgb(0,0,255)">Return</span> m_field1.GetHashCode
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Function
+
+</span>    <span style="color: rgb(0,0,255)">Public</span> <span style="color: rgb(0,0,255)">Shared</span> <span style="color: rgb(0,0,255)">Operator</span> =(<span style="color: rgb(0,0,255)">ByVal</span> left <span style="color: rgb(0,0,255)">As</span> Example, <span style="color: rgb(0,0,255)">ByVal</span> right <span style="color: rgb(0,0,255)">As</span> Example) <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Boolean
+</span>        <span style="color: rgb(0,0,255)">Return</span> EqualityComparer(<span style="color: rgb(0,0,255)">Of</span> Example).Default.Equals(left, right)
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Operator
+
+</span>    <span style="color: rgb(0,0,255)">Public</span> <span style="color: rgb(0,0,255)">Shared</span> <span style="color: rgb(0,0,255)">Operator</span> &lt;&gt;(<span style="color: rgb(0,0,255)">ByVal</span> left <span style="color: rgb(0,0,255)">As</span> Example, <span style="color: rgb(0,0,255)">ByVal</span> right <span style="color: rgb(0,0,255)">As</span> Example) <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Boolean
+</span>        <span style="color: rgb(0,0,255)">Return</span> <span style="color: rgb(0,0,255)">Not</span> EqualityComparer(<span style="color: rgb(0,0,255)">Of</span> Example).Default.Equals(left, right)
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Operator
+
+End</span> <span style="color: rgb(0,0,255)">Class
+
+Module</span> Module1
+
+    <span style="color: rgb(0,0,255)">Sub</span> AssertTrue(<span style="color: rgb(0,0,255)">ByVal</span> cond <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Boolean</span>)
+        Debug.Assert(cond, <span style="color: rgb(163,21,21)">"failure"</span>)
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Sub
+
+</span>    <span style="color: rgb(0,0,255)">Sub</span> AssertFalse(<span style="color: rgb(0,0,255)">ByVal</span> cond <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Boolean</span>)
+        Debug.Assert(<span style="color: rgb(0,0,255)">Not</span> cond, <span style="color: rgb(163,21,21)">"failure"</span>)
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Sub
+
+</span>    <span style="color: rgb(0,0,255)">Sub</span> Main()
+        <span style="color: rgb(0,0,255)">Dim</span> v1 <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">New</span> Example(1)
+        <span style="color: rgb(0,0,255)">Dim</span> v2 <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">New</span> Example(2)
+        <span style="color: rgb(0,0,255)">Dim</span> v3 <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">New</span> Example(1)
+
+        AssertFalse(v1 <span style="color: rgb(0,0,255)">Is</span> v2)
+        AssertFalse(v1 <span style="color: rgb(0,0,255)">Is</span> v3)
+        AssertTrue(v1 <span style="color: rgb(0,0,255)">Is</span> v1)
+        AssertFalse(v1 = v2)
+        AssertTrue(v1 = v3)
+        AssertFalse(v1 = <span style="color: rgb(0,0,255)">Nothing</span>)
+        AssertFalse(<span style="color: rgb(0,0,255)">Nothing</span> = v1)
+        AssertTrue(v1 &lt;&gt; v2)
+        AssertTrue(v1 &lt;&gt; <span style="color: rgb(0,0,255)">Nothing</span>)
+        AssertTrue(EqualityComparer(<span style="color: rgb(0,0,255)">Of</span> Example).Default.Equals(v1, v3))
+        AssertFalse(EqualityComparer(<span style="color: rgb(0,0,255)">Of</span> Example).Default.Equals(v1, v2))
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Sub
+
+End</span> <span style="color: rgb(0,0,255)">Module
+</span></pre>
+<p>[1] Before VB criticism enters, C# has roughly the same ratio for the same sample.&nbsp; <a href="http://11011.net/software/vspaste"></a></p></div>
+    

@@ -1,0 +1,59 @@
+<p>For previous articles in this series please see</p> <ul> <li><a href="http://blogs.msdn.com/jaredpar/archive/2007/04/27/closures-in-vb-part-1.aspx">Part 1: Introduction</a>  <li><a href="http://blogs.msdn.com/jaredpar/archive/2007/05/03/closures-in-vb-part-2-method-calls.aspx">Part 2: Method Calls</a></li></ul> <p>Thus far in the series we've only lifted variables that are declared in the same block/scope.&nbsp;What happens if we lift variables in different scope?&nbsp; The answer is that one closure class will be created for every unique scope where a lifted variable is declared and all of the variables in that scope that are lifted will be placed in that closure.&nbsp; Once again, examples speak best</p><pre>    <span style="color: blue">Sub</span> Scope1()
+        <span style="color: blue">Dim</span> x = <span style="color: maroon">5</span>
+        <span style="color: blue">Dim</span> f1 = <span style="color: blue">Function</span>(<span style="color: blue">ByVal</span> z <span style="color: blue">As</span> <span style="color: blue">Integer</span>) x + z
+        Console.WriteLine(f1(<span style="color: maroon">5</span>))
+        <span style="color: blue">If</span> x &gt; <span style="color: maroon">2</span> <span style="color: blue">Then</span>
+            <span style="color: blue">Dim</span> y = <span style="color: maroon">6</span>
+            <span style="color: blue">Dim</span> g = <span style="color: maroon">7</span>
+            <span style="color: blue">Dim</span> f2 = <span style="color: blue">Function</span>(<span style="color: blue">ByVal</span> z <span style="color: blue">As</span> <span style="color: blue">Integer</span>) z + y + g
+            Console.WriteLine(f2(<span style="color: maroon">4</span>))
+        <span style="color: blue">End</span> <span style="color: blue">If</span>
+    <span style="color: blue">End</span> <span style="color: blue">Sub</span></pre>
+<p>The code will end up looking like so ...</p><pre>    <span style="color: blue">Class</span> Closure1
+        <span style="color: blue">Public</span> x <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+
+        <span style="color: blue">Function</span> Lambda_f1(<span style="color: blue">ByVal</span> z <span style="color: blue">As</span> <span style="color: blue">Integer</span>)
+            <span style="color: blue">Return</span> x + z
+        <span style="color: blue">End</span> <span style="color: blue">Function</span>
+
+    <span style="color: blue">End</span> <span style="color: blue">Class</span>
+
+    <span style="color: blue">Class</span> Closure2
+        <span style="color: blue">Public</span> y <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+        <span style="color: blue">Public</span> g <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+
+        <span style="color: blue">Function</span> Lambda_f2(<span style="color: blue">ByVal</span> z <span style="color: blue">As</span> <span style="color: blue">Integer</span>)
+            <span style="color: blue">Return</span> y + z + g
+        <span style="color: blue">End</span> <span style="color: blue">Function</span>
+    <span style="color: blue">End</span> <span style="color: blue">Class</span>
+
+    <span style="color: blue">Sub</span> Scope1()
+        <span style="color: blue">Dim</span> c1 <span style="color: blue">As</span> <span style="color: blue">New</span> Closure1()
+        c1.x = <span style="color: maroon">5</span>
+        Console.WriteLine(c1.Lambda_f1(<span style="color: maroon">5</span>))
+        <span style="color: blue">If</span> c1.x &gt; <span style="color: maroon">2</span> <span style="color: blue">Then</span>
+            <span style="color: blue">Dim</span> c2 <span style="color: blue">As</span> <span style="color: blue">New</span> Closure2()
+            c2.y = <span style="color: maroon">6</span>
+            c2.g = <span style="color: maroon">7</span>
+            Console.WriteLine(c2.Lambda_f2(<span style="color: maroon">4</span>))
+        <span style="color: blue">End</span> <span style="color: blue">If</span>
+    <span style="color: blue">End</span> <span style="color: blue">Sub</span></pre>
+<p>There are a couple of items to take away from this example.&nbsp; </p>
+<ol>
+<li>Only two closure classes were created even though three variables were lifted.&nbsp; The number of closures only depends on the number of scopes of all of the lifted declared variables. 
+<li>The closures are created at the begining of the scope they are associated and not at the begining of the method.&nbsp; This will be more important in the next part of the series.
+<li>Each lambda instance is attached to the closure associated with the scope the lambda is declared in.&nbsp; </li></ol>
+<p>The next&nbsp;twist is what were to happen if&nbsp;the lambda "f2" were to also use the variable "x".&nbsp; As it's currently written there is no association between Closure1 and Closure2 therefore&nbsp;there is no way for it to access the lifted variable.&nbsp; The answer is two fold.&nbsp;&nbsp;Firstly to&nbsp;reduce clutter I pasted the closure classes as if they were separate entries.&nbsp; In fact Closure2 would appear as a nested class of Closure1 in the real generated code.&nbsp; </p>
+<p>Secondly if x were used inside of "f2", the real use would be "c1.x".&nbsp; That's (almost) no different than "someOtherVar.x".&nbsp; Therefore the instance of c1 will be lifted into Closure2.&nbsp; </p><pre><span style="color: blue">Dim</span> f2 = <span style="color: blue">Function</span>(<span style="color: blue">ByVal</span> z <span style="color: blue">As</span> <span style="color: blue">Integer</span>) z + y + g + x</pre>
+<p>Woud result in the following definition of Closure2 ...</p><pre>    <span style="color: blue">Class</span> Closure2
+        <span style="color: blue">Public</span> y <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+        <span style="color: blue">Public</span> g <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+        <span style="color: blue">Public</span> c1 <span style="color: blue">As</span> Closure1
+
+        <span style="color: blue">Function</span> Lambda_f2(<span style="color: blue">ByVal</span> z <span style="color: blue">As</span> <span style="color: blue">Integer</span>)
+            <span style="color: blue">Return</span> y + z + g + c1.x
+        <span style="color: blue">End</span> <span style="color: blue">Function</span>
+    <span style="color: blue">End</span> <span style="color: blue">Class</span></pre>
+<p>In deeply nested lambdas and scopes this type of lifting will continue recursively.&nbsp; </p>
+<p>That's it for this entry, the next article will talk about looping structures and possibly variable lifetime.</p></div>
+    

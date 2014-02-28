@@ -1,0 +1,90 @@
+<p>Many developers want to implement equality functions for their objects.&#160; DotNet made equality a deep part of the framework and added support all the way up to System.Object with <a href="http://msdn2.microsoft.com/en-us/library/bsc2ak47.aspx">Equals</a> and <a href="http://msdn2.microsoft.com/en-us/library/system.object.gethashcode.aspx">GetHashCode</a>.&#160;&#160; In addition to the strongly enforced method semantics of GetHashCode and Equals there are also several other hard to enforce patterns that developers must follow in order to properly integrate into the rest of the DotNet framework.&#160; We'll explore those rules today. </p>  <p>Before even talking about how to implement equality we need to define the types of equality.&#160; </p>  <ul>   <li>Reference equality: Are these two objects really the exact same object.&#160; </li>    <li>Object/value equality: Depends on what the object author thinks equality means.&#160; Can be anything from reference equality up to, comparing fields, to were they created in the same app domain. </li> </ul>  <p>In VB these are two very separate types of equality.&#160; Reference equality is expressed through the <a href="http://msdn2.microsoft.com/en-us/library/kb136x1y(VS.80).aspx">&quot;Is&quot;</a> operator.&#160; Object equality is done directly through operator=, operator&lt;&gt; and Equals.&#160; This is also indirectly exposed via GetHashCode, EqualityComparer(Of T) and other framework patterns.</p>  <p>When implementing object/value Equality there are four methods that are important to consider in order to fit expected patterns.&#160; What's even more important is understanding which ones must be implemented together.&#160; If an author overrides any of the functions in the following pairs they <strong>must </strong>override both.&#160; </p>  <ul>   <li>Equals/GetHashCode</li>    <li>Operator=/Operator!=</li> </ul>  <p>To make it easier, my rule of thumb is to override all four or none.</p>  <h3>Equals</h3>  <p>This is the bread and butter of object/value equality.&#160; The author has free reign to decide what is and what is not equal.&#160; However there are a few rules authors must follow in order to fit into the rest of the framework. </p>  <ol>   <li>Do not throw an exception from Equals.&#160; Many components call Equals in a loop and there is no way for them to handle or recover from an exception.&#160; If the object is not equal just return False </li>    <li>The object passed in is typed to object.&#160; It is perfectly valid for the framework to pass in an object that is completely unrelated to the type defining Equals.&#160; The type author must account for and handle this case. </li>    <li>The framework can pass in Nothing as a parameter to Equals and this is valid.&#160; </li> </ol>  <p>#2 and #3 may seem a bit off at first but it is implemented with a standard pattern as seen below. </p>  <pre class="code"><span style="color: blue">Class </span>C1
+    <span style="color: blue">Public Overrides Function </span>Equals(<span style="color: blue">ByVal </span>obj <span style="color: blue">As Object</span>) <span style="color: blue">As Boolean
+        Dim </span>other = <span style="color: blue">TryCast</span>(obj, C1)
+        <span style="color: blue">If </span>other <span style="color: blue">Is Nothing Then
+            Return False
+        End If
+        </span>...
+    <span style="color: blue">End Function
+End Class</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p></p>
+
+<p>It's very important that you use &quot;Is&quot; to compare other in the above example.&#160; Imagine if you slip up and type &quot;=&quot; instead.&#160; You're about to override Operator= and this will cause &quot;other=Nothing&quot; to call operator=.&#160; If this is a valid C1 instance operator= will almost certainly call Equals and then you'd have a stack overflow.&#160; Our implementation of Operator= below will avoid this problem.</p>
+
+<h3>GetHashCode</h3>
+
+<p>This is both the easiest and trickiest function to override because it has very subtle semantics which cause very hard to find bugs in code.&#160; The simple rule is &quot;If two objects are equal in the sense of value equality they must return the same value in GetHashCode()&quot;.&#160; </p>
+
+<p>Why?&#160; Many classes use the hash code to classify an object.&#160; In particular hash tables and dictionaries tend to place objects in buckets based on their hash code.&#160; When checking if an object is already in the hash table it will first look for it in a bucket.&#160; If two objects are equal but have different hash codes they may be put into different buckets and the dictionary would fail to lookup the object.</p>
+
+<p>The better version of the GetHashCode rule has a small suffix on the simple rule.&#160; &quot;Only calculate the hash code based off of primitive fields which are ReadOnly&quot;. This is not an absolute requirement as long as you are careful when you are code.&#160; But as <a href="http://blogs.msdn.com/jaredpar/archive/2008/03/24/part-of-being-a-good-programmer-is-learning-not-to-trust-yourself.aspx">previously stated</a>, when coding it's best not to trust yourself to do the right thing.&#160; Not doing this will get you into trouble when dealing with Hashtables and dictionaries.&#160; </p>
+
+<p>For instance take this not so small example.&#160; In this case value equality is based solely off of Field1 which is a modifiable field.&#160; Once Field1 is changed you may or may not be able to access the value in the dictionary because GetHashCode() will change.&#160; This example is contrived but it does happen in the real world and it can be incredibly difficult to track down.&#160; </p>
+
+<pre class="code"><span style="color: blue">Class </span>C2
+    <span style="color: blue">Public </span>Field1 <span style="color: blue">As Integer
+
+    Public Sub New</span>(<span style="color: blue">ByVal </span>f1 <span style="color: blue">As Integer</span>)
+        Field1 = f1
+    <span style="color: blue">End Sub
+    Public Overrides Function </span>GetHashCode() <span style="color: blue">As Integer
+        Return </span>Field1.GetHashCode()
+    <span style="color: blue">End Function
+    Public Overrides Function </span>Equals(<span style="color: blue">ByVal </span>obj <span style="color: blue">As Object</span>) <span style="color: blue">As Boolean
+        Dim </span>other = <span style="color: blue">TryCast</span>(obj, C2)
+        <span style="color: blue">If </span>other <span style="color: blue">Is Nothing Then
+            Return False
+        End If
+        Return </span>other.Field1 = Field1
+    <span style="color: blue">End Function
+End Class
+
+Module </span>Module1
+
+    <span style="color: blue">Sub </span>Main()
+        <span style="color: blue">Dim </span>map = <span style="color: blue">New </span>Dictionary(<span style="color: blue">Of </span>C2, <span style="color: blue">String</span>)
+        <span style="color: blue">Dim </span>v1 = <span style="color: blue">New </span>C2(44)
+        map.Add(v1, <span style="color: #a31515">&quot;avalue&quot;</span>)
+        Console.WriteLine(map(v1))
+        v1.Field1 = 2
+        Console.WriteLine(map(v1))  <span style="color: green">' Potentially throws
+    </span><span style="color: blue">End Sub
+
+End Module
+</span></pre>
+<a href="http://11011.net/software/vspaste"></a><a href="http://11011.net/software/vspaste"></a>
+
+<p>If Field1 were ReadOnly there would be no way to hit this problem.&#160; Then again we'd also not be able to change Field1.&#160; </p>
+
+<h3>Operator=</h3>
+
+<p>When implementing equality overriding operator= allows you to use the more pleasant and reliable version of syntax comparison: a=b vs. a.Equals(b).&#160; I say more reliable because using a.Equals(b) has an inherent dependency on &quot;a&quot; being a non-Nothing object.&#160; &quot;Operator=&quot; makes no assumption and should operate correctly in the presence of Nothing.</p>
+
+<p>Operator= has virtually the same rules as Equals.&#160; Mainly don't throw from operator=.&#160; Operator= is usually just defined in terms of Equals() and since it also has to respect the no throw rule once we get there we are in good shape.&#160; Getting to Equals() can be tricky though because one or both of the arguments can be Nothing.&#160; In addition make sure not to use &quot;=&quot; to check for Nothing because you're back to the stack overflow problem.&#160; </p>
+
+<p>What's great here is there is a simple solution that you should use every time you define Operator=.&#160; <a href="http://msdn2.microsoft.com/en-us/library/ms132123.aspx">EqualityComparer(Of T)</a> knows all of these rules and in the face of both parameters being non-Nothing will call Equals() just like we want.&#160; This makes the definition of Operator= boiler plate (I define very Operator= the exact same way)</p>
+
+<pre class="code"><span style="color: blue">Public Shared Operator </span>=(<span style="color: blue">ByVal </span>left <span style="color: blue">As </span>C2, <span style="color: blue">ByVal </span>right <span style="color: blue">As </span>C2) <span style="color: blue">As Boolean
+    Return </span>EqualityComparer(<span style="color: blue">Of </span>C2).Default.Equals(left, right)
+<span style="color: blue">End Operator</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>What's even better is that EqualityComparer(Of T) understands the stack overflow problem which can occur in equality comparison and avoids it.&#160; </p>
+
+<h3>Operator &lt;&gt;</h3>
+
+<p>Operator&lt;&gt; has the same rules as Operator= and luckily the same easy type of answer.</p>
+
+<pre class="code"><span style="color: blue">Public Shared Operator </span>&lt;&gt;(<span style="color: blue">ByVal </span>left <span style="color: blue">As </span>C2, <span style="color: blue">ByVal </span>right <span style="color: blue">As </span>C2) <span style="color: blue">As Boolean
+    Return Not </span>EqualityComparer(<span style="color: blue">Of </span>C2).Default.Equals(left, right)
+<span style="color: blue">End Operator</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<h3>Wrapping Up</h3>
+
+<p>I started this article thinking it would be a few paragraphs of simple rules.&#160; But as I kept going I kept remembering the subtleties and problems I encountered in the past.&#160; </p>
+
+<p>For my own projects I avoid implementing equality unless it's truly needed because of the problems with properly implementing GetHashCode().&#160; The one exception is when I define immutable objects.&#160; Immutable objects have no problems with GetHashCode() since they are unchangable so Equality is straight forward.</p></div>
+    

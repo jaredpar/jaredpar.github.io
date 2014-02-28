@@ -1,0 +1,25 @@
+<p>The WinForms <a href="http://msdn.microsoft.com/en-us/library/system.windows.forms.timer.aspx">Timer</a> class allows the user to perform a particular action at a set interval.&#160; Timer objects fire a <a href="http://msdn.microsoft.com/en-us/library/system.windows.forms.timer.tick.aspx">Tick</a> event at the set time which users can easily respond to.&#160; This is very useful if a developer wants to check for a particular condition say every 2 seconds ( for the remainder of this article I'm going to use 2 seconds as a practical example even though it's really any arbitrary time period).</p>  <p>Occasionally users are surprised to find that the Tick event will fire much faster than they are expecting.&#160; Instead of waiting for 2 seconds between calls, they event will fire almost immediately after one is finished processing. </p>  <p>What's going on here is a side effect of how this event works under the hood.&#160; The interval for the timer event is calculated in real world time.&#160; So quite literally every 2 seconds Windows will consider the internal reached and will issue a new tick message.&#160; The next time a WinForms event is not executing developer code a tick event is raised [1].&#160; </p>  <p>So imagine we had the following code.&#160; </p>  <pre class="code"><span style="color: blue">Private Sub </span>OnTimerTick() <span style="color: blue">Handles </span>m_timer.Tick
+    RunSomeOperation()
+<span style="color: blue">End Sub</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Consider what happens if RunSomeOperation takes longer than 2 seconds.&#160; The Tick event is fired in real time so while we're in the middle of RunSomeOperation, another Tick event is being queued up for processing.&#160; As soon as we leave OnTimerTick we're back in WinForms code which sees a Tick event and promptly raises it which puts us right back in OnTimerTick.</p>
+
+<p>This is contrary to what most people expect.&#160; Most people expect the Tick event to fire 2 seconds after their code is finished executing.&#160; </p>
+
+<p>To work around this developers should stop the timer when processing a timer event.&#160; Just before exiting the event handler, re-enable the timer.&#160; This will cause Windows to start calculating the interval from the start.&#160; This has the effect of making the timer event fire 2 seconds after developer code stops executing.</p>
+
+<pre class="code"><span style="color: blue">Private Sub </span>OnTimerTick() <span style="color: blue">Handles </span>m_timer.Tick
+    m_timer.Stop()
+    <span style="color: blue">Try
+        </span>RunSomeOperation()
+    <span style="color: blue">Finally
+        </span>m_timer.Start()
+    <span style="color: blue">End Try
+End Sub</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>&#160;</p>
+
+<p>[1] This is not 100% true.&#160; It's really whenever the Application begins to pump messages again.&#160; Message pumping, more specifically when it does and does not occur, is too involved for this discussion.&#160; </p></div>
+    

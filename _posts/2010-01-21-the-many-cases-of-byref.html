@@ -1,0 +1,136 @@
+<p>One of the overlooked or simply misunderstood features of the VB language is calling a function which has a ByRef parameter.&#160; Most languages support only a single method of passing parameters by reference [1], that is the scenarios directly supported by the CLR.&#160; The CLR has a lot of restrictions on the type of values it supports for ByRef parameters and these restrictions get in the way of VB’s goal to be a flexible language that strives to get out of the way of the user.&#160; Hence the compiler goes to great lengths to be flexible and support multiple avenues of ByRef passing, much beyond what the CLR natively allows.</p>  <p>This article will explore these different mechanisms.&#160; In order to reduce the code samples, I will be using the following 2 methods to explain the different mechanisms of ByRef Passing</p>  <pre class="code">    <span style="color: blue">Sub </span>FunctionWithInt(<span style="color: blue">ByRef </span>p1 <span style="color: blue">As Integer</span>)
+        p1 = <span style="color: brown">42
+    </span><span style="color: blue">End Sub
+    Sub </span>FunctionWithObject(<span style="color: blue">ByRef </span>p1 <span style="color: blue">As Object</span>, <span style="color: blue">ByVal </span>p2 <span style="color: blue">As Object</span>)
+        p1 = p2
+    <span style="color: blue">End Sub</span></pre>
+
+<p>&#160;</p>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p><strong>CLR ByRef</strong></p>
+
+<p>The first is to simply use the CLR concept of passing by reference as defined by section 12.4.1.5.2 and 12.1.6.1 of the CLI specification.&#160; Any variable which meets any of the following criteria, does not require a type conversion, and is passed to a ByRef parameter will be passed directly in the CLR.&#160; </p>
+
+<ul>
+  <li>Argument of the current method </li>
+
+  <li>Local variable </li>
+
+  <li>Member Field of an object </li>
+
+  <li>Static Field </li>
+
+  <li>Array Element </li>
+</ul>
+
+<p>No special code is needed or generated for this scenario.&#160; </p>
+
+<p><strong>Copy Back ByRef</strong></p>
+
+<p>While the CLR method of passing ByRef is very flexible, it disallows a number of useful scenarios.&#160; The most prominent of which is properties.&#160; Properties do not meet the CLR requirements for ByRef because under the hood they are simply a pair of function calls.&#160; The result of a function call cannot be directly passed by reference.&#160; </p>
+
+<p>Without any language intervention this can be very confusing to users.&#160; Properties are very often simple get/set wrappers around fields and have almost the exact same usage scenarios.&#160; To the point that most users don’t see a functional difference between the two.&#160; Auto-implemented properties blur this line even further.&#160; Not being able to pass them ByRef creates an unacceptable inconsistency in their usage.</p>
+
+<p>VB removes this inconsistency and allows properties to be passed by reference.&#160; This is implemented under the hood by means of a temporary variable.&#160; Temporaries are just local variables and hence can be passed by reference.&#160; The property value is assigned to a temporary which is then passed by reference and then after wards is copied back into the original property.</p>
+
+<p>For example, take the following code sample </p>
+
+<pre style="width: 816px; height: 163px" class="code">    <span style="color: blue">Class </span><span style="color: #2b91af">C1
+        </span><span style="color: blue">Public Property </span>P1 <span style="color: blue">As Integer
+        Public </span>P2 <span style="color: blue">As Integer
+    End Class
+    Sub </span>CopyBackByRef()
+        <span style="color: blue">Dim </span>v1 = <span style="color: blue">New </span><span style="color: #2b91af">C1
+        </span>FunctionWithInt(v1.P1)
+    <span style="color: blue">End Sub
+
+</span></pre>
+
+<p>This will result in essentially the following code being generated</p>
+
+<pre class="code">    <span style="color: blue">Sub </span>CopyBackByRef_Explained()
+        <span style="color: blue">Dim </span>v1 = <span style="color: blue">New </span><span style="color: #2b91af">C1
+        </span><span style="color: blue">Dim </span>vbTemp = v1.P1
+        FunctionWithInt(vbTemp)
+        v1.P1 = vbTemp
+    <span style="color: blue">End Sub
+
+</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>This type of ByRef passing is used in the following 2 scenarios</p>
+
+<ol>
+  <li>The value is a Property containing both a getter and setter.&#160; </li>
+
+  <li>Passing the value to the function requires a conversion. </li>
+</ol>
+
+<p>The first can be done with even the strictest Option settings.&#160; However #2 can only be used with Option Strict Off because it requires an implicit narrowing conversion.&#160; </p>
+
+<p>&#160;</p>
+
+<p><strong>Don’t Copy Back ByRef</strong></p>
+
+<p>So far we’ve only looked at scenarios where the user wants to actually see the value returned from the ByRef parameter.&#160; There are many scenarios where the language can infer the user does not care about the return value of the function.&#160; For example, what if I just want to pass a constant value?&#160; </p>
+
+<pre class="code">    <span style="color: blue">Sub </span>DontCopyBackByRef()
+        FunctionWithInt(<span style="color: brown">42</span>)
+    <span style="color: blue">End Sub
+
+</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>This code is legal in VB and represents another method of passing by ref.&#160; This is very similar to the copy back method of passing by reference.&#160; The only difference is that it never copies the value back.&#160; It essentially generates the following code</p>
+
+<pre class="code">    <span style="color: blue">Sub </span>DontCopyBackByRef_Explained()
+        <span style="color: blue">Dim </span>vbTemp = <span style="color: brown">42
+        </span>FunctionWithInt(vbTemp)
+    <span style="color: blue">End Sub
+</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>This type of ByRef is used in any scenario where the value being passed cannot be assigned to.&#160; For example</p>
+
+<ul>
+  <li>The result of function calls </li>
+
+  <li>Read Only Properties </li>
+
+  <li>Constant Values </li>
+</ul>
+
+<p><strong>Maybe Copy Back ByRef</strong></p>
+
+<p>Up until now we’ve examined cases where the compiler can examine both the value being passed and the parameter it is being passed to and make a determination about what direction the data needs to move in.&#160; What about late binding?</p>
+
+<pre class="code">    <span style="color: blue">Sub </span>MaybeCopyBackByRef()
+        <span style="color: blue">Dim </span>v1 <span style="color: blue">As Object </span>= <span style="color: blue">Me
+        Dim </span>v2 = <span style="color: brown">13
+        </span>v1.FunctionWithInt(v2)
+    <span style="color: blue">End Sub
+</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Here v1 is typed to object and hence FunctionWithInt is being accessed via late binding.&#160; In this case the compiler doesn’t know the actual method being invoked runtime.&#160; Hence it cannot know up front if the parameters are ByRef or ByVal and cannot make an up front decision on the variable passing mechanism.&#160; </p>
+
+<p>In order to make late binding invokes flow as smoothly as normal method invokes, the compiler will generate code to conditionally update the original value based on the runtime information about the parameter.&#160; The late binder communicates this information via an array of Boolean values, one for each parameter passed to the function.&#160; The compiler will initialize this array with true for any values it knows are updatable and false for values that are not.&#160; The late binder will then examine every parameter to the function and set the corresponding index in the array to false if the method parameter is ByVal.&#160; If it is ByRef the returned value from the function will be copied back into the original parameter array.</p>
+
+<p>The resulting code looks a bit like this.&#160; You can ignore all of the Nothing values as they are not important for this discussion.&#160; </p>
+
+<pre class="code">    <span style="color: blue">Sub </span>MaybeCopyBackByRef_Explained()
+        <span style="color: blue">Dim </span>v1 <span style="color: blue">As Object </span>= <span style="color: blue">Me
+        Dim </span>v2 = <span style="color: brown">13
+        </span><span style="color: blue">Dim </span>parameters = <span style="color: blue">New Object</span>() {v2}
+        <span style="color: blue">Dim </span>isByRef = <span style="color: blue">New Boolean</span>() {<span style="color: blue">True</span>}
+        <span style="color: #2b91af">NewLateBinding</span>.LateCall(v1, <span style="color: blue">Nothing</span>, <span style="color: #a31515">&quot;FunctionWithInt&quot;</span>, parameters, <span style="color: blue">Nothing</span>, <span style="color: blue">Nothing</span>, isByRef, <span style="color: blue">True</span>)
+        <span style="color: blue">If </span>(isByRef(<span style="color: brown">0</span>)) <span style="color: blue">Then
+            </span>v2 = <span style="color: blue">CInt</span>(parameters(<span style="color: brown">0</span>))
+        <span style="color: blue">End If
+    End Sub
+</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>[1] Starting with version 4.0, C# now supports two versions of reference passing.&#160; In addition to the one available since 1.0 the ref modifier is now optional when making an interop call to a COM object: <a href="http://mutelight.org/articles/new-features-in-c-sharp-4.html">http://mutelight.org/articles/new-features-in-c-sharp-4.html</a></p></div>
+    

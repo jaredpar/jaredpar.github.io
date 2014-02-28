@@ -1,0 +1,51 @@
+<p>When learning a <a href="http://blogs.msdn.com/jaredpar/archive/2008/08/14/learning-a-new-language-f.aspx">new language</a> I find it very instructive to re-code certain structures from my well used libraries into the new language.&#160; It gives a great basis for comparison in terms of ease of implementation, expressiveness of the language and sheer ease of implementation.&#160; So on that note I set out today to build an ImmutableStack implementation in F#.&#160; This is based off of my C# implementation in <a href="http://code.msdn.com/rantpack">RantPack</a>.&#160; </p>  <p>Below is the initial implementation.&#160; This is my first non &quot;hello world&quot; data structure in F#.&#160; I found it surprisingly easy to implement and I'm really enjoying the language.&#160; The biggest stumbling block was getting the type union correct and dealing with my compulsion to use &quot;null&quot; for end of stack instead of a value.&#160; </p>  <p>After playing around with it a bit I'm left with the following questions/hangups.&#160; Most of these will just fall into the category of &quot;I'm starting out with a new language so I'm still hung up on the syntax in places.&quot;&#160; </p>  <ol>   <li>I consider Node to be an implementation detail and ideally would like to make it a private nested class if possible</li>    <li>The constructor still allows for invalid data combinations (but will throw)</li>    <ol>     <li>Ex: ImmutableStack None ImmutableStack.Empty()</li>   </ol>    <li>Can I get ImmutableStack.Empty to be a property instead of a function?</li>    <li>In All(), that can't be the most efficient way to build up a sequence.&#160; </li> </ol>  <p></p>  <pre>#light
+
+type Node = 
+    | Empty
+    | Value of int * ImmutableStack
+
+and ImmutableStack(?v:int, ?n:ImmutableStack) = 
+    let data = match (v,n) with
+                | (Some v, Some n ) -&gt; Value (v,n)
+                | (Some v, None) -&gt; Value (v,ImmutableStack.Empty())
+                | (None, None) -&gt; Empty
+                | _ -&gt; failwith &quot;invalid combination&quot;
+    static member Empty() = ImmutableStack()
+    member x.IsEmpty() = 
+        match data with
+            | Empty -&gt; true
+            | _ -&gt; false
+    member x.Push(y) =
+        match data with 
+            | Empty -&gt; ImmutableStack(y, x)
+            | Value _ -&gt; ImmutableStack(y, x)
+    member x.Peek() =
+        match data with
+            | Empty -&gt; failwith &quot;ImmutableStack is empty&quot;
+            | Value (v,_) -&gt; v
+    member x.Pop() =
+        match data with 
+            | Empty -&gt; failwith &quot;ImmutableStack is empty&quot;
+            | Value (_,n) -&gt; n
+    member x.All() =
+        match data with 
+            | Empty -&gt; Seq.empty<int>
+            | Value (v,n) -&gt; Seq.append (Seq.singleton v) (n.All())
+            
+let rec printStack (s:ImmutableStack) =
+    match s.IsEmpty() with
+        | true -&gt; printfn &quot;Empty&quot;
+        | false -&gt; 
+            printfn &quot;%d&quot; (s.Peek())
+            printStack (s.Pop())
+
+let s1 = ImmutableStack.Empty()
+let s2 = s1.Push(42).Push(56).Push(62)
+let s3 = ImmutableStack 42
+let s4 = s3.Pop()
+
+printStack s1
+printStack s2
+printStack s3
+printStack s4</pre></div>
+    

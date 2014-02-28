@@ -1,0 +1,36 @@
+<p>One item I find to be limiting in C# is the <a href="http://msdn.microsoft.com/en-us/library/sd2w2ew5(VS.80).aspx">new generic constraint.</a>&#160; The syntax construct specifies that the type backing a given generic parameter contains a parameter less constructor.&#160;&#160; It allows methods to create instances of generic parameters in a type safe manner.</p>  <pre class="code"><span style="color: blue">public static void </span>Example&lt;T&gt;() 
+    <span style="color: blue">where </span>T : <span style="color: blue">new</span>()
+{
+    <span style="color: blue">var </span>value = <span style="color: blue">new </span>T();
+    Process(value);
+}</pre>
+
+<p>I find though that I very rarely want this capability.&#160; The object can’t be provided any initial state since you can’t give it any values to the constructor. It’s really only useful if you want to create and then mutate a given object.&#160;&#160;&#160; </p>
+
+<p>Typically I prefer to deal with immutable data or at least types which build upon other information.&#160; Hence my types tend to have constructors which take at least one piece of information.&#160; In this case the new constraint is of no value because it can’t be used to describe arbitrary constructor signatures but is limited to only a parameter less constructor.&#160; </p>
+
+<pre class="code"><span style="color: blue">public static void </span>Example&lt;T&gt;()
+    <span style="color: blue">where </span>T : <span style="color: blue">new</span>(<span style="color: blue">string</span>) <span style="color: green">// Not possible!!!
+</span>{
+    var value = <span style="color: blue">new </span>T(<span style="color: #a31515">&quot;some data&quot;</span>);
+
+}</pre>
+
+<p>Originally when I faced this situation I ran to the factory pattern.&#160; I created a nice IFactory&lt;T&gt; interface which had a Create method taking a string, and modified the methods to take this type instead.&#160; </p>
+
+<pre class="code"><span style="color: blue">public static void </span>Example&lt;T&gt;(<span style="color: #2b91af">IFactory</span>&lt;T&gt; factory) {
+    <span style="color: blue">var </span>value = factory.Create(<span style="color: #a31515">&quot;some data&quot;</span>);
+}</pre>
+
+<p><a href="http://11011.net/software/vspaste"></a>This works and there is nothing wrong with it.&#160; Except of course it’s an extremely verbose solution.&#160; Every time I want to use the method with a new type I have to create a new type which implements IFactory&lt;MyNewType&gt; just to call this method.&#160;&#160; This is very tiresome and gets frustrating very fast with broad object hierarchies.&#160; </p>
+
+<p>Fortunately there is a much lighter weight solution to this problem: lambda expressions.&#160; All we need in this instance is a method which given one or more pieces of input returns a new instance of T.&#160; How this is implemented is of no concern to the method.&#160; This can easily be done via a delegate.&#160; </p>
+
+<pre class="code"><span style="color: blue">public static void </span>Example&lt;T&gt;(<span style="color: #2b91af">Func</span>&lt;<span style="color: blue">string</span>, T&gt; createInstance) {
+    <span style="color: blue">var </span>value = createInstance(<span style="color: #a31515">&quot;some data&quot;</span>);
+}</pre>
+
+<p>Now the caller can provide the contract with a simple light weight lambda expression</p>
+
+<pre class="code">Example(data =&gt; <span style="color: blue">new </span><span style="color: #2b91af">Widget</span>(data));</pre><div style="clear:both;"></div></div>
+    

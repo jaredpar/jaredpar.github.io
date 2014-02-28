@@ -1,0 +1,36 @@
+<P>A frequent question I see on the forums is how can you drag controls around in a form with the mouse.&nbsp; Drag and drop is a very big and complex subject but this is one subset that can be implemented very quickly in VB.&nbsp;For this sample I've created a simple form with Visual Studio and added a TextBox named TextBox1.&nbsp; This sample will work for virtually any control though with a little modification.</P>
+<P>To implement this fetaure we need to handle 3 events on the TextBox</P>
+<UL>
+<LI>MouseDown 
+<LI>MouseUp 
+<LI>MouseMove</LI></UL>
+<P>We need to handle the Up and Down events so we can record whether or not the user clicked on the TextBox.&nbsp; As opposed to the user clicking elsewhere on the form (or anywhere else on the screen for that matter).&nbsp; In addition to knowing the user clicked on the TextBox we need to also record where the Mouse was when the user Clicked.</P>
+<P>This brings up the issue of screen versus client coordinates.&nbsp; Events like MouseMove have a Location property which contains a Point relative to the client.&nbsp; In Client Coordinates 0,0 referes to the top left corner of the control.&nbsp; In Screen Coordinates 0,0 refers to the top left corner of your actual monitor.&nbsp; To do a move we to find the difference in the MousePoints.&nbsp; It's easier to do this using Screen Coordinates.&nbsp; </P>
+<P>Whenever we detect a mouse move event, we need to calculate how much the mouse moved in terms of x and y.&nbsp; Then modify the location of the control by the same amount and the control will be dragable.</P><PRE>Public Class Form1
+
+    Private m_mouseHeldOnTextBox As Boolean
+    Private m_mouseHeldPoint As Point
+
+    Private Sub OnTextBoxMouseMove(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles TextBox1.MouseMove
+        If m_mouseHeldOnTextBox Then
+            Dim currentPoint As Point = TextBox1.PointToScreen(e.Location)
+            Dim xDelta As Integer = currentPoint.X - m_mouseHeldPoint.X
+            Dim yDelta As Integer = currentPoint.Y - m_mouseHeldPoint.Y
+            TextBox1.Location = New Point(TextBox1.Location.X + xDelta, TextBox1.Location.Y + yDelta)
+            m_mouseHeldPoint = currentPoint
+        End If
+    End Sub
+
+    Private Sub OnTextBoxMouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles TextBox1.MouseDown
+        If (e.Button = Windows.Forms.MouseButtons.Left) Then
+            m_mouseHeldOnTextBox = True
+            m_mouseHeldPoint = TextBox1.PointToScreen(e.Location)
+        End If
+    End Sub
+
+    Private Sub OnTextBoxMouseUp(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles TextBox1.MouseUp
+        m_mouseHeldOnTextBox = False
+    End Sub
+End Class
+</PRE></div>
+    

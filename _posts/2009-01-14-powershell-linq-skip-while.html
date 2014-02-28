@@ -1,0 +1,30 @@
+<p>Next up in the PowerShell LINQ series is <a href="http://msdn.microsoft.com/en-us/library/bb549075.aspx">SkipWhile</a>.&#160; This LINQ function takes an enumerable instance and a predicate.&#160; The function will skip the elements in the enumerable while the predicate is true.&#160; The argument to the predicate is the current value of the enumerable.&#160; </p>  <p>The LINQ version takes a predicate in the form of a <a href="http://msdn.microsoft.com/en-us/library/bb549151.aspx">Func&lt;T,TResult&gt;</a>.&#160; The PowerShell equivalent of a delegate is a script block.&#160; Unlike a .Net delegate, there is no way to type the Skip-While function to accept a particular number or type of arguments.&#160; The contract with the caller will be implicit. </p>  <p>Other than the strict typing, the function will match the contract for the LINQ version of SkipWhile.</p>  <pre>#============================================================================
+# Skip while the condition is true
+#============================================================================
+function Skip-While() {
+    param ( [scriptblock]$pred = $(throw &quot;Need a predicate&quot;) )
+    begin {
+        $skip = $true
+    }
+    process {
+        if ( $skip ) {
+            $skip = &amp; $pred $_
+        }
+
+        if ( -not $skip ) {
+            $_
+        }
+    }
+    end {}
+}</pre>
+
+<p>Example Usage:</p>
+
+<pre>PS) 1..10 | Skip-While { $args[0] -lt 6 }
+6
+7
+8
+9
+10
+PS)</pre></div>
+    

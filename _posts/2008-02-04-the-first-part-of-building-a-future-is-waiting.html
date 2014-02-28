@@ -1,0 +1,102 @@
+<p>Future's are a great abstraction for asynchronous programming.&nbsp; One of the items making them so good is the easy manner in which you can declare one and wait for it to finish.&nbsp; The idea is to allow for many futures to be declared with as little overhead as possible.&nbsp; In order to do so you need to define an efficient way of waiting.</p> <p>Normally when you need to wait on operations between two threads to complete you use a Thread.Join call or a form of a WaitHandle.&nbsp; I tend to prefer a <a href="http://msdn2.microsoft.com/en-us/library/system.threading.manualresetevent.aspx">ManualResetEvent</a>.&nbsp; </p> <p>Unfortunately a <a href="http://msdn2.microsoft.com/en-us/library/system.threading.manualresetevent.aspx">ManualResetEvent</a> is not free and under the hood will allocate a kernel handle.&nbsp; There are a lot of handles to go around and while unlikely that a program purely using futures will allocate too many handles, you may be running with other code that is handle hungry.&nbsp; </p> <p>In addition several cases do not need a handle.&nbsp; For instance in the below code, if the commented out section takes longer than the future to complete then why do you even need wait handle of any sort?</p><pre class="code">           <span style="color: rgb(0,0,255)">var</span> d = <span style="color: rgb(43,145,175)">Future</span>.Create(() =&gt; CallASimpleFunction);
+            <span style="color: rgb(0,128,0)">// ...
+</span>            d.Wait();</pre>
+<p>Therefore the first step is to define an efficient waiting mechanism.&nbsp; I call it an ActiveOperation.&nbsp; It provides 3 basic methods; HasCompleted, Completed and Wait.&nbsp; It optimizes for trying to not created a WaitEvent unless actually necessary.&nbsp; It has two member variables.&nbsp; An int for completion check and a <a href="http://msdn2.microsoft.com/en-us/library/system.threading.manualresetevent.aspx">ManualResetEvent</a> to be used for shared waiting when necessary.&nbsp; Notice that m_hasCompleted is not volatile, instead all writes use a Interlocked operation to ensure it is propagated between threads.</p><pre class="code">        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">int</span> m_hasCompleted;
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(43,145,175)">ManualResetEvent</span> m_waitEvent;</pre><a href="http://11011.net/software/vspaste"></a>
+<p>HasCompleted is straightforward.</p><pre class="code">        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">bool</span> HasCompleted
+        {
+            <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> m_hasCompleted == 1; }
+        }</pre>
+<p><a href="http://11011.net/software/vspaste"></a>Completed is a little bit trickier.&nbsp; It has to deal with a couple of cases.&nbsp; </p>
+<ol>
+<li>Another thread already called Completed.&nbsp; <li>Completed called before another thread calls Wait.&nbsp; <li>Completed called while or after another thread calls Wait.&nbsp;&nbsp; </li></ol><pre class="code">        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">void</span> Completed()
+        {
+            <span style="color: rgb(0,0,255)">if</span> (0 == <span style="color: rgb(43,145,175)">Interlocked</span>.CompareExchange(<span style="color: rgb(0,0,255)">ref</span> m_hasCompleted, 1, 0))
+            {
+                <span style="color: rgb(43,145,175)">ManualResetEvent</span> mre = m_waitEvent;
+                <span style="color: rgb(0,0,255)">if</span> (mre != <span style="color: rgb(0,0,255)">null</span>)
+                {
+                    <span style="color: rgb(0,0,255)">try
+</span>                    {
+                        mre.Set();
+                    }
+                    <span style="color: rgb(0,0,255)">catch</span> (<span style="color: rgb(43,145,175)">ObjectDisposedException</span>)
+                    {
+                        <span style="color: rgb(0,128,0)">// If another thread is in Wait at the same time and sees the completed flag
+</span>                        <span style="color: rgb(0,128,0)">// it may dispose of the shared event.  In this case there is no need to signal
+</span>                        <span style="color: rgb(0,128,0)">// just return.
+</span>                    }
+                }
+            }
+        }</pre><a href="http://11011.net/software/vspaste"></a>
+<p>Wait is the trickiest one.&nbsp; It has the following cases to deal with</p>
+<ol>
+<li>HasCompleted already set 
+<li>Second or later thread to call Wait and needs to wait on m_waitEvent 
+<li>While attempting to create m_waitEvent, another thread in Wait finishes first. 
+<li>Thread successfully creates and owns the shared m_waitEvent variable before Completed() is called. 
+<li>During the creation of m_waitEvent, another thread calls Completed() in which case there is no guarantee that m_waitEvent will be signaled. </li></ol><pre class="code">        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">void</span> Wait()
+        {
+            <span style="color: rgb(0,128,0)">// Case 1
+</span>            <span style="color: rgb(0,0,255)">if</span> (HasCompleted)
+            {
+                <span style="color: rgb(0,0,255)">return</span>;
+            }
+
+            <span style="color: rgb(0,128,0)">// Case 2
+</span>            <span style="color: rgb(43,145,175)">ManualResetEvent</span> sharedEvent = m_waitEvent;
+            <span style="color: rgb(0,0,255)">if</span> (sharedEvent != <span style="color: rgb(0,0,255)">null</span>)
+            {
+                WaitOnEvent(sharedEvent);
+            }
+
+            <span style="color: rgb(43,145,175)">ManualResetEvent</span> created = <span style="color: rgb(0,0,255)">null</span>;
+            <span style="color: rgb(0,0,255)">try
+</span>            {
+                created = <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">ManualResetEvent</span>(<span style="color: rgb(0,0,255)">false</span>);
+                sharedEvent = <span style="color: rgb(43,145,175)">Interlocked</span>.CompareExchange(<span style="color: rgb(0,0,255)">ref</span> m_waitEvent, created, <span style="color: rgb(0,0,255)">null</span>);
+                <span style="color: rgb(0,0,255)">if</span> (<span style="color: rgb(0,0,255)">null</span> != sharedEvent)
+                {
+                    <span style="color: rgb(0,128,0)">// Case 3.  Another thread got here first and it's created is now the shared event.  Wait
+</span>                    <span style="color: rgb(0,128,0)">// on that event
+</span>                    WaitOnEvent(sharedEvent);
+                }
+                <span style="color: rgb(0,0,255)">else</span> <span style="color: rgb(0,0,255)">if</span> (HasCompleted)
+                {
+                    <span style="color: rgb(0,128,0)">// Case 5. In between the time we checked for completion and created the event a completion
+</span>                    <span style="color: rgb(0,128,0)">// occurred.  Returning will dispose of m_waitEvent and force other threads Wait to complete 
+</span>                    <span style="color: rgb(0,0,255)">return</span>;
+                }
+                <span style="color: rgb(0,0,255)">else
+</span>                {
+                    <span style="color: rgb(0,128,0)">// Case 4. 
+</span>                    WaitOnEvent(created);
+                }
+            }
+            <span style="color: rgb(0,0,255)">finally
+</span>            {
+                <span style="color: rgb(0,0,255)">if</span> (created != <span style="color: rgb(0,0,255)">null</span> )
+                {
+                    <span style="color: rgb(0,0,255)">if</span> ( sharedEvent == <span style="color: rgb(0,0,255)">null</span>)
+                    {
+                        <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_waitEvent, <span style="color: rgb(0,0,255)">null</span>);
+                    }
+
+                    created.Close();
+                }
+            }
+        }
+
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> WaitOnEvent(<span style="color: rgb(43,145,175)">ManualResetEvent</span> mre)
+        {
+            <span style="color: rgb(0,0,255)">try
+</span>            {
+                mre.WaitOne();
+            }
+            <span style="color: rgb(0,0,255)">catch</span> (<span style="color: rgb(43,145,175)">ObjectDisposedException</span>)
+            {
+
+            }
+        }</pre><a href="http://11011.net/software/vspaste"></a>
+<p>Now you have one of the basic building blocks of Futures.&nbsp; </p></div>
+    

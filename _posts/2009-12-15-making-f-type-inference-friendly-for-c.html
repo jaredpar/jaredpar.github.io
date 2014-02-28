@@ -1,0 +1,53 @@
+<p>One of my current hobby projects, <a href="http://blogs.msdn.com/jaredpar/archive/2009/12/14/vsvim-update-released-version-0-5-4.aspx">VsVim</a>, requires me to make a lot of calls between F# and C# projects.&#160; The core Vim engine is a pure F# solution based on Visual Studio’s new editor.&#160; It additionally has a small hosting layer and a large test bed both written in C#.&#160; </p>  <p>When working with the exposed core Vim engine API, I’ve found a number of generated F# constructs which are not easily accessible from C#.&#160; The problem stems from the manner in which native F# types are exposed.&#160; Many of them are generic and&#160; lack type inference friendly helper methods that force awkward usage patterns in C#.&#160; Most painful is the FSharpOption&lt;T&gt; type because it’s a type I frequently expose in APIs.&#160; </p>  <p>FSharpOption&lt;T&gt; is the exposed type for the native F# <a href="http://msdn.microsoft.com/en-us/library/dd233245(VS.100).aspx">option</a> construct representing a value which may or may not be present. It’s similar to C#’s nullable type except that it applies to all types of values.&#160; The primary operations you want to do with an FSharpOption&lt;T&gt; are </p>  <ol>   <li>Create an option with a value </li>    <li>Create an option without a value </li>    <li>Determine if it has a value </li>    <li>Determine if it does not have a value </li>    <li>Access the value </li> </ol>  <p>In F# using an option is an inherent part of the language and the hence the resulting code is very elegant. </p>  <pre class="code"><span style="color: blue">let </span>OptionExample = 
+    <span style="color: blue">let </span>optionWithValue = Some(<span style="color: brown">42</span>)
+    <span style="color: blue">let </span>optionWithoutValue = None
+    <span style="color: blue">let </span>isSome = Option.isSome optionWithValue
+    <span style="color: blue">let </span>isNone = Option.isNone optionWithoutValue
+    Option.get optionWithValue</pre>
+<a href="http://11011.net/software/vspaste"></a><a href="http://11011.net/software/vspaste"></a>
+
+<p>Unfortunately the equivalent C# code is not nearly so nice.&#160; </p>
+
+<pre class="code"><span style="color: blue">static int </span>OptionExample() {
+    <span style="color: blue">var </span>optionWithValue = <span style="color: blue">new </span><span style="color: #2b91af">FSharpOption</span>&lt;<span style="color: blue">int</span>&gt;(<span style="color: brown">42</span>);
+    <span style="color: blue">var </span>optionWithoutValue = <span style="color: #2b91af">FSharpOption</span>&lt;<span style="color: blue">int</span>&gt;.None;
+    <span style="color: blue">var </span>isSome = <span style="color: #2b91af">FSharpOption</span>&lt;<span style="color: blue">int</span>&gt;.get_IsSome(optionWithValue);
+    <span style="color: blue">var </span>isNone = <span style="color: #2b91af">FSharpOption</span>&lt;<span style="color: blue">int</span>&gt;.get_IsNone(optionWithValue);
+    return optionWithValue.Value;
+}</pre>
+<a href="http://11011.net/software/vspaste"></a><a href="http://11011.net/software/vspaste"></a>
+
+<p>Too many explicit types!!!&#160; Using any explicit type with F# related code just feels wrong.&#160; </p>
+
+<p>In C#, and most other .Net languages, 4 out of the 5 operations you want to do on FSharpOption require an explicit type parameter.&#160; This resulting code is a bit tedious with a simple type like int but once you get to more complex generics it can get extremely verbose.&#160; In the case of anonymous types, it’s simply not possible to use the FSharpOption&lt;T&gt; without a few wrappers.&#160; </p>
+
+<p>Luckily most of these can be solved by using the familiar pattern of using a non-generic class with static generic methods.&#160; These allow C# users to take advantage of the languages type inference capabilities to reduce the verbosity of the code.&#160; </p>
+
+<pre class="code"><span style="color: blue">public static class </span><span style="color: #2b91af">FSharpOption </span>{
+    <span style="color: blue">public static </span><span style="color: #2b91af">FSharpOption</span>&lt;T&gt; Create&lt;T&gt;(T value) {
+        <span style="color: blue">return new </span><span style="color: #2b91af">FSharpOption</span>&lt;T&gt;(value);
+    }
+    <span style="color: blue">public static bool </span>IsSome&lt;T&gt;(<span style="color: blue">this </span><span style="color: #2b91af">FSharpOption</span>&lt;T&gt; opt) {
+        <span style="color: blue">return </span><span style="color: #2b91af">FSharpOption</span>&lt;T&gt;.get_IsSome(opt);
+    }
+    <span style="color: blue">public static bool </span>IsNone&lt;T&gt;(<span style="color: blue">this </span><span style="color: #2b91af">FSharpOption</span>&lt;T&gt; opt) {
+        <span style="color: blue">return </span><span style="color: #2b91af">FSharpOption</span>&lt;T&gt;.get_IsNone(opt);
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Now we can rewrite the original sample a bit cleaner </p>
+
+<pre class="code"><span style="color: blue">static int </span>OptionExample() {
+    <span style="color: blue">var </span>optionWithValue = <span style="color: #2b91af">FSharpOption</span>.Create(<span style="color: brown">42</span>);
+    <span style="color: blue">var </span>optionWithoutValue = <span style="color: #2b91af">FSharpOption</span>&lt;<span style="color: blue">int</span>&gt;.None;
+    <span style="color: blue">var </span>isSome = optionWithValue.IsSome();
+    <span style="color: blue">var </span>isNone = optionWithoutValue.IsNone();
+    <span style="color: blue">return </span>optionWithValue.Value;
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Notice we still haven’t fixed the None case.&#160; Fixing this is a beyond the scope of what I want to write here but it is possible in certain scenarios.&#160; You can take a look at how in one of my previous blog articles: <a href="http://blogs.msdn.com/jaredpar/archive/2008/10/06/functional-c-providing-an-option.aspx">Function C# Providing an Option</a>.&#160; </p>
+
+<p>This pattern is not just limited to the FSharpOption class but can be applied to many of the generic constructs F# exports to wrap their native types.&#160; In particular FSharpFunc&lt;T,Result&gt; and the various FSharpChoice&lt;&gt; types can be made a bit friendlier with a few wrappers.&#160; </p></div>
+    

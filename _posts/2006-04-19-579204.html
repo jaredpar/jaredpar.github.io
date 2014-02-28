@@ -1,0 +1,3 @@
+<p>While I was looking into CAS changes in 2.0 I found some very good news about thread changes in 2.0.&nbsp; In .NET 2.0 both Thread.CurrentPrincipal and the Thread Impersonation token are now propagated amongst threads including ThreadPool.QueueUserWorkItem.&nbsp; The latter was a great pain to developers in .NET 1.0 particularly because Thread.CurrentPrincipal did not propagate and it created a lot of funny code to deal with the CAS impacts.&nbsp; </p>
+<p>This MSDN article delves into these changes.&nbsp; <a href="http://msdn.microsoft.com/msdnmag/issues/04/11/NETMatters/">http://msdn.microsoft.com/msdnmag/issues/04/11/NETMatters/</a></p></div>
+    

@@ -1,0 +1,29 @@
+<p>Script blocks are a concise way of representing an expression or statement group in Powershell.&#160; It’s the C#/F#/VB lambda equivalent for PowerShell.&#160; </p>  <p>One difference between C#/F#/VB lambda expressions and a scriptblock is the lack of lexical closures (otherwise known as variable capturing).&#160; This feature allows for a variable defined in an outer scope to be captured by the lambda in such a way that the value is maintained with the lambda expression.&#160; The details on how the variable is captured can vary from language to language but the basics are the same.</p>  <pre class="code"><span style="color: blue">static void </span>ClosureExample() {
+    <span style="color: blue">var </span>name = <span style="color: #a31515">&quot;first&quot;</span>;
+    <span style="color: #2b91af">Func</span>&lt;<span style="color: blue">string</span>&gt; captureName = () =&gt; name;
+    name = <span style="color: #a31515">&quot;second&quot;</span>;
+    <span style="color: #2b91af">Console</span>.WriteLine(captureName());   <span style="color: green">// prints: second
+</span>}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Due to the flexible nature of powershell it is possible for a scriptblock to appear to have captured a variable when in fact it’s just a quirk of variable name resolution.&#160; An important item to remember when considering how a scriptblock will execute is knowing that a script block is evaluated at the point of execution, not the point of definition.&#160;&#160; </p>
+
+<pre>PS) function example1() { $b = 42; { $b } }
+PS) $b = 42
+PS) $sb = example1
+PS) &amp; $sb
+42</pre>
+
+<p>The above sample works because when $sb is evaluated there is a variable $b in scope and hence the expression binds to that value.&#160; Not the original one in “example1”.&#160; </p>
+
+<p>This is a somewhat contrived example.&#160; But the problem can easily occur when scripts 1) contain the same variable name in multiple scopes/contexts, 2) uses one of those variables within a script block.&#160; I’ve run into this problem myself several times.&#160; </p>
+
+<p>Here is a more complex sample that demonstrates the timing of the name resolution.</p>
+
+<pre>PS) function example2() { param ($p1) $v1 = &quot;avalue&quot;; &amp; $p1 }
+PS) example2 {$doesnotexist}
+PS) example2 {$v1}
+avalue</pre>
+
+<p>This behavior though can also be used as a feature.&#160; Part of the implicit contract of a scriptblock can be the existance of certain named variables in the scope where the script block is executed.&#160; Probably not the best code maintainability practice, but I think we can generate a few good samples in a future post.</p></div>
+    

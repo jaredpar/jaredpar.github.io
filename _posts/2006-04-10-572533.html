@@ -1,0 +1,5 @@
+<P>I've started experimenting with Code Access Security at home.&nbsp; This derives from my desire to better understand .NET security and my recent fascination with ClickOnce applications.&nbsp; </P>
+<P>This weekend I learned a hard lesson in security.&nbsp; I have a couple of ClickOnce apps.&nbsp; ClickOnce Visual Studio integration has a great feature that will root around in your code and attempt to determine the minimal permission set needed to run your application.&nbsp; </P>
+<P>I started playing with this on one of my relatively simple applications.&nbsp; It contains several forms and opens up a couple of WebRequest objects but nothing terribly special.&nbsp; However the analysis said that my app needed to run with Full Trust (highest level).&nbsp; Unfortunately the app did not provide any more information besides that.&nbsp; </P>
+<P>It took an hour of rooting around but in the end I discovered the culprit was the PropertyGrid instance on my form.&nbsp; It turns out that the PropertyGrid requires "Full Trust" to be used even though it's not noted in the documentation.&nbsp; </P><div style="clear:both;"></div></div>
+    

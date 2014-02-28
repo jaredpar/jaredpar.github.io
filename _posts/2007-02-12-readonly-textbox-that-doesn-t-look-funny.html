@@ -1,0 +1,5 @@
+<P>When you make a WinForm TextBox ReadOnly, it aquires a distinctive look because it changes the background.&nbsp; Users often want the appearance of the TextBox to stay the same, they just don't want it to be mutable.&nbsp; Here's a snippet to make a TextBox ReadOnly and not change it's appearance.</P><FONT size=2>
+<P></FONT><FONT color=#0000ff size=2>Dim</FONT><FONT size=2> saved </FONT><FONT color=#0000ff size=2>As</FONT><FONT size=2> Color = </FONT><FONT color=#0000ff size=2>Me</FONT><FONT size=2>.TextBox1.BackColor</P>
+<P></FONT><FONT color=#0000ff size=2>Me</FONT><FONT size=2>.TextBox1.ReadOnly = </FONT><FONT color=#0000ff size=2>True</P></FONT><FONT size=2>
+<P></FONT><FONT color=#0000ff size=2>Me</FONT><FONT size=2>.TextBox1.BackColor = saved</P></FONT><div style="clear:both;"></div></div>
+    

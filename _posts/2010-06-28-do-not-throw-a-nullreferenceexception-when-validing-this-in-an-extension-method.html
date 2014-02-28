@@ -1,0 +1,40 @@
+<p>One pattern I’ve started running into is developers explicitly throwing a NullReferenceException when validating the “this” parameter of an extension method.</p>  <pre class="code"><span style="color: blue">public static void </span>ForEach&lt;T&gt;(<span style="color: blue">this </span><span style="color: #2b91af">IEnumerable</span>&lt;T&gt; enumerable, <span style="color: #2b91af">Action</span>&lt;T&gt; action)
+{
+    <span style="color: blue">if </span>(<span style="color: blue">null </span>== enumerable)
+    {
+        <span style="color: blue">throw new </span><span style="color: #2b91af">NullReferenceException</span>();
+    }
+    <span style="color: green">// rest omitted 
+</span>}</pre>
+
+<p>The desired behavior here is to make extension methods look even more like instance methods by adding similar exception semantics.&#160; So now a call to col.ForEach(..) throws a NullReferenceException if col is null just like it would if ForEach were a real method.&#160; </p>
+
+<p>However this is incorrect and should be avoided.&#160; </p>
+
+<ol>
+  <li>A null reference has not occurred in this example.&#160; Having an exception targeted to a very specific event being raised when that event did not occur is simply incorrect.&#160; </li>
+
+  <li>NullReferenceException is a runtime exception and should only be raised by the runtime.&#160; In several cases the runtime attaches special semantics to an exception it throws that changes the way it is handled (<a href="http://blogs.msdn.com/b/jaredpar/archive/2008/10/22/when-can-you-catch-a-stackoverflowexception.aspx">StackOverflowExcepion for example)</a>.&#160; Throwing runtime exceptions in user code means certain catch handlers can now potentially execute it at least 2 ways.&#160; This only serves to confuse developers&#160; [1]</li>
+
+  <li>Extension methods can be, and often are, still called just like a plain old static method and must play by those rules.&#160; The .Net framework guidelines are <a href="http://msdn.microsoft.com/en-us/library/ms229025(VS.80).aspx">very clear</a> on how this case should be handled.</li>
+
+  <li>Extension methods can validly be called on a null “this” value and it doesn’t represent an intrinsic error as it does for a normal instance method [2]</li>
+</ol>
+
+<p>For me #1 and #3 are the most compelling points.&#160; Violating either of these goes against established practices and semantic and leads to incorrect behavior in programs.&#160; </p>
+
+<p>The correct pattern here is that for a normal static method: use an ArgumentNullException.&#160; </p>
+
+<pre class="code"><span style="color: blue">public static void </span>ForEach&lt;T&gt;(<span style="color: blue">this </span><span style="color: #2b91af">IEnumerable</span>&lt;T&gt; enumerable, <span style="color: #2b91af">Action</span>&lt;T&gt; action)
+{
+    <span style="color: blue">if </span>(<span style="color: blue">null </span>== enumerable)
+    {
+        <span style="color: blue">throw new </span><span style="color: #2b91af">ArgumentNullException</span>();
+    }
+    <span style="color: green">// rest ommitted 
+</span>}</pre>
+
+<p>[1] I very much wish explicitly throwing runtime exceptions produced unverifiable code </p>
+
+<p>[2] Whether or not this is a good idea is a different question</p><div style="clear:both;"></div></div>
+    

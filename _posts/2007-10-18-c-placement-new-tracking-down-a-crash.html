@@ -1,0 +1,22 @@
+<p>See my previous two posts on an introduction to placement new if you are unfamiliar with the subject.</p> <ul> <li><a title="http://blogs.msdn.com/jaredpar/archive/2007/10/16/c-new-operator-and-placement-new.aspx" href="http://blogs.msdn.com/jaredpar/archive/2007/10/16/c-new-operator-and-placement-new.aspx">http://blogs.msdn.com/jaredpar/archive/2007/10/16/c-new-operator-and-placement-new.aspx</a></li> <li><a title="http://blogs.msdn.com/jaredpar/archive/2007/10/17/c-placement-new-and-allocators.aspx" href="http://blogs.msdn.com/jaredpar/archive/2007/10/17/c-placement-new-and-allocators.aspx">http://blogs.msdn.com/jaredpar/archive/2007/10/17/c-placement-new-and-allocators.aspx</a></li></ul> <p>Recently I did a bit of work on the heap management story for our code base.&nbsp; Mainly it was a change to unify the different ways we accessed our internal heap.&nbsp; In the process I unified our operator new story.&nbsp; Part if this involved unifying our placement new allocation overloads.&nbsp; We have several allocators in our code base and I noticed we had several overloads which essentially did the same operation</p><pre class="code"><span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(0,0,255)">inline
+void</span> * <span style="color: rgb(0,0,255)">_cdecl</span> <span style="color: rgb(0,0,255)">operator</span> <span style="color: rgb(0,0,255)">new</span>(size_t cbSize, MyCustomAllocator &amp;allocator)
+{
+    <span style="color: rgb(0,0,255)">return</span> allocator.Alloc(cbSize);
+}
+
+<span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(0,0,255)">inline
+void</span> * <span style="color: rgb(0,0,255)">_cdecl</span> <span style="color: rgb(0,0,255)">operator</span> <span style="color: rgb(0,0,255)">new</span>(size_t cbSize, MyCustomAllocator *allocator)
+{
+    <span style="color: rgb(0,0,255)">return</span> allocator-&gt;Alloc(cbSize);
+}
+</pre>
+<p>This seemed a bit redundant to me so I deleted the one which contained a pointer overload.&nbsp; A while later I tested my changes and our application almost immediately crashed.&nbsp; It only took a few minutes to discover the problem.&nbsp; We had a lot of operations that followed this pattern.&nbsp; </p><pre class="code">Student *p = <span style="color: rgb(0,0,255)">new</span> (pAllocator) Student();  // pAllocator typed to MyCustomAllocator*</pre><a href="http://11011.net/software/vspaste"></a>
+<p>As I said in my previous posts, new is just another C++ function.&nbsp; As such it participates in overload resolution.&nbsp; This code now binds to the placement new operator and not the placement allocation overload which takes a reference.&nbsp; At first I thought about using a regex search and replace to solve the issue.&nbsp; However I decided this wasn't a complete solution.&nbsp; There is no guarantee that my regex will catch every case and any case I miss won't crash until we actually hit the line of code.&nbsp; </p>
+<p>The best case scenario here is to turn that line into a compile error.&nbsp; That would guarantee that I fix every location that is a problem.&nbsp; Since new participates in overload resolution you can solve this with a template.&nbsp; </p><pre class="code"><span style="color: rgb(0,0,255)">template</span> &lt;<span style="color: rgb(0,0,255)">typename</span> T&gt;
+<span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(0,0,255)">inline
+void</span>* <span style="color: rgb(0,0,255)">_cdecl</span> <span style="color: rgb(0,0,255)">operator</span> <span style="color: rgb(0,0,255)">new</span>(size_t cbSize, T* allocator)
+{
+    allocator-&gt;ThisWillForceACompileError();
+}        </pre><a href="http://11011.net/software/vspaste"></a>
+<p>This caused all places where a pointer type was passed to new which wasn't explicitly "void*" to turn into a compiler error.&nbsp; This quickly outlined all of the places I needed to fix up and guaranteed that my fix didn't allow developers who were accustomed to using a pointer to the allocator to accidentally introduce a bug into the code base (myself included :)).&nbsp; </p></div>
+    

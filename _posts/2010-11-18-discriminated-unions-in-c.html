@@ -1,0 +1,118 @@
+<p>Earlier this week I started writing a function which needed to represent three states in the return value, two of which had an associated value.&nbsp; In my mind I immediately came to the following solution </p>
+<pre class="code"><span style="color: blue">type </span>BuildAction =
+    | Reset
+    | LinkOneWithNext <span style="color: blue">of </span>Statement
+    | LinkManyWithNext <span style="color: blue">of </span>Statement seq</pre>
+<p>A discriminated union is perfectly suited for representing this type of scenario.&nbsp; Unfortunately for me I was coding in C++ and not F# so I shifted gears and started on a different solution.&nbsp; But I quickly grew frustrated with new solution and decided to backtrack.&nbsp; A discriminated union is just too ideal for this scenario so why not spend fifteen minutes and see how far I could get in defining a discriminated union structure in C++. </p>
+<p>Of course a full discriminated union in the style of F# is not possible because C++ lacks language support for pattern matching.&nbsp; But I was willing to live with that and other limitations as long as I could get many of the other benefits I find with discriminated unions.&nbsp; In particular </p>
+<ul>
+<li>Declarative Syntax </li>
+<li>Typed value access without the need to cast </li>
+<li>Allow mixing of flag only and flags with values </li>
+<li>Customized naming of entries (no tuple style First, Second, etc &hellip;)</li>
+<li>Instances are read only </li>
+</ul>
+<p>After a bit of tinkering I came up with a solution (full source at end of post) which allows for the following declaration syntax </p>
+<pre class="code">DECLARE_DISCRIMINATED_UNION(BuildAction)
+    DISCRIMINATED_UNION_FLAG(BuildAction, Reset)
+    DISCRIMINATED_UNION_VALUE(BuildAction, LinkOneWithNext, Statement)
+    DISCRIMINATED_UNION_VALUE(BuildAction, LinkManyWithNext, vector&lt;Statement&gt;)
+END_DISCRIMINATED_UNION()</pre>
+<p>Each declared entry in the union is provided the following methods.&nbsp; </p>
+<ul>
+<li>A static factory method for creating values: CreateLinkOneWithNext</li>
+<li>A method to test to see if an instance is the value type: IsLinkOneWithNext</li>
+<li>A method to get the value associated with the associated value: GetLinkOneWithNext</li>
+</ul>
+<p>&nbsp;</p>
+<pre class="code"><span style="color: blue">auto </span>action = BuildAction::CreateLinkOneWithNext(statement);
+
+<span style="color: blue">if </span>(action.IsLinkOneWithNext()) {
+    Method(action.GetLinkOneWithNext());
+}</pre>
+<p>It&rsquo;s certainly far from perfect.&nbsp; But it did give me the tools to implement the solution in the way I inherently thought about it and freed me to spend my thinking time on other problems.</p>
+<p><b>EDIT</b></p>
+<p>A couple of people asked why I didn't use boost::variant for this solution? &nbsp;Ideally this is the approach I would've taken. &nbsp;But for this particular scenario boost was unfortunately not an option (no weird management issues, just a boring production environment one). &nbsp;</p>
+<p>Additionally the spirit of this post and experiment was just having a bit of fun and sharing the results (even though it does contain a few pieces of evil code).&nbsp;</p>
+<p>DiscriminatedUnion.h </p>
+<pre class="code"><span style="color: green">//----------------------------------------------------------------------------
+//
+// Discriminated Union in C++.
+//
+//----------------------------------------------------------------------------
+</span><span style="color: blue">#ifdef </span>DECLARE_DISCRIMINATED_UNION
+<span style="color: blue">#undef </span>DECLARE_DISCRIMINATED_UNION
+<span style="color: blue">#endif
+
+#ifdef </span>END_DISCRIMINATED_UNION
+<span style="color: blue">#undef </span>END_DISCRIMINATED_UNION
+<span style="color: blue">#endif
+
+#ifdef </span>DISCRIMINATED_UNION_VALUE
+<span style="color: blue">#undef </span>DISCRIMINATED_UNION_VALUE
+<span style="color: blue">#endif
+
+#ifdef </span>DISCRIMINATED_UNION_POINTER
+<span style="color: blue">#undef </span>DISCRIMINATED_UNION_POINTER
+<span style="color: blue">#endif
+
+#ifdef </span>DISCRIMINATED_UNION_ALLOW_NONE
+<span style="color: blue">#undef </span>DISCRIMINATED_UNION_ALLOW_NONE
+<span style="color: blue">#endif
+
+#ifdef </span>DISCRIMINATED_UNION_GET_KIND
+<span style="color: blue">#undef </span>DISCRIMINATED_UNION_GET_KIND
+<span style="color: blue">#endif
+
+#define </span>DECLARE_DISCRIMINATED_UNION(name)       \
+    <span style="color: blue">struct </span>name {                               \
+    <span style="color: blue">private</span>:                                    \
+        name() {}                               \
+        <span style="color: blue">unsigned __int32 </span>m_kind;                \
+    <span style="color: blue">public</span>:
+
+<span style="color: blue">#define </span>DECLARE_DISCRIMINATED_UNION_WITH_NONE(name)         \
+    <span style="color: blue">struct </span>name {                                           \
+    <span style="color: blue">private</span>:                                                \
+        <span style="color: blue">unsigned __int32 </span>m_kind;                            \
+    <span style="color: blue">public</span>:                                                 \
+        name() : m_kind(__LINE__) {}                        \
+        <span style="color: blue">bool </span>IsNone() <span style="color: blue">const </span>{<span style="color: blue">return </span>m_kind == __LINE__;}
+
+<span style="color: blue">#define </span>DISCRIMINATED_UNION_VALUE(unionName, entryName, entryType)                                          \
+        <span style="color: blue">static </span>unionName Create##entryName(<span style="color: blue">const </span>entryType&amp; value) {                                        \
+            unionName unionValue;                                                                           \
+            unionValue.m_kind = __LINE__;                                                                   \
+            unionValue.m_##entryName = value;                                                               \
+            <span style="color: blue">return </span>unionValue;  }                                                                           \
+        <span style="color: blue">bool </span>Is##entryName() <span style="color: blue">const </span>{ <span style="color: blue">return </span>m_kind == __LINE__;}                                            \
+        <span style="color: blue">const </span>entryType&amp; Get##entryName() <span style="color: blue">const </span>{ ASSERT(m_kind == __LINE__); <span style="color: blue">return </span>m_##entryName; }       \
+        entryType Get##entryName() { ASSERT(m_kind == __LINE__); <span style="color: blue">return </span>m_##entryName; }                    \
+    <span style="color: blue">private</span>:                                                                                                \
+        entryType m_##entryName;                                                                            \
+    <span style="color: blue">public</span>:
+
+<span style="color: blue">#define </span>DISCRIMINATED_UNION_POINTER(unionName, entryName, entryType)                                        \
+        <span style="color: blue">static </span>unionName Create##entryName(entryType* value) {                                              \
+            unionName unionValue;                                                                           \
+            unionValue.m_kind = __LINE__;                                                                   \
+            unionValue.m_##entryName = value;                                                               \
+            <span style="color: blue">return </span>unionValue;  }                                                                           \
+        <span style="color: blue">bool </span>Is##entryName() <span style="color: blue">const </span>{ <span style="color: blue">return </span>m_kind == __LINE__;}                                            \
+        entryType* Get##entryName() <span style="color: blue">const </span>{ ASSERT(m_kind == __LINE__); <span style="color: blue">return </span>m_##entryName; }             \
+        entryType* Get##entryName() { ASSERT(m_kind == __LINE__); <span style="color: blue">return </span>m_##entryName; }                   \
+    <span style="color: blue">private</span>:                                                                                                \
+        entryType* m_##entryName;                                                                           \
+    <span style="color: blue">public</span>:
+
+<span style="color: blue">#define </span>DISCRIMINATED_UNION_FLAG(unionName, entryName)                                                      \
+        <span style="color: blue">static </span>unionName Create##entryName() {                                                              \
+            unionName unionValue;                                                                           \
+            unionValue.m_kind = __LINE__;                                                                   \
+            <span style="color: blue">return </span>unionValue;  }                                                                           \
+        <span style="color: blue">bool </span>Is##entryName() <span style="color: blue">const </span>{ <span style="color: blue">return </span>m_kind == __LINE__;}                                            
+
+<span style="color: blue">#define </span>DISCRIMINATED_UNION_GET_KIND() <span style="color: blue">unsigned __int32 </span>GetKind() <span style="color: blue">const </span>{ <span style="color: blue">return </span>m_kind; }
+
+<span style="color: blue">#define </span>END_DISCRIMINATED_UNION() };</pre><div style="clear:both;"></div></div>
+    

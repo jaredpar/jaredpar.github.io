@@ -1,0 +1,32 @@
+<p>One of the more frequent questions I answer on StackOverflow is a variation of the following.&#160; </p>  <blockquote>   <p>I’m doing XXX with a file, how can I know if the file exists?</p> </blockquote>  <p>The variations include verify no one else has the file open, if the file is in use, the file is not writable, etc ….&#160; The answer to all of these questions is unfortunately the same.&#160; Simply put you can’t.&#160; The reason why is the fundamental nature of the file system prevents such predictive operations.&#160; </p>  <p>The file system is a resource with multiple levels of control that is shared between all users and processes in the system.&#160; The levels of control include but are not limited to file system and sharing permissions.&#160; At <strong>any</strong> point in time any entity on the computer may change a file system object or it’s controls in any number of ways.&#160; For example </p>  <ul>   <li>The file could be deleted </li>    <li>A file could be created at place one previously did not exist </li>    <li>Permissions could change on the file in such a way that the current process does not have access </li>    <li>Another process could open the file in such a way that is not conducive to sharing </li>    <li>The user remove the USB key containing the file </li>    <li>The network connection to the mapped drive could get disconnected </li> </ul>  <p>Or in short </p>  <blockquote>   <p>The file system is best viewed as a multi-threaded object over which you have no reliable synchronization capabilities</p> </blockquote>  <p>Many developers, and APIs for that matter, though treat the file system as though it’s a static resource and assume what’s true at one point in time will be true later.&#160; Essentially using the result of one operation to predict the success or failure of another.&#160; This ignores the possibility of the above actions interweaving in between calls.&#160; It leads to code which reads well but executes badly in scenarios where more than one entity is changing the file system. </p>  <p>These problems are best demonstrated by a quick sample.&#160; Lets keep it simple and take a stab at a question I’ve seen a few times.&#160; The challenge is to write a function which returns all of the text from a file if it exists and an empty string if it does not.&#160; To simplify this problem lets assume permissions are not an issue, paths are properly formatted, paths point to local drives and people aren’t randomly ripping out USB keys.&#160; Using the System.IO.File APIs we may construct the following solution.</p>  <pre class="code"><span style="color: blue">static string </span>ReadTextOrEmpty(<span style="color: blue">string </span>path) {
+    <span style="color: blue">if </span>(<span style="color: #2b91af">File</span>.Exists(path)) {
+        <span style="color: blue">return </span><span style="color: #2b91af">File</span>.ReadAllText(path); <span style="color: green">// Bug!!!
+    </span>} <span style="color: blue">else </span>{
+        <span style="color: blue">return </span><span style="color: #2b91af">String</span>.Empty;
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>This code reads great and at a glance looks correct but is actually fundamentally flawed.&#160; The reason why is the code changes depends on the call to File.Exist to be true for a large portion of the function.&#160; It’s being used to predict the success of the call to ReadAllText.&#160; However there is nothing stopping the file from being deleted in between these two calls.&#160; In that case the call to File.ReadAllText would throw a FileNotFoundException which is exactly what the API is trying to prevent! </p>
+
+<p>This code is flawed because it’s attempting to use one piece of data to make a prediction about the future state of the file system.&#160; This is simply not possible with the way the file system is designed.&#160; It’s a shared resource with no reliable synchronization mechanism.&#160; File.Exists is much better named as File.ExistedInTheRecentPast (the name gets much worse if you consider the impact of permissions).&#160; </p>
+
+<p>Knowing this, how could we write ReadTextOrEmpty in a reliable fashion?&#160; Even though you can not make predictions on the file system the failures of operations is a finite set.&#160; So instead of attempting to predict successful conditions for the method, why not just execute the operation and deal with the consequences of failure?&#160;&#160; </p>
+
+<pre class="code"><span style="color: blue">static string </span>ReadTextOrEmpty(<span style="color: blue">string </span>path) {
+    <span style="color: blue">try </span>{
+        <span style="color: blue">return </span><span style="color: #2b91af">File</span>.ReadAllText(path);
+    } <span style="color: blue">catch </span>(<span style="color: #2b91af">DirectoryNotFoundException</span>) {
+        <span style="color: blue">return </span><span style="color: #2b91af">String</span>.Empty;
+    } <span style="color: blue">catch </span>(<span style="color: #2b91af">FileNotFoundException</span>) {
+        <span style="color: blue">return </span><span style="color: #2b91af">String</span>.Empty;
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>This implementation provides the original requested behavior.&#160; In the case the file exists, for the duration of the operation, it returns the text of the file and if not returns an empty string.&#160; </p>
+
+<p>In general I find the above pattern is the best way to approach the file system.&#160; Do the operations you want and deal with the consequences of failure in the form of exceptions.&#160; To do anything else involves an unreliable prediction in which you still must handle the resulting exceptions.&#160; </p>
+
+<p>If this is the case then why have File.Exist at all if the results can’t be trusted?&#160; It depends on the level of reliability you want to achieve.&#160; In production programs I flag any File.Exist I find as a bug because reliability is a critical component.&#160; However you’ll see my personal powershell configuration scripts littered with calls to File.Exsit.&#160; Simply put because I’m a bit lazy in those scripts because critical reliability is not important when I’m updating my personal .vimrc file.&#160; </p></div>
+    

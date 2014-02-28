@@ -1,0 +1,23 @@
+<P>I am a huge fan of read only/immutable collections and data.&nbsp; Hopefully the increased exposure through the blogosphere alerted users to the advantages of this type of programming for the appropriate scenarios.&nbsp; I wanted to discuss <A href="http://msdn2.microsoft.com/en-us/library/ms132474.aspx" mce_href="http://msdn2.microsoft.com/en-us/library/ms132474.aspx">ReadOnlyCollection&lt;T&gt;</A>&nbsp;in case devs looking around in the BCL discover&nbsp;it and assume it's immutable.&nbsp; There are two details of this class which cause gotchas and design issues for consumers who assume it is immutable.</P>
+<H3>It implements IList&lt;T&gt;</H3>
+<P><A href="http://msdn2.microsoft.com/en-us/library/5y536ey6.aspx" mce_href="http://msdn2.microsoft.com/en-us/library/5y536ey6.aspx">IList&lt;T&gt;</A> is a interface describing mutable collection types which support indexing.&nbsp; ReadOnlyCollection is designed to be read only and cannot fulfill this contract.&nbsp; Therfore every mutable function will throw an exception.&nbsp; IMHO this is not the best design because it is&nbsp;implementing a contract it won't every fullfill.&nbsp; This has the effect of turning what should be a compile time error into a runtime exception (passing a non-mutable collection to an API expecting a mutable collection).</P>
+<P>Unfortunately there is not a good interface to implement.&nbsp; The indexable interfaces are all representative of mutable collection types.&nbsp; It would be nice to add an immutable/read only interface which can be safely implemented.&nbsp; </P><PRE class=code>    <SPAN style="COLOR: rgb(0,0,255)">interface</SPAN> <SPAN style="COLOR: rgb(43,145,175)">IReadOnlyList</SPAN>&lt;T&gt; : <SPAN style="COLOR: rgb(43,145,175)">IEnumerable</SPAN>&lt;T&gt;
+    {
+        T <SPAN style="COLOR: rgb(0,0,255)">this</SPAN>[<SPAN style="COLOR: rgb(0,0,255)">int</SPAN> index] { <SPAN style="COLOR: rgb(0,0,255)">get</SPAN>; }
+        <SPAN style="COLOR: rgb(0,0,255)">int</SPAN> Count { <SPAN style="COLOR: rgb(0,0,255)">get</SPAN>; }
+        <SPAN style="COLOR: rgb(0,0,255)">int</SPAN> IndexOf(T value);
+        <SPAN style="COLOR: rgb(0,0,255)">bool</SPAN> Contains(T item);
+        <SPAN style="COLOR: rgb(0,0,255)">void</SPAN> CopyTo(T[] array, <SPAN style="COLOR: rgb(0,0,255)">int</SPAN> arrayIndex);
+    }</PRE>
+<P>Ideally this would be called IImmutableList&lt;T&gt; but I'm having trouble getting over the double I, double M pattern to start the name.&nbsp; Perhaps IPersistentList.</P>
+<H3>It's not deeply ReadOnly</H3>
+<P>ReadOnlyCollection&lt;T&gt; is a read only facade on top of mutable collection.&nbsp; Read only data should be just that, read only.&nbsp; This means calling methods directly on the class produce the same result every single time.&nbsp; However because it uses a mutable backing store this is not true and can cause gotchas along the road. </P>
+<P>Take the following sample which uses a ReadOnlyCollection to wrap a List.&nbsp; </P><PRE class=code>            <SPAN style="COLOR: rgb(0,0,255)">var</SPAN> list = <SPAN style="COLOR: rgb(0,0,255)">new</SPAN> <SPAN style="COLOR: rgb(43,145,175)">List</SPAN>&lt;<SPAN style="COLOR: rgb(0,0,255)">int</SPAN>&gt;();
+            list.AddRange(<SPAN style="COLOR: rgb(43,145,175)">Enumerable</SPAN>.Range(1, 10));
+
+            <SPAN style="COLOR: rgb(0,0,255)">var</SPAN> roList = <SPAN style="COLOR: rgb(0,0,255)">new</SPAN> <SPAN style="COLOR: rgb(43,145,175)">ReadOnlyCollection</SPAN>&lt;<SPAN style="COLOR: rgb(0,0,255)">int</SPAN>&gt;(list);
+            <SPAN style="COLOR: rgb(43,145,175)">Console</SPAN>.WriteLine(roList.Count);    <SPAN style="COLOR: rgb(0,128,0)">// Outputs: 10
+</SPAN>            list.Add(42);
+            <SPAN style="COLOR: rgb(43,145,175)">Console</SPAN>.WriteLine(roList.Count);    <SPAN style="COLOR: rgb(0,128,0)">// Outputs: 11</SPAN></PRE>
+<P>There are ways to avoid this problem with ReadOnlyCollectionn.&nbsp; The simplest is to make sure you pass a copy of your list into the constructor.&nbsp; </P><PRE class=code>            <SPAN style="COLOR: rgb(0,0,255)">var</SPAN> roList2 = <SPAN style="COLOR: rgb(0,0,255)">new</SPAN> <SPAN style="COLOR: rgb(43,145,175)">ReadOnlyCollection</SPAN>&lt;<SPAN style="COLOR: rgb(0,0,255)">int</SPAN>&gt;(<SPAN style="COLOR: rgb(0,0,255)">new</SPAN> <SPAN style="COLOR: rgb(43,145,175)">List</SPAN>&lt;<SPAN style="COLOR: rgb(0,0,255)">int</SPAN>&gt;(list));</PRE><A href="http://11011.net/software/vspaste" mce_href="http://11011.net/software/vspaste"></A></div>
+    

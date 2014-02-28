@@ -1,0 +1,22 @@
+<p>Boolean value types are a constant source of problems for people attempting to generate PInvoke signatures.&nbsp; It's yet another case of managed and native types differing on size.&nbsp; </p>  <p>There are two common boolean types in native code: bool and BOOL.&nbsp; As with most PInvoke issue the main issue is to understand the size</p>  <ul>   <li>bool: 1 byte </li>    <ul>     <li>bool SomeOperation();</li>   </ul>    <li>BOOL: 4 bytes</li>    <ul>     <li>BOOL SomeOtherOperation();</li>   </ul> </ul>  <p>Fortunately there is only one managed boolean type.&nbsp; Unfortunately though, it has 2 sizes that must be considered.&nbsp; In managed code a bool is a single byte.&nbsp; Yet the default marshalling for a bool will expand it to 4 bytes.&nbsp; So even though bool is 1 byte in managed code, it is by default compatible with the 4 byte native version BOOL.&nbsp; <br></p>  <p>Translating a PInvoke signature for a native 1 byte bool is simple enough though.&nbsp; The <a href="http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.unmanagedtype%28VS.80%29.aspx" mce_href="http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.unmanagedtype(VS.80).aspx">UnmanagedType</a>.I1 value allows for this scenario.&nbsp; It tells the CLR that while the managed code has a boolean value the
+corresponding native item is the 1 byte version of bool.&nbsp; The CLR will then make
+the necessary size adjustments.&nbsp; When converting native -&gt; managed
+it will consider a non-zero value true and 0 to be false.&nbsp;</p>  <p>Native:</p>  <blockquote>   <p>bool SomeOperation();</p> </blockquote>  <p>Managed:</p>  <pre class="code">[<span style="color: blue;">return</span>: <span style="color: rgb(43, 145, 175);">MarshalAs</span>(<span style="color: rgb(43, 145, 175);">UnmanagedType</span>.I1)]<br><span style="color: blue;">public static extern bool </span>SomeOperation();</pre>
+<a href="http://11011.net/software/vspaste" mce_href="http://11011.net/software/vspaste"></a>
+
+
+
+<p>BOOL's can be usefully marshalled in two different ways.&nbsp; The first is simply as a int (signed or unsigned).&nbsp; This works because int matches the size requirement of a BOOL and the sign is not really important as true or false is simply 0 or not 0.&nbsp; </p>
+
+<pre class="code"><span style="color: blue;">public static extern int </span>SomeOtherOperation();</pre>
+
+<p>This is certainly sub-optimal since we're now returning a non-boolean type for what is intended to be a boolean operation but some people choose to Marshal it this way.&nbsp; <br></p>
+
+<p>Marshaling a native BOOL to a managed bool works without any annotations.&nbsp; However it is preferred that you include the annotations to make it much clearer what the native data type is.&nbsp; The <a href="http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.unmanagedtype%28VS.80%29.aspx" mce_href="http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.unmanagedtype(VS.80).aspx">UnmanagedType</a> enumeration contains a Bool value for just this purpose.&nbsp; This can be applied to any managed bool return or parameter.&nbsp; <br></p>
+
+<pre class="code">[<span style="color: blue;">return</span>: <span style="color: rgb(43, 145, 175);">MarshalAs</span>(<span style="color: rgb(43, 145, 175);">UnmanagedType</span>.Bool)]<br><span style="color: blue;">public static extern bool </span>SomeOtherOperation();</pre>
+
+<p>And presto, we have maintained the boolean semantics of the operation.&nbsp; </p>
+
+<p>Hint: If you are using the <a href="http://www.codeplex.com/clrinterop" mce_href="http://www.codeplex.com/clrinterop">PInvoke Interop Assistant</a>, it will automatically do these conversions for you.&nbsp; </p><p><b>Edit</b></p><p>Fixed a mixup on the default native size of bool.&nbsp; Thanks to <span class="rwRRO"></span>Jachym Kouba for pointing out the mistake<br></p></div>
+    

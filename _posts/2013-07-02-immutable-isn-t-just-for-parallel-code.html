@@ -1,0 +1,56 @@
+<p>For the last 6 months the BCL team has been hard at work shipping an out of band release of immutable collections for .Net.&nbsp; Most recently delivering an efficient implementation of ImmutableArray&lt;T&gt;</p>
+<blockquote>
+<p><a href="http://blogs.msdn.com/b/dotnet/archive/2013/06/24/please-welcome-immutablearray.aspx">http://blogs.msdn.com/b/dotnet/archive/2013/06/24/please-welcome-immutablearray.aspx</a></p>
+</blockquote>
+<p>Unfortunately with every announcement around these collections I keep seeing the following going past in my twitter feed.</p>
+<blockquote>
+<p>That looks neat.&nbsp; Next time I&rsquo;m writing parallel code I&rsquo;m going to try that out.</p>
+</blockquote>
+<p>No, no no!!!&nbsp; Immutable types are not just for parallel code.&nbsp; They are very useful in even single threaded applications.&nbsp; Developers are missing out by thinking of them as a parallel only construct.&nbsp; Any time you want to enforce that the contents of a collection never change you should consider an immutable type.</p>
+<p><strong>The Provider</strong></p>
+<p>Consider the case of an object which provides a collection to callers where the contents never change.&nbsp; Something like Assembly.Modules.&nbsp; A type like Assembly must be robust in the face of misuse by any caller and always present the same set of Module values.&nbsp;&nbsp; Given this constraint what type should it use though for the property?&nbsp;</p>
+<p>It can&rsquo;t do something as simple as using a List&lt;Module&gt; with a similarly typed backing field.&nbsp; Returning such a value would allow a devious caller to clear the list and spoil the results for everyone else.&nbsp;&nbsp; It cannot even store a List&lt;T&gt; internally and return an IEnumerable&lt;T&gt; as anyone could just come along and down cast to List&lt;T&gt; and clear the collection.&nbsp;</p>
+<div style="margin-left: 10px;"><!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">Assembly assembly = ...;
+<span class="rem">// Evil laugh</span>
+((List&lt;Module&gt;)assembly.Modules).Clear(); </pre>
+</div>
+<p>Instead it chooses to be robust by returning a freshly allocated array on every single call to Modules [1].&nbsp; This works but is a very wasteful process and results in many unnecessary allocations.&nbsp;</p>
+<p>If this API were being designed today this would be a perfect candidate for using ImmutableArray&lt;T&gt;.&nbsp; This value can be safely stored and returned with no fear of the caller deviously mutating the result.&nbsp; There is simply no way of doing so.&nbsp;</p>
+<p><strong>The Consumer</strong></p>
+<p>Now consider the case of the consumer who wants to store a collection of Modules instances and do multiple lazy independent calculations on them.&nbsp; In order for the different calculations to be correct they need to ensure the collection of Module instances don&rsquo;t change from operation to operation.&nbsp; Hence they have to make a decision when storing the collection in the constructor</p>
+<div style="margin-left: 10px;"><!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode"><span class="kwrd">class</span> Container {
+   IEnumerable&lt;Module&gt; m_modules;
+
+   <span class="kwrd">public</span> Container(IEnumerable&lt;Module&gt; modules) { 
+     <span class="rem">// Do I trust my caller??? </span>
+     m_modules = modules;
+   }
+}</pre>
+</div>
+<p>The constructor can choose to do one of the following</p>
+<ol>
+<li>Create a private copy of the input collection that it doesn&rsquo;t mutate</li>
+<li>Create no copy and hope that the caller never mutates the input collection</li>
+</ol>
+<p>The first option is wasteful and the second is just a bug waiting to happen a year from now when someone decides to reuse a List&lt;Module&gt; for another purpose.&nbsp; With immutable types the container has a much better third option: demand a collection that never changes</p>
+<div style="margin-left: 10px;"><!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode"><span class="kwrd">class</span> Container {
+   ImmutableArray&lt;Module&gt; m_modules;
+
+   <span class="kwrd">public</span> Container(ImmutableArray&lt;Module&gt; modules) { 
+     <span class="rem">// Trust no one </span>
+     m_modules = modules;
+   }
+}</pre>
+</div>
+<p>The callee has now forcefully stated to the caller exactly what type of data it expects.&nbsp; It no longer has to make a wasteful copy or hope for good behavior.&nbsp; True this may force the caller to create an immutable copy of the value it holds.&nbsp; It&rsquo;s also just as likely that the caller will be in a position to provide the collection without any copies.&nbsp; If it takes the collection as input it can simply pass along the requirement in its parameter list.&nbsp; Or if it is the original creator of the collection it can do so as an ImmutableArray&lt;Module&gt; from the start and avoid the extra copy altogether.&nbsp; Over time, code bases which are assertive about using immutable collections will see a decrease in allocations because they will feel more comfortable with sharing data between independent components.&nbsp;</p>
+<p>This is just a small sample of cases where immutable collections are useful in day to day code.&nbsp; The more you use them the more uses you will find for them.&nbsp; At some point you may even find yourself asking the following question when writing up a type</p>
+<blockquote>
+<p>Do I actually <strong>need</strong> to mutate this collection after I finish building it?</p>
+</blockquote>
+<p>Generally speaking the answer to this is no.&nbsp; And this is why you should be using immutable types.&nbsp;</p>
+<p>&nbsp;</p>
+<p>[1] If you dig deep into the implementation you&rsquo;ll find it&rsquo;s actually a fresh array of RuntimeModule[].&nbsp; So even though they allocate a new array on every call you can&rsquo;t safely write Module instances into it unless they happen to be instances of RuntimeModule.&nbsp; So wasteful!</p><div style="clear:both;"></div></div>
+    

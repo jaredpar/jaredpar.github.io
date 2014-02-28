@@ -1,0 +1,26 @@
+<p>The PowerShell pipeline, is fairly similar to C#/VB’s LINQ.&#160; Both filter a group of elements through a series of transformations which produce a new series of elements.&#160; The devil is in the details of course but I’ll get to that in a future post.&#160; </p>  <p>When using PowerShell I constantly find myself wanting to use various LINQ expressions on a pipeline.&#160; Unfortunately, many LINQ expressions have no built-in equivalent in PowerShell.&#160; Most are fairly straightforward to write but a few are a bit trickier.&#160; In either case, there’s no reason for people needing to figure them out twice.&#160; So I’ll be starting a series on LINQ expressions in PowerShell.</p>  <p>Also, my posts are getting a bit long winded as of late.&#160; This will be a good oppuritunity to get some shorter posts up.</p>  <p>Today's entry is the equivalent of <a href="http://msdn.microsoft.com/en-us/library/bb358985.aspx">Enumerable.Skip</a>.&#160; The operation takes a count and skips “count” elements in the enumeration.&#160; For PowerShell, it’s the equivalent of skipping “count” elements in the pipeline.&#160; </p>  <pre>#============================================================================
+# Skip the specified number of items
+#============================================================================
+function Skip-Count() {
+    param ( $count = $(throw &quot;Need a count&quot;) )
+    begin { 
+        $i = 0
+    }
+    process {
+        if ( $i -ge $count ) { 
+            $_
+        }
+        $i += 1
+    }
+    end {}
+}</pre>
+
+<p>Example:</p>
+
+<pre>PS:) 1..10 | skip-count 5
+6
+7
+8
+9
+10</pre></div>
+    

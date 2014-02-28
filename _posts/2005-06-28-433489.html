@@ -1,0 +1,8 @@
+<P>For the last few weeks, I've been playing around with a LUA tool that was recently presented to me.&nbsp; The tool is available on the following website </P>
+<P><A href="http://www.harper.no/valery/CategoryView,category,RunAsAdmin.aspx">http://www.harper.no/valery/CategoryView,category,RunAsAdmin.aspx</A></P>
+<P>The tool intercepts interactive logons and uses the <A href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secmgmt/security/safer.asp">Safer APIs</A> to restrict your logon token to that of a normal user and start explorer with the restricted token.&nbsp; In effect, when you log on it logs you on as a normal user.&nbsp; The handy part is that it also creates a tray application that allows you to start programs with your full token rights without the hassle of entering your password.&nbsp; This is very similar to Aaron Margosis's MakeMeAdmin.cmd script.&nbsp; I highly recomend this for anyone who runs as an LUA.&nbsp; </P>
+<P>Here are the few downsides I have encountered while using this program </P>
+<OL>
+<LI>CTRL+SHIFT+ESC starts TaskMgr with full administrative rights (noted on website).&nbsp; You can get around this by choosing the taskmgr from the TaskBar right click menu</LI>
+<LI>For this to work, your account must be a part of the Administrators group.&nbsp; Thus if you use the MakeMeAdmin script out of habbit one day, it will remove your account from the Administrator group.</LI></OL><div style="clear:both;"></div></div>
+    

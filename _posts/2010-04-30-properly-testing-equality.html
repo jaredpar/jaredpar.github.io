@@ -1,0 +1,279 @@
+<p>Getting equality correct on a .Net type is a fairly involved process involving adherence to a large set of rules in order to be considered correct.&#160; Including </p>  <ul>   <li>Object.Equals overrides on reference types must return false for null values </li>    <li>Object.Equals overrides must return false for incompatible types </li>    <li>Excluding null cases x.Equals(y) must be the same as y.Equals(x) </li>    <li>Excluding null cases (x.Equals(y) &amp;&amp; y.Equals(z)) is true only if x.Equals(z) </li>    <li>If operator == or overloaded      <ul>       <li>Both == and != should be overloaded or none </li>        <li>Operator == must handle the left side being null </li>        <li>Operator == should mimic Object.Equals in all cases where the left side is not null </li>        <li>Operator != must handle the left side being null </li>        <li>Operator != should mimic !Object.Equals in all cases where the left side is not null </li>     </ul>   </li>    <li>If two values are equal according to Object.Equals they must have matching returns for GetHashCode </li> </ul>  <p>I’m sure I missed one or two subtle ones but these are the major players.&#160; It gets even more fun when you add in IEquatable&lt;T&gt; to the mix.&#160; </p>  <p>Luckily correctly implementing equality is fairly straight forward and most template code available on the web respects the above rules.&#160; However it’s easy to miss a corner case and add hard to track down bugs.&#160; </p>  <p>I’m not satisfied by simply following a standard template and hoping I got it right.&#160; I only sleep easy if I’ve tested these cases.&#160; Yet testing all of these cases is very tedious and involves quite a bit of code that screams for an abstraction.&#160; As a new type author I simply want to provide a collection of units which associate a value and corresponding equal or not equal values and let the abstraction verify I properly implemented equality semantics. </p>  <p>The first step is defining a type to encapsulate a value and set of equal or not equal values.&#160; </p> <a href="http://11011.net/software/vspaste"></a>  <pre class="code"><span style="color: blue">public class </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt; {
+    <span style="color: blue">private static </span><span style="color: #2b91af">ReadOnlyCollection</span>&lt;T&gt; EmptyCollection = <span style="color: blue">new </span><span style="color: #2b91af">ReadOnlyCollection</span>&lt;T&gt;(<span style="color: blue">new </span>T[] { });
+
+    <span style="color: blue">public readonly </span>T Value;
+    <span style="color: blue">public readonly </span><span style="color: #2b91af">ReadOnlyCollection</span>&lt;T&gt; EqualValues;
+    <span style="color: blue">public readonly </span><span style="color: #2b91af">ReadOnlyCollection</span>&lt;T&gt; NotEqualValues;
+    <span style="color: blue">public </span><span style="color: #2b91af">IEnumerable</span>&lt;T&gt; AllValues {
+        <span style="color: blue">get </span>{ <span style="color: blue">return </span><span style="color: #2b91af">Enumerable</span>.Repeat(Value, 1).Concat(EqualValues).Concat(NotEqualValues); }
+    }
+    <span style="color: blue">public </span>EqualityUnit(T value) {
+        Value = value;
+        EqualValues = EmptyCollection;
+        NotEqualValues = EmptyCollection;
+    }
+    <span style="color: blue">public </span>EqualityUnit(
+        T value,
+        <span style="color: #2b91af">ReadOnlyCollection</span>&lt;T&gt; equalValues,
+        <span style="color: #2b91af">ReadOnlyCollection</span>&lt;T&gt; notEqualValues) {
+        Value = value;
+        EqualValues = equalValues;
+        NotEqualValues = notEqualValues;
+    }
+    <span style="color: blue">public </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt; WithEqualValues(<span style="color: blue">params </span>T[] equalValues) {
+        <span style="color: blue">return new </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt;(
+            Value,
+            EqualValues.Concat(equalValues).ToList().AsReadOnly(),
+            NotEqualValues);
+    }
+    <span style="color: blue">public </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt; WithNotEqualValues(<span style="color: blue">params </span>T[] notEqualValues) {
+        <span style="color: blue">return new </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt;(
+            Value,
+            EqualValues,
+            NotEqualValues.Concat(notEqualValues).ToList().AsReadOnly());
+    }
+}
+
+<span style="color: blue">public static class </span><span style="color: #2b91af">EqualityUnit </span>{
+    <span style="color: blue">public static </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt; Create&lt;T&gt;(T value) {
+        <span style="color: blue">return new </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt;(value);
+    }
+}</pre>
+
+<p>I chose a fluent interface design here because it makes the usage code very readable.&#160; For example </p>
+
+<pre class="code"><span style="color: blue">var </span>unit = <span style="color: #2b91af">EqualityUnit
+    </span>.Create(<span style="color: blue">new </span><span style="color: #2b91af">MyType</span>(42))
+    .WithEqualValues(<span style="color: blue">new </span><span style="color: #2b91af">MyType</span>(42))
+    .WithNotEqualValues(<span style="color: blue">new </span><span style="color: #2b91af">MyType</span>(13));</pre>
+
+<p>Now that we have the data defined we need to follow through with the actual test code.&#160; Most of it is very straight forward enforcement of the above said rules.&#160; The only trick part is how to test operator == and !=.&#160;&#160; The testing class is necessarily generic but neither == or != can be used against open generic types.&#160; Instead we must use them against the non-generic types.&#160; </p>
+
+<p>This can be solved by having the calling code provide 2 lambda expressions of type Func&lt;T,T,bool&gt; which call the == and != operator.&#160;&#160; </p>
+
+<pre class="code"><span style="color: #2b91af">EqualityUtil</span>.RunAll(
+    (x, y) =&gt; x == y,
+    (x, y) =&gt; x != y,</pre>
+
+<p>This is boiler plate code that has to be repeated for every caller but it’s small enough to not be that much of a burden.&#160;&#160; Now finally the code.</p>
+
+<pre class="code"><span style="color: blue">public sealed class </span><span style="color: #2b91af">EqualityUtil</span>&lt;T&gt; {
+    <span style="color: blue">private readonly </span><span style="color: #2b91af">ReadOnlyCollection</span>&lt;<span style="color: #2b91af">EqualityUnit</span>&lt;T&gt;&gt; _equalityUnits;
+    <span style="color: blue">private readonly </span><span style="color: #2b91af">Func</span>&lt;T, T, <span style="color: blue">bool</span>&gt; _compareWithEqualityOperator;
+    <span style="color: blue">public readonly </span><span style="color: #2b91af">Func</span>&lt;T, T, <span style="color: blue">bool</span>&gt; _compareWithInequalityOperator;
+
+    <span style="color: blue">public </span>EqualityUtil(
+        <span style="color: #2b91af">IEnumerable</span>&lt;<span style="color: #2b91af">EqualityUnit</span>&lt;T&gt;&gt; equalityUnits,
+        <span style="color: #2b91af">Func</span>&lt;T, T, <span style="color: blue">bool</span>&gt; compEquality,
+        <span style="color: #2b91af">Func</span>&lt;T, T, <span style="color: blue">bool</span>&gt; compInequality) {
+        _equalityUnits = equalityUnits.ToList().AsReadOnly();
+        _compareWithEqualityOperator = compEquality;
+        _compareWithInequalityOperator = compInequality;
+    }
+
+    <span style="color: blue">public void </span>RunAll(
+        <span style="color: blue">bool </span>skipOperators = <span style="color: blue">false</span>,
+        <span style="color: blue">bool </span>skipEquatable = <span style="color: blue">false</span>) {
+        <span style="color: blue">if </span>(!skipOperators) {
+            EqualityOperator();
+            EqualityOperatorCheckNull();
+            InEqualityOperator();
+            InEqualityOperatorCheckNull();
+        }
+
+        <span style="color: blue">if </span>(!skipEquatable) {
+            ImplementsIEquatable();
+            EquatableEquals();
+            EquatableEqualsCheckNull();
+        }
+
+        ObjectEquals();
+        ObjectEqualsCheckNull();
+        ObjectEqualsDifferentType();
+        GetHashCodeSemantics();
+    }
+
+    <span style="color: blue">private void </span>EqualityOperator() {
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>unit <span style="color: blue">in </span>_equalityUnits) {
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.EqualValues) {
+                Assert.IsTrue(_compareWithEqualityOperator(unit.Value, value));
+                Assert.IsTrue(_compareWithEqualityOperator(value, unit.Value));
+            }
+
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.NotEqualValues) {
+                Assert.IsFalse(_compareWithEqualityOperator(unit.Value, value));
+                Assert.IsFalse(_compareWithEqualityOperator(value, unit.Value));
+            }
+        }
+    }
+
+    <span style="color: blue">private void </span>EqualityOperatorCheckNull() {
+        <span style="color: blue">if </span>(<span style="color: blue">typeof</span>(T).IsValueType) {
+            <span style="color: blue">return</span>;
+        }
+
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>_equalityUnits.SelectMany(x =&gt; x.AllValues)) {
+            <span style="color: blue">if </span>(!<span style="color: #2b91af">Object</span>.ReferenceEquals(value, <span style="color: blue">null</span>)) {
+                Assert.IsFalse(_compareWithEqualityOperator(<span style="color: blue">default</span>(T), value));
+                Assert.IsFalse(_compareWithEqualityOperator(value, <span style="color: blue">default</span>(T)));
+            }
+        }
+    }
+
+    <span style="color: blue">private void </span>InEqualityOperator() {
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>unit <span style="color: blue">in </span>_equalityUnits) {
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.EqualValues) {
+                Assert.IsFalse(_compareWithInequalityOperator(unit.Value, value));
+                Assert.IsFalse(_compareWithInequalityOperator(value, unit.Value));
+            }
+
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.NotEqualValues) {
+                Assert.IsTrue(_compareWithInequalityOperator(unit.Value, value));
+                Assert.IsTrue(_compareWithInequalityOperator(value, unit.Value));
+            }
+        }
+    }
+
+    <span style="color: blue">private void </span>InEqualityOperatorCheckNull() {
+        <span style="color: blue">if </span>(<span style="color: blue">typeof</span>(T).IsValueType) {
+            <span style="color: blue">return</span>;
+        }
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>_equalityUnits.SelectMany(x =&gt; x.AllValues)) {
+            <span style="color: blue">if </span>(!<span style="color: #2b91af">Object</span>.ReferenceEquals(value, <span style="color: blue">null</span>)) {
+                Assert.IsTrue(_compareWithInequalityOperator(<span style="color: blue">default</span>(T), value));
+                Assert.IsTrue(_compareWithInequalityOperator(value, <span style="color: blue">default</span>(T)));
+            }
+        }
+    }
+
+    <span style="color: blue">private void </span>ImplementsIEquatable() {
+        <span style="color: blue">var </span>type = <span style="color: blue">typeof</span>(T);
+        <span style="color: blue">var </span>targetType = <span style="color: blue">typeof</span>(<span style="color: #2b91af">IEquatable</span>&lt;T&gt;);
+        Assert.IsTrue(type.GetInterfaces().Contains(targetType));
+    }
+
+    <span style="color: blue">private void </span>ObjectEquals() {
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>unit <span style="color: blue">in </span>_equalityUnits) {
+            <span style="color: blue">var </span>unitValue = unit.Value;
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.EqualValues) {
+                Assert.IsTrue(unitValue.Equals(value));
+                Assert.IsTrue(value.Equals(unitValue));
+            }
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.NotEqualValues) {
+                Assert.IsFalse(unitValue.Equals(value));
+                Assert.IsFalse(value.Equals(unitValue));
+            }
+        }
+    }
+
+    <span style="color: gray">/// &lt;summary&gt;
+    /// </span><span style="color: green">Comparison with Null should be false for reference types
+    </span><span style="color: gray">/// &lt;/summary&gt;
+    </span><span style="color: blue">private void </span>ObjectEqualsCheckNull() {
+        <span style="color: blue">if </span>(<span style="color: blue">typeof</span>(T).IsValueType) {
+            <span style="color: blue">return</span>;
+        }
+
+        <span style="color: blue">var </span>allValues = _equalityUnits.SelectMany(x =&gt; x.AllValues);
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>allValues) {
+            Assert.IsFalse(value.Equals(<span style="color: blue">null</span>));
+        }
+    }
+
+    <span style="color: blue">private sealed class </span><span style="color: #2b91af">NotAccessible </span>{ } 
+
+    <span style="color: gray">/// &lt;summary&gt;
+    /// </span><span style="color: green">Passing a value of a different type should just return false
+    </span><span style="color: gray">/// &lt;/summary&gt;
+    </span><span style="color: blue">private void </span>ObjectEqualsDifferentType() {
+        <span style="color: blue">var </span>allValues = _equalityUnits.SelectMany(x =&gt; x.AllValues);
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>allValues) {
+            Assert.IsFalse(value.Equals(<span style="color: blue">new </span><span style="color: #2b91af">NotAccessible</span>()));
+        }
+    }
+
+    <span style="color: blue">private void </span>GetHashCodeSemantics() {
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>unit <span style="color: blue">in </span>_equalityUnits) {
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.EqualValues) {
+                Assert.AreEqual(value.GetHashCode(), unit.Value.GetHashCode());
+            }
+        }
+    }
+
+    <span style="color: blue">private void </span>EquatableEquals() {
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>unit <span style="color: blue">in </span>_equalityUnits) {
+            <span style="color: blue">var </span>equatableUnit = (<span style="color: #2b91af">IEquatable</span>&lt;T&gt;)unit.Value;
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.EqualValues) {
+                Assert.IsTrue(equatableUnit.Equals(value));
+                <span style="color: blue">var </span>equatableValue = (<span style="color: #2b91af">IEquatable</span>&lt;T&gt;)value;
+                Assert.IsTrue(equatableValue.Equals(unit.Value));
+            }
+
+            <span style="color: blue">foreach </span>(<span style="color: blue">var </span>value <span style="color: blue">in </span>unit.NotEqualValues) {
+                Assert.IsFalse(equatableUnit.Equals(value));
+                <span style="color: blue">var </span>equatableValue = (<span style="color: #2b91af">IEquatable</span>&lt;T&gt;)value;
+                Assert.IsFalse(equatableValue.Equals(unit.Value));
+            }
+        }
+    }
+
+    <span style="color: gray">/// &lt;summary&gt;
+    /// </span><span style="color: green">If T is a reference type, null should return false in all cases
+    </span><span style="color: gray">/// &lt;/summary&gt;
+    </span><span style="color: blue">private void </span>EquatableEqualsCheckNull() {
+        <span style="color: blue">if </span>(<span style="color: blue">typeof</span>(T).IsValueType) {
+            <span style="color: blue">return</span>;
+        }
+
+        <span style="color: blue">foreach </span>(<span style="color: blue">var </span>cur <span style="color: blue">in </span>_equalityUnits.SelectMany(x =&gt; x.AllValues)) {
+            <span style="color: blue">var </span>value = (<span style="color: #2b91af">IEquatable</span>&lt;T&gt;)cur;
+            Assert.IsFalse(value.Equals(<span style="color: blue">null</span>));
+        }
+    }
+}
+
+<span style="color: blue">public static class </span><span style="color: #2b91af">EqualityUtil </span>{
+    <span style="color: blue">public static void </span>RunAll&lt;T&gt;(
+        <span style="color: #2b91af">Func</span>&lt;T, T, <span style="color: blue">bool</span>&gt; compEqualsOperator,
+        <span style="color: #2b91af">Func</span>&lt;T, T, <span style="color: blue">bool</span>&gt; compNotEqualsOperator,
+        <span style="color: blue">bool </span>skipOperators,
+        <span style="color: blue">bool </span>skipEquatable,
+        <span style="color: blue">params </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt;[] values) {
+        <span style="color: blue">var </span>util = <span style="color: blue">new </span><span style="color: #2b91af">EqualityUtil</span>&lt;T&gt;(values, compEqualsOperator, compNotEqualsOperator);
+        util.RunAll(skipOperators: skipOperators, skipEquatable: skipEquatable);
+    }
+
+    <span style="color: blue">public static void </span>RunAll&lt;T&gt;(
+        <span style="color: #2b91af">Func</span>&lt;T, T, <span style="color: blue">bool</span>&gt; compEqualsOperator,
+        <span style="color: #2b91af">Func</span>&lt;T, T, <span style="color: blue">bool</span>&gt; compNotEqualsOperator,
+        <span style="color: blue">params </span><span style="color: #2b91af">EqualityUnit</span>&lt;T&gt;[] values) {
+        RunAll(compEqualsOperator, compNotEqualsOperator, skipEquatable: <span style="color: blue">false</span>, skipOperators: <span style="color: blue">false</span>, values: values);
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>And what would any code, including test framework code be without a few test cases?</p>
+
+<pre class="code">[TestFixture]
+<span style="color: blue">public class </span><span style="color: #2b91af">EqualityUtilTesting </span>{
+
+    [Test]
+    <span style="color: blue">public void </span>EqualityWithIntegers() {
+        <span style="color: #2b91af">EqualityUtil</span>.RunAll(
+            (x, y) =&gt; x == y,
+            (x, y) =&gt; x != y,
+            <span style="color: #2b91af">EqualityUnit</span>.Create(1).WithEqualValues(1).WithNotEqualValues(2),
+            <span style="color: #2b91af">EqualityUnit</span>.Create(42).WithNotEqualValues(13));
+    }
+
+    [Test]
+    <span style="color: blue">public void </span>EqualityWithStrings() {
+        <span style="color: #2b91af">EqualityUtil</span>.RunAll(
+            (x, y) =&gt; x == y,
+            (x, y) =&gt; x != y,
+            <span style="color: #2b91af">EqualityUnit</span>.Create(<span style="color: #a31515">&quot;foo&quot;</span>).WithEqualValues(<span style="color: #a31515">&quot;foo&quot;</span>).WithNotEqualValues(<span style="color: #a31515">&quot;no&quot;</span>),
+            <span style="color: #2b91af">EqualityUnit</span>.Create(<span style="color: #a31515">&quot;FOO&quot;</span>).WithNotEqualValues(<span style="color: #a31515">&quot;foo&quot;</span>));
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a></div>
+    

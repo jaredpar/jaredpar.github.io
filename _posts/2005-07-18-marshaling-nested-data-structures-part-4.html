@@ -1,0 +1,73 @@
+<P>This is part&nbsp;4 of a series.&nbsp; You can find <A href="http://blogs.msdn.com/jaredpar/archive/2005/07/11/437584.aspx" mce_href="http://blogs.msdn.com/jaredpar/archive/2005/07/11/437584.aspx"><STRONG><FONT color=#006bad>part one here</FONT></STRONG></A>.&nbsp; Please refer to that article for all of the Native definitions of the structures that I use here.</P>
+<P>In the previous article we were left with a solution where using the code was very clean but the actualy implementation had extra allocation and perf overhead.&nbsp; We'll conquer both of those in this installment by implementing a custom marshaler for our Course object.&nbsp; This is accomplished by implementing ICustomMarshaler and call the class CourseMarshaler.&nbsp; <A href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemruntimeinteropservicesicustommarshalermemberstopic.asp" mce_href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemruntimeinteropservicesicustommarshalermemberstopic.asp">(ICustomMarshaler docs)</A></P>
+<P>Custom marshaling is exactly like it sounds.&nbsp; The marshaler itself does practically nothing.&nbsp; Your code must transform the managed data structure into a native format and vice versa.&nbsp; It can be tedious at times but this method can be used to marshal even the most complex of structures.&nbsp; There are 6 methods you must implement.&nbsp; Lets go over each of them.&nbsp; </P>
+<P>CleanupData() - Use this method to dispose of anything on your managed object when it's no longer needed.&nbsp; Typically there is nothing to do here and this method remains blank as it does in our case.&nbsp; </P>
+<P>CleanupNativeData()&nbsp;- Use this method to free up any data associated with the Native pointer after the runtime is finished using it.&nbsp; In our case, we have to allocate memory to Marshal the data structure into, so we need to free up this pointer.&nbsp; </P><PRE>public void CleanUpNativeData(IntPtr pNativeData)
+{
+    Marshal.FreeCoTaskMem(pNativeData);
+}</PRE>
+<P>GetNativeDataSize() - Returns the size of the unmanaged data structure.&nbsp; As previously discussed, this size is 268. </P>
+<P>MarshalManagedToNative() - Takes in an object and returns a pointer to the memory that contains the Native structure in memory.&nbsp; To complete this we need to allocate a block of memory, and then marshal each of the fields in order into that memory block and return the pointer to the front of the block.&nbsp; The pointer we allocate will be freed later when the runtime passes it into CleanupNativeData().&nbsp; Some error checking was removed for the sake of brevity.&nbsp; </P><PRE>public IntPtr MarshalManagedToNative(object managedObj)
+{
+    Course course = (Course)managedObj;
+</PRE><PRE>    IntPtr ptr = Marshal.AllocCoTaskMem(this.GetNativeDataSize());
+    if (IntPtr.Zero == ptr)
+    {
+        throw new Exception("Could not allocate memory");
+    }
+</PRE><PRE>    // Write the Int values in order into memory
+    Marshal.WriteInt32(ptr, 0, course.Id);
+    Marshal.WriteInt32(ptr, Marshal.SizeOf(typeof(Int32)), course.Count);
+            
+    // Now we need to Marshal each of the Student elements into the "array".  This 
+    // starts immediately after the Ints
+    IntPtr cur = new IntPtr(ptr.ToInt32() + (2 * Marshal.SizeOf(typeof(Int32))));
+    for (int i = 0; i &lt; course.Count; i++)
+    {
+         Student student = course.Students[i];
+         Marshal.StructureToPtr(student, cur, false);
+         cur = new IntPtr(cur.ToInt32() + Marshal.SizeOf(typeof(Student)));
+    }
+    return ptr;
+}</PRE>
+<P>MarshalManagedToNative() - Marshal the Native Struct into a managed version.&nbsp; This is almost identical to the sample that we did in part 3.&nbsp; Code reposted below.&nbsp; </P><PRE>public object MarshalNativeToManaged(IntPtr ptr)
+{
+    int courseId = Marshal.ReadInt32(ptr);
+    int count = Marshal.ReadInt32(ptr, Marshal.SizeOf(typeof(Int32)));
+
+    // Set the int values
+    Course course = new Course();
+    course.Id = courseId;
+    course.Count = count;
+
+    // Now read out the Student structures
+    ptr = new IntPtr(ptr.ToInt32() + (2 * Marshal.SizeOf(typeof(Int32))));
+    for (int i = 0; i &lt; count; i++)
+    {
+        Student student = (Student)Marshal.PtrToStructure(ptr, typeof(Student));
+        course.Students[i] = student;
+        ptr = new IntPtr(ptr.ToInt32() + Marshal.SizeOf(typeof(Student)));
+    }
+
+    return course;
+}</PRE>
+<P>GetInstance() - This method is not a part of the ICustomMarshal interface but it's a <STRONG>static</STRONG> method that must be implemented by any custom marashaler.&nbsp; The runtime uses this to create an instance of the object.&nbsp; </P>
+<P>Now we have a complete implementation of ICustomMarshal.&nbsp; Really the only new method that we had to implement was MarshalManagedToNative() and that's just the opposite of what we did in part 3.&nbsp; There are a couple of tidbits left that we have to alter.&nbsp; </P>
+<P>The first is that we <STRONG>must</STRONG> convert the managed Course from a struct to a class.&nbsp; This is very important.&nbsp; A custom marshaler can only be applied to reference types.&nbsp; Changing Course to&nbsp;a class has a couple of other implications as well.&nbsp; Structs in C# are stored in the stack and reference types are stored on the heap.&nbsp; This has implications to Marshalling as well.&nbsp; When you Marshal&nbsp;a struct (or any ValueType), the runtime is expecting to find a stack based value (or better, a non pointer value) on the Native end.&nbsp; Now we are Marshalling a reference type so the runtime will expect to find a pointer value on the other end.&nbsp; </P>
+<P>Also we can do away with the StructLayout attribute on the Course type.&nbsp; We are hand Marshaling this now so we don't need to provide any hints to the runtime.&nbsp; Now we are left with just a vanilla class.&nbsp; </P><PRE>public class Course
+{
+&nbsp;&nbsp;&nbsp; public int Id;<BR>&nbsp;&nbsp;&nbsp; public int Count;<BR>&nbsp;&nbsp;&nbsp; public List&lt;Student&gt; Students = new List&lt;Student&gt;(5);
+}</PRE>
+<P>Now we just need to inform the runtime about how to link our custom marshaler (called CourseMarshaler in my code) to the Course class.&nbsp; Every place that we declare a P/Invoke method we need to add custom Marshalling data.&nbsp; This is done by adding the MarshalAs attribute.&nbsp; Lets use the GetCourseInfo() method for an example.&nbsp; Here is our updated definition.</P><PRE>[DllImport("Enrollment.dll", CharSet = CharSet.Unicode)]
+[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(CourseMarshaler))]
+public static extern Course GetCourseInfo(int id);</PRE>
+<P>We've made two important changes here as well.&nbsp; The first is we changed the return type of the method from an IntPtr to a Course.&nbsp; Remember that this is a class now so the runtime is expecting a pointer value.&nbsp; We take advantage of that here.&nbsp; Also we've added the MarshalAs attribute to the return type to tell the runtime to use the Custom marshaler that we created.&nbsp; </P>
+<P>This makes the use code even cleaner since we aren't dealing with an IntPtr return type anymore.&nbsp; </P><PRE>static void Main(string[] args)
+{
+    Course course = Enrollment.GetCourseInfo(42);
+    Student first = course.Students[0];
+}
+</PRE>
+<P>That essentially concludes this series on Marshalling Nested Data Structures.&nbsp; I may add an additional chapter on common tips for debugging common marshalling problems if I have some time.&nbsp; Hope you enjoyed this.&nbsp; </P>
+<P><FONT size=2>This posting is provided "AS IS" with no warranties, and confers no rights. <BR>Use of included script samples are subject to the terms specified at </FONT><A title=http href="http://www.microsoft.com/info/cpyright.htm" mce_href="http://www.microsoft.com/info/cpyright.htm"><FONT face=Verdana color=#223355 size=2><STRONG>http://www.microsoft.com/info/cpyright.htm</STRONG></FONT></A><FONT face=Verdana size=2>.</FONT></P><div style="clear:both;"></div></div>
+    

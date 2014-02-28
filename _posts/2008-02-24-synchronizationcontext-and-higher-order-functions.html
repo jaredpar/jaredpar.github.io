@@ -1,0 +1,117 @@
+<p>It's often useful to ensure that actions occur on specific threads, in particular event handlers.&#160; Take Windows Forms for instance where all operations on a Control must occur on the thread it was created on.&#160; Typically this is not a problem since WinForms respond to events such as Click, Move, etc...&#160; These events are sourced from the same thread so it's not an issue.&#160; </p>  <p>But there are cases where events are sourced from a separate thread and we need to Marshal it back onto the Control thread.&#160; One good example of this is <a href="http://msdn2.microsoft.com/en-us/library/system.io.filesystemwatcher.aspx">FileSystemWatcher</a>.&#160; If a SynchronizationObject is not provided it will raise the event on an unspecified thread.&#160; This event cannot directly touch a Control or an &quot;Illegal cross thread call exception&quot; will occur.&#160; Many examples use ISynchronizedInvoke to marshal the code back.&#160; There are a couple of downsides to this approach including</p>  <ol>   <li>ISynchronizedInvoke on Controls won't work until the Handle is created or after it's destroyed.&#160; So if the event fires in either of these cases an unhandled exception will occur and typically crash the process. </li>    <li>Can't use an anonymous lambda because ISynchronizedInvoke is not typed to a specific delegate </li>    <li>Code is easy to get subtly wrong </li> </ol>  <p>Here is an example implementation.&#160; </p>  <pre class="code">        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> OnFileChanged(<span style="color: rgb(0,0,255)">object</span> sender, <span style="color: rgb(43,145,175)">FileSystemEventArgs</span> e)
+        {
+            <span style="color: rgb(0,0,255)">if</span>( <span style="color: rgb(0,0,255)">this</span>.InvokeRequired )
+            {
+                <span style="color: rgb(0,128,0)">// If the handle is not created this will throw
+</span>                Invoke((<span style="color: rgb(43,145,175)">MethodInvoker</span>)(() =&gt; OnFileChanged(sender, e)));
+                <span style="color: rgb(0,0,255)">return</span>;
+            }
+
+            textBox2.Text = <span style="color: rgb(43,145,175)">String</span>.Format(<span style="color: rgb(163,21,21)">&quot;{0} {1}&quot;</span>, e.ChangeType, e.Name);
+        }</pre>
+
+<p>It would be easier if we could bind a delegate to a particular thread in such way that calls automatically marshal to the appropriate thread.&#160; Imagine for instance if we could type the following in such a way that all invocations of &quot;del&quot; below would automatically marshal to the thread for the Control.&#160; We could then freely pass this to any event source and not have to worry about what thread the event is raised on.&#160; </p>
+
+<pre class="code"><span style="color: rgb(0,0,255)">var</span> del = <span style="color: rgb(43,145,175)">SynchronizationContext</span>.Current.BindDelegateAsPost(<span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">FileSystemEventHandler</span>(OnFileChanged));</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Instead of ISynchronizedInvoke we'll use <a href="http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx">SynchronizationContext</a>.&#160; IMHO this is a better approach for this type of work.&#160; It has the same functionality as ISynchronizedInvoke and helps with a few of the quirks.&#160; The Windows Forms Application Model (and if memory serves WPF) insert a <a href="http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx">SynchronizationContext</a> for every thread running a WinForm application.&#160; It greatly reduces the chance your code will run into problem #1 above because the timespan for when it can be used to Marshal between threads is not dependent upon the internal workings of a particular Control.&#160; Instead it's tied to the lifetime of the Thread[1].&#160; </p>
+
+<p>The basic strategy we'll take is to create a new delegate which wraps the original delegate.&#160; This will Marshal the call onto the appropriate thread and then call the original delegate. <a href="http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx">SynchronizationContext</a> has two methods to Marshal calls between threads; Post and Send.&#160; </p>
+
+<p>Creating a delegate instance on the fly is not straight forward.&#160; Unless we code all permutations of delegate signatures into a class we cannot use the Delegate.Create API because we cannot provide a method with the matching signature.&#160; Instead we need to go through Reflection.Emit.&#160; This allows us to build a method on the fly to match the delegate signature.&#160; In addition we can generate the IL to route the code through Post/Send before calling the delegate.</p>
+
+<p>First up are extension methods for <a href="http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx">SynchronizationContext</a> that call into a helper class.</p>
+
+<pre class="code"><span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> T BindDelegateAsPost&lt;T&gt;(<span style="color: rgb(0,0,255)">this</span> <span style="color: rgb(43,145,175)">SynchronizationContext</span> context, T del)
+{
+    <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(43,145,175)">DelegateFactory</span>.CreateAsPost(context, del);
+} </pre>
+
+<pre class="code"><span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> T BindDelegateAsSend&lt;T&gt;(<span style="color: rgb(0,0,255)">this</span> <span style="color: rgb(43,145,175)">SynchronizationContext</span> context, T del)
+{
+    <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(43,145,175)">DelegateFactory</span>.CreateAsSend(context, del);
+}</pre>
+<a href="http://11011.net/software/vspaste"></a><a href="http://11011.net/software/vspaste"></a>
+
+<p>Next is a class which injects the Send/Post call.&#160; We need this as a storage mechanism for holding the context and delegate.&#160; Essentially this is a hand generate closure.</p>
+
+<pre class="code">    <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">class</span> <span style="color: rgb(43,145,175)">DelegateData
+</span>    {
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(43,145,175)">SynchronizationContext</span> m_context;
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(43,145,175)">Delegate</span> m_target;
+
+        <span style="color: rgb(0,0,255)">internal</span> DelegateData(<span style="color: rgb(43,145,175)">SynchronizationContext</span> context, <span style="color: rgb(43,145,175)">Delegate</span> target)
+        {
+            m_target = target;
+            m_context = context;
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">void</span> Send(<span style="color: rgb(0,0,255)">object</span>[] args)
+        {
+            m_context.Send(() =&gt; m_target.DynamicInvoke(args));
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">void</span> Post(<span style="color: rgb(0,0,255)">object</span>[] args)
+        {
+            m_context.Post(() =&gt; m_target.DynamicInvoke(args));
+        }
+    }</pre>
+
+<p>Now comes the actual delegate generation.&#160; The dynamic method will be bound to an instance of the DelegateData class.&#160; As such we must add an additional parameter to the delegate of type DelegateData in position 0.&#160; The rest of the method creates an object array with length equal to the number of parameters in the delegate.&#160; Each of the arguments are added to this array.&#160; Then it will call Post/Send in DelegateData passing the arguments along.&#160; </p>
+
+<pre class="code">    <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">static</span> T Create&lt;T&gt;(<span style="color: rgb(43,145,175)">SynchronizationContext</span> context, T target, <span style="color: rgb(0,0,255)">string</span> name)
+    {
+        <span style="color: rgb(43,145,175)">Delegate</span> del = (<span style="color: rgb(43,145,175)">Delegate</span>)(<span style="color: rgb(0,0,255)">object</span>)target;
+        <span style="color: rgb(0,0,255)">if</span> (del.Method.ReturnType != <span style="color: rgb(0,0,255)">typeof</span>(<span style="color: rgb(0,0,255)">void</span>))
+        {
+            <span style="color: rgb(0,0,255)">throw</span> <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">ArgumentException</span>(<span style="color: rgb(163,21,21)">&quot;Only void return types currently supported&quot;</span>);
+        }
+
+        <span style="color: rgb(0,0,255)">var</span> paramList = <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">List</span>&lt;<span style="color: rgb(43,145,175)">Type</span>&gt;();
+        paramList.Add(<span style="color: rgb(0,0,255)">typeof</span>(<span style="color: rgb(43,145,175)">DelegateData</span>));
+        paramList.AddRange(del.Method.GetParameters().Project((x) =&gt; x.ParameterType));
+        <span style="color: rgb(0,0,255)">var</span> method = <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">DynamicMethod</span>(
+            <span style="color: rgb(163,21,21)">&quot;AMethodName&quot;</span>,
+            del.Method.ReturnType,
+            paramList.ToArray(),
+            <span style="color: rgb(0,0,255)">typeof</span>(<span style="color: rgb(43,145,175)">DelegateData</span>));
+        <span style="color: rgb(0,0,255)">var</span> gen = method.GetILGenerator();
+        <span style="color: rgb(0,0,255)">var</span> localInfo = gen.DeclareLocal(<span style="color: rgb(0,0,255)">typeof</span>(<span style="color: rgb(0,0,255)">object</span>[]));
+        gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Ldc_I4, paramList.Count - 1);
+        gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Newarr, <span style="color: rgb(0,0,255)">typeof</span>(<span style="color: rgb(0,0,255)">object</span>));
+        gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Stloc, localInfo.LocalIndex);
+        <span style="color: rgb(0,0,255)">for</span> (<span style="color: rgb(0,0,255)">int</span> i = 1; i &lt; paramList.Count; ++i)
+        {
+            gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Ldloc, localInfo.LocalIndex);
+            gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Ldc_I4, i - 1);
+            gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Ldarg, i);
+            <span style="color: rgb(0,0,255)">if</span> (paramList[i].IsValueType)
+            {
+                gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Box);
+            }
+            gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Stelem_Ref);
+        }
+
+        gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Ldarg_0);
+        gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Ldloc, localInfo.LocalIndex);
+        gen.EmitCall(<span style="color: rgb(43,145,175)">OpCodes</span>.Call, <span style="color: rgb(0,0,255)">typeof</span>(<span style="color: rgb(43,145,175)">DelegateData</span>).GetMethod(name, <span style="color: rgb(43,145,175)">BindingFlags</span>.Instance | <span style="color: rgb(43,145,175)">BindingFlags</span>.Public), <span style="color: rgb(0,0,255)">null</span>);
+        gen.Emit(<span style="color: rgb(43,145,175)">OpCodes</span>.Ret);
+        <span style="color: rgb(0,0,255)">return</span> (T)(<span style="color: rgb(0,0,255)">object</span>)method.CreateDelegate(<span style="color: rgb(0,0,255)">typeof</span>(T), <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">DelegateData</span>(context, del));
+    }
+
+    <span style="color: rgb(0,0,255)">internal</span> <span style="color: rgb(0,0,255)">static</span> T CreateAsSend&lt;T&gt;(<span style="color: rgb(43,145,175)">SynchronizationContext</span> context, T target)
+    {
+        <span style="color: rgb(0,0,255)">return</span> Create(context, target, &quot;Send&quot;);
+    }
+
+    <span style="color: rgb(0,0,255)">internal</span> <span style="color: rgb(0,0,255)">static</span> T CreateAsPost&lt;T&gt;(<span style="color: rgb(43,145,175)">SynchronizationContext</span> context, T target)
+    {
+        <span style="color: rgb(0,0,255)">return</span> Create(context, target, &quot;Post&quot;);
+    }</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>The resulting delegate is now of the same type as the original delegate and invocations will occur on the targeted thread.&#160; </p>
+
+<p>[1] Granted if you try to use a <a href="http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx">SynchronizationContext</a> to Marshal between threads after the target thread has finished you will still get an error.&#160; </p></div>
+    

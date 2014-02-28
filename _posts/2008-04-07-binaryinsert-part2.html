@@ -1,0 +1,70 @@
+<p><a href="http://blogs.msdn.com/jaredpar/archive/2008/03/31/missing-api-list-of-t-binaryinsert.aspx">Previously</a> I discussed a potential missing API in List(Of T).BinaryInsert.&nbsp; One of the items I mentioned was it had better performance because it was O(Log N) vs Insert and Sort which is O(NLogN).&nbsp; Several users correctly pointed out this was incorrect and that Insert() had the additional overhead of an Array.Copy() which is O(N)ish.&nbsp; But most agreed O(N) + O(LogN) was better than O(NLogN).&nbsp; </p> <p>Given that I already missed a key portion, I decided to write a test program to try out the various methods.&nbsp; Caveat: I'm not a performance guy.&nbsp; While I find performance intriguing and interesting it is by no means my specialty.&nbsp; Any single performance test is unlikely to capture all real world scenarios.&nbsp; However I did find the results a bit surprising.&nbsp; At the bottom of the post is the test code I wrote.&nbsp; </p> <p>Here is the summary output.&nbsp; </p> <blockquote> <p>Force Jit<br>BinaryInsert:&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00.0051167<br>Insert Then Sort: 00:00:00.0000251<br>Range (0-99)<br>BinaryInsert:&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00.0000266<br>Insert Then Sort: 00:00:00.0000316<br>Random 10<br>BinaryInsert:&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00.0000053<br>Insert Then Sort: 00:00:00.0000034<br>Random 100<br>BinaryInsert:&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00.0000294<br>Insert Then Sort: 00:00:00.0000235<br>Random 1000<br>BinaryInsert:&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00.0004917<br>Insert Then Sort: 00:00:00.0001526<br>Random 10000<br>BinaryInsert:&nbsp;&nbsp;&nbsp;&nbsp; 00:00:00.0261899<br>Insert Then Sort: 00:00:00.0018287<br>Random 100000<br>BinaryInsert:&nbsp;&nbsp;&nbsp;&nbsp; 00:00:02.4289054<br>Insert Then Sort: 00:00:00.0237019</p></blockquote> <p>As you can see, based on my sample program, BinaryInsert is much slower than Insert and Sort.&nbsp; I ran the profiler against this and verified the suspicion that List(Of T).Insert() took the vast majority of the time.&nbsp; <p>Perhaps there is a reason BinaryInsert is missing. <pre class="code"><span style="color: rgb(0,0,255)">Module</span> Module1
+
+    <span style="color: rgb(0,0,255)">Function</span> BinaryInsert(<span style="color: rgb(0,0,255)">Of</span> T)(<span style="color: rgb(0,0,255)">ByVal</span> enumerable <span style="color: rgb(0,0,255)">As</span> IEnumerable(<span style="color: rgb(0,0,255)">Of</span> T), <span style="color: rgb(0,0,255)">ByVal</span> comp <span style="color: rgb(0,0,255)">As</span> IComparer(<span style="color: rgb(0,0,255)">Of</span> T)) <span style="color: rgb(0,0,255)">As</span> TimeSpan
+        <span style="color: rgb(0,0,255)">Dim</span> list <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">New</span> List(<span style="color: rgb(0,0,255)">Of</span> T)
+        <span style="color: rgb(0,0,255)">Dim</span> watch <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">New</span> Stopwatch()
+
+        watch.Start()
+        <span style="color: rgb(0,0,255)">For</span> <span style="color: rgb(0,0,255)">Each</span> value <span style="color: rgb(0,0,255)">In</span> enumerable
+            list.BinaryInsert(value, comp)
+        <span style="color: rgb(0,0,255)">Next
+</span>        watch.Stop()
+        <span style="color: rgb(0,0,255)">Return</span> watch.Elapsed
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Function
+
+</span>    <span style="color: rgb(0,0,255)">Function</span> InsertAllThenSort(<span style="color: rgb(0,0,255)">Of</span> T)(<span style="color: rgb(0,0,255)">ByVal</span> enumerable <span style="color: rgb(0,0,255)">As</span> IEnumerable(<span style="color: rgb(0,0,255)">Of</span> T), <span style="color: rgb(0,0,255)">ByVal</span> comp <span style="color: rgb(0,0,255)">As</span> IComparer(<span style="color: rgb(0,0,255)">Of</span> T)) <span style="color: rgb(0,0,255)">As</span> TimeSpan
+        <span style="color: rgb(0,0,255)">Dim</span> list <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">New</span> List(<span style="color: rgb(0,0,255)">Of</span> T)
+        <span style="color: rgb(0,0,255)">Dim</span> watch <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">New</span> Stopwatch()
+
+        watch.Start()
+        <span style="color: rgb(0,0,255)">For</span> <span style="color: rgb(0,0,255)">Each</span> value <span style="color: rgb(0,0,255)">In</span> enumerable
+            list.Add(value)
+        <span style="color: rgb(0,0,255)">Next
+</span>        list.Sort(comp)
+        watch.Stop()
+        <span style="color: rgb(0,0,255)">Return</span> watch.Elapsed
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Function
+
+</span>    <span style="color: rgb(0,0,255)">Sub</span> TestBoth(<span style="color: rgb(0,0,255)">Of</span> T)(<span style="color: rgb(0,0,255)">ByVal</span> title <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">String</span>, <span style="color: rgb(0,0,255)">ByVal</span> enumerable <span style="color: rgb(0,0,255)">As</span> IEnumerable(<span style="color: rgb(0,0,255)">Of</span> T))
+        TestBoth(title, enumerable, Comparer(<span style="color: rgb(0,0,255)">Of</span> T).Default)
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Sub
+
+</span>    <span style="color: rgb(0,0,255)">Sub</span> TestBoth(<span style="color: rgb(0,0,255)">Of</span> T)(<span style="color: rgb(0,0,255)">ByVal</span> title <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">String</span>, <span style="color: rgb(0,0,255)">ByVal</span> enumerable <span style="color: rgb(0,0,255)">As</span> IEnumerable(<span style="color: rgb(0,0,255)">Of</span> T), <span style="color: rgb(0,0,255)">ByVal</span> comp <span style="color: rgb(0,0,255)">As</span> IComparer(<span style="color: rgb(0,0,255)">Of</span> T))
+        <span style="color: rgb(0,0,255)">Dim</span> copy = <span style="color: rgb(0,0,255)">New</span> List(<span style="color: rgb(0,0,255)">Of</span> T)(enumerable)
+        <span style="color: rgb(0,0,255)">Dim</span> ellapsedBinary = BinaryInsert(<span style="color: rgb(0,0,255)">New</span> List(<span style="color: rgb(0,0,255)">Of</span> T)(copy), comp)
+        <span style="color: rgb(0,0,255)">Dim</span> ellapsedSort = InsertAllThenSort(<span style="color: rgb(0,0,255)">New</span> List(<span style="color: rgb(0,0,255)">Of</span> T)(copy), comp)
+
+        Console.WriteLine(title)
+        Console.WriteLine(<span style="color: rgb(163,21,21)">"BinaryInsert:     {0}"</span>, ellapsedBinary)
+        Console.WriteLine(<span style="color: rgb(163,21,21)">"Insert Then Sort: {0}"</span>, ellapsedSort)
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Sub
+
+</span>    <span style="color: rgb(0,0,255)">Function</span> Range(<span style="color: rgb(0,0,255)">ByVal</span> start <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Integer</span>, <span style="color: rgb(0,0,255)">ByVal</span> count <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Integer</span>) <span style="color: rgb(0,0,255)">As</span> List(<span style="color: rgb(0,0,255)">Of</span> <span style="color: rgb(0,0,255)">Integer</span>)
+        <span style="color: rgb(0,0,255)">Dim</span> list = <span style="color: rgb(0,0,255)">New</span> List(<span style="color: rgb(0,0,255)">Of</span> <span style="color: rgb(0,0,255)">Integer</span>)
+        <span style="color: rgb(0,0,255)">For</span> i = start <span style="color: rgb(0,0,255)">To</span> count - 1
+            list.Add(i)
+        <span style="color: rgb(0,0,255)">Next
+</span>        <span style="color: rgb(0,0,255)">Return</span> list
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Function
+
+</span>    <span style="color: rgb(0,0,255)">Function</span> Random(<span style="color: rgb(0,0,255)">ByVal</span> count <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">Integer</span>) <span style="color: rgb(0,0,255)">As</span> List(<span style="color: rgb(0,0,255)">Of</span> <span style="color: rgb(0,0,255)">Integer</span>)
+        <span style="color: rgb(0,0,255)">Dim</span> rand <span style="color: rgb(0,0,255)">As</span> <span style="color: rgb(0,0,255)">New</span> Random()
+        <span style="color: rgb(0,0,255)">Dim</span> list = <span style="color: rgb(0,0,255)">New</span> List(<span style="color: rgb(0,0,255)">Of</span> <span style="color: rgb(0,0,255)">Integer</span>)
+        <span style="color: rgb(0,0,255)">For</span> i = 0 <span style="color: rgb(0,0,255)">To</span> count - 1
+            list.Add(rand.Next())
+        <span style="color: rgb(0,0,255)">Next
+</span>        <span style="color: rgb(0,0,255)">Return</span> list
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Function
+
+</span>    <span style="color: rgb(0,0,255)">Sub</span> Main()
+        TestBoth(<span style="color: rgb(163,21,21)">"Force Jit"</span>, <span style="color: rgb(0,0,255)">New</span> <span style="color: rgb(0,0,255)">Integer</span>() {1})
+        TestBoth(<span style="color: rgb(163,21,21)">"Range (0-99)"</span>, Range(0, 100))
+        TestBoth(<span style="color: rgb(163,21,21)">"Random 10"</span>, Random(10))
+        TestBoth(<span style="color: rgb(163,21,21)">"Random 100"</span>, Random(100))
+        TestBoth(<span style="color: rgb(163,21,21)">"Random 1000"</span>, Random(1000))
+        TestBoth(<span style="color: rgb(163,21,21)">"Random 10000"</span>, Random(10000))
+        TestBoth(<span style="color: rgb(163,21,21)">"Random 100000"</span>, Random(100000))
+    <span style="color: rgb(0,0,255)">End</span> <span style="color: rgb(0,0,255)">Sub
+
+End</span> <span style="color: rgb(0,0,255)">Module</span></pre><a href="http://11011.net/software/vspaste"></a></div>
+    

@@ -1,0 +1,25 @@
+<p>A common PInvoke question is how to deal with a double pointer.&#160; More specifically, how can one dereference an IntPtr to another pointer without using unsafe code?&#160; </p>  <p>Dereferencing a double pointer is done the same way a dereference to any other structure is done: <a href="http://msdn.microsoft.com/en-us/library/4ca6d5z7.aspx">Marshal.PtrToStructure</a>.&#160; PtrToStructure is used to transform a native pointer, in the form of an IntPtr, into a managed version of the native data structure the native pointer points to.</p>  <p>In the case of a double pointer, the native data structure the pointer points to is just another native pointer.&#160; The managed equivalent is the IntPtr (or UIntPtr) class.&#160; </p>  <p>For Example, say we had the following native data signature</p>  <pre class="code"><span style="color: blue">void </span>GetDoublePointer(<span style="color: blue">int</span>** ppData)</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>This function returns a pointer to a pointer that points to an int. (Pointer-&gt;Pointer-&gt;int).&#160; We can then use the following C# code to access the final int value.&#160; </p>
+
+<pre class="code">[<span style="color: #2b91af">DllImport</span>(<span style="color: #a31515">&quot;PInvokeSample.dll&quot;</span>)]
+<span style="color: blue">static extern void </span>GetDoublePointer(<span style="color: #2b91af">IntPtr </span>doublePtr);
+
+<span style="color: blue">static void </span>Main(<span style="color: blue">string</span>[] args)
+{
+    <span style="color: blue">var </span>ptr = <span style="color: #2b91af">Marshal</span>.AllocHGlobal(<span style="color: #2b91af">Marshal</span>.SizeOf(<span style="color: blue">typeof</span>(<span style="color: #2b91af">IntPtr</span>)));
+    <span style="color: blue">try
+    </span>{
+        GetDoublePointer(ptr);
+        <span style="color: blue">var </span>deref1 = (<span style="color: #2b91af">IntPtr</span>)<span style="color: #2b91af">Marshal</span>.PtrToStructure(ptr, <span style="color: blue">typeof</span>(<span style="color: #2b91af">IntPtr</span>));
+        <span style="color: blue">var </span>deref2 = (<span style="color: blue">int</span>)<span style="color: #2b91af">Marshal</span>.PtrToStructure(deref1, <span style="color: blue">typeof</span>(<span style="color: blue">int</span>));
+        <span style="color: #2b91af">Console</span>.WriteLine(deref2);
+    }
+    <span style="color: blue">finally
+    </span>{
+        <span style="color: #2b91af">Marshal</span>.FreeHGlobal(ptr);
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a></div>
+    

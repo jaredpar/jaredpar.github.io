@@ -1,0 +1,33 @@
+<p>For previous articles in the series please see</p> <ul> <li><a href="http://blogs.msdn.com/jaredpar/archive/2007/04/27/closures-in-vb-part-1.aspx">Part 1: Introduction</a>  <li><a href="http://blogs.msdn.com/jaredpar/archive/2007/05/03/closures-in-vb-part-2-method-calls.aspx">Part 2: Method Calls</a>  <li><a href="http://blogs.msdn.com/jaredpar/archive/2007/05/25/closures-in-vb-part-3-scope.aspx">Part 3: Scope</a>  <li><a href="http://blogs.msdn.com/jaredpar/archive/2007/06/15/closures-in-vb-part-4-variable-lifetime.aspx">Part 4: Variable Lifetime</a></li></ul> <p>Once again sorry for the long delay between posts.&nbsp;</p> <p>Looping structures can cause unintended consequences when used with Lambda expressions.&nbsp; The problem occurs because lambda expressions do not execute when they are constructed but rather when they are invoked.&nbsp; For example take the following code.&nbsp; </p><pre>    <span style="color: blue">Sub</span> LoopExample1()
+        <span style="color: blue">Dim</span> list <span style="color: blue">As</span> <span style="color: blue">New</span> List(Of Func(Of <span style="color: blue">Integer</span>))
+        <span style="color: blue">For</span> i = <span style="color: maroon">0</span> <span style="color: blue">To</span> <span style="color: maroon">3</span>
+            list.Add(<span style="color: blue">Function</span>() i)
+        <span style="color: blue">Next</span>
+
+        <span style="color: blue">For</span> <span style="color: blue">Each</span> cur <span style="color: blue">In</span> list
+            Console.Write(<span style="color: maroon">"{0} "</span>, cur())
+        <span style="color: blue">Next</span>
+    <span style="color: blue">End</span> <span style="color: blue">Sub</span></pre>
+<p>Many users are surprised to find out the above will print "4 4 4 4 ".&nbsp; The reason goes back to my previous 2 posts on variable lifetime and scope.&nbsp; All "For" and "For Each" blocks in Vb have 2 scopes.&nbsp; </p>
+<ol>
+<li>Scope where iteration variables are defined 
+<li>Body of the for loop</li></ol>
+<p>The first scope is entered only once no matter how many times the loop is executed.&nbsp; The second is entered once per iteration of the loop.&nbsp; Any iteration variables that are defined in a For/For Each loop are created in the first scope (in this case "i" and "cur").&nbsp; Hence there is only one of those variables for every loop iteration and the lambda function lifts the single variable "i".&nbsp; </p>
+<p>This has thrown off many users because the behavior works most of the time.&nbsp; For instance if I switched the code to run "Console.Write" inside the first loop, it would print out&nbsp;"0 1 2 3 "&nbsp;as expected.&nbsp; </p>
+<p>To mitigate against this problem the above code will actually produce a warning in VB.&nbsp; </p>
+<blockquote>
+<p>warning BC42324: Using the iteration variable in a lambda expression may have unexpected results.&nbsp; Instead, create a local variable within the loop and assign it the value of the iteration variable.</p></blockquote>
+<p>There are two ways to fix this problem depending on the behavior you want.&nbsp; If you see this warning and don't know if it affects you, the safest change is to do the following.&nbsp; </p><pre>    <span style="color: blue">Sub</span> LoopExample2()
+        <span style="color: blue">Dim</span> list <span style="color: blue">As</span> <span style="color: blue">New</span> List(Of Func(Of <span style="color: blue">Integer</span>))
+        <span style="color: blue">For</span> iTemp = <span style="color: maroon">0</span> <span style="color: blue">To</span> <span style="color: maroon">3</span>
+            <span style="color: blue">Dim</span> i = iTemp
+            list.Add(<span style="color: blue">Function</span>() i)
+        <span style="color: blue">Next</span>
+
+        <span style="color: blue">For</span> <span style="color: blue">Each</span> cur <span style="color: blue">In</span> list
+            Console.Write(<span style="color: maroon">"{0} "</span>, cur())
+        <span style="color: blue">Next</span>
+    <span style="color: blue">End</span> <span style="color: blue">Sub</span></pre>
+<p>This will cause "i" to be created in the second scope.&nbsp; Hence there will be a different value for every loop iteration and the code will print out&nbsp;"0 1 2 3"&nbsp;as expected.&nbsp; </p>
+<p>If you do want the code to print out "4 4 4 4 " then add "Dim i = 0" before the start of the loop.&nbsp; </p></div>
+    

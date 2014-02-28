@@ -1,0 +1,41 @@
+<p>F# has a handy method called Unfold.&#160; Think of it as the logical opposite of an Aggregate function.&#160; Aggregates take a sequence of elements and convert them to a single element.&#160; An unfold method will take a single element and turn it into a (potentially infinite) sequence of elements.&#160; </p>  <p>The API is straight forward.&#160; It takes two parameters</p>  <ol>   <li>A seed/start value </li>    <li>A function which takes in a seed value and returns either an Empty option to indicate the end of a sequence or a value of Type tuple with two arguments.&#160; The first is the next element in the sequence and the second is the next seed value passed into the function.</li> </ol>  <p>This is a very powerful function which allows you to quickly build all sorts of interesting functions.&#160; Lets look at a potential implementation of Enumerable.Range as an unfold expression.</p>  <pre class="code"><span style="color: blue">public static </span><span style="color: #2b91af">IEnumerable</span>&lt;<span style="color: blue">int</span>&gt; Range(<span style="color: blue">int </span>start, <span style="color: blue">int </span>count)
+{
+    <span style="color: blue">return </span><span style="color: #2b91af">Enumerable</span>.Unfold(
+        start,
+        x =&gt; x - start &lt; count
+            ? <span style="color: #2b91af">Option</span>.Create(<span style="color: #2b91af">Tuple</span>.Create(x, x + 1))
+            : <span style="color: #2b91af">Option</span>.Empty);
+}</pre>
+
+<p>Not as efficient as the framework version of Range but a good mental exercise to get your head around using Unfold.&#160; Implementing this method in C# is fairly straight forward.</p>
+
+<pre class="code"><span style="color: blue">public static </span><span style="color: #2b91af">IEnumerable</span>&lt;TResult&gt; Unfold&lt;TSource, TResult&gt;(
+    TSource state, 
+    <span style="color: #2b91af">Func</span>&lt;TSource, <span style="color: #2b91af">Option</span>&lt;<span style="color: #2b91af">Tuple</span>&lt;TResult, TSource&gt;&gt;&gt; func)
+{
+    <span style="color: blue">if </span>(func == <span style="color: blue">null</span>)
+    {
+        <span style="color: blue">throw new </span><span style="color: #2b91af">ArgumentNullException</span>(<span style="color: #a31515">&quot;func&quot;</span>);
+    }
+
+    <span style="color: blue">return </span>UnfoldHelper(state, func);
+}
+
+<span style="color: blue">private static </span><span style="color: #2b91af">IEnumerable</span>&lt;TResult&gt; UnfoldHelper&lt;TSource, TResult&gt;(
+    TSource state, 
+    <span style="color: #2b91af">Func</span>&lt;TSource, <span style="color: #2b91af">Option</span>&lt;<span style="color: #2b91af">Tuple</span>&lt;TResult, TSource&gt;&gt;&gt; func)
+{
+    <span style="color: blue">do
+    </span>{
+        <span style="color: blue">var </span>result = func(state);
+        <span style="color: blue">if </span>(!result.HasValue)
+        {
+            <span style="color: blue">break</span>;
+        }
+
+        <span style="color: blue">yield return </span>result.Value.First;
+        state = result.Value.Second;
+    } <span style="color: blue">while </span>(<span style="color: blue">true</span>);
+}</pre>
+<a href="http://11011.net/software/vspaste"></a></div>
+    

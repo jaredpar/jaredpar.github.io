@@ -1,0 +1,24 @@
+<P>Answer: When PInvoke is involved.</P>
+<P>I ran across a common error today on <A href="http://stackoverflow.com/questions/148856/using-pinvoke-correctly#150019" mce_href="http://stackoverflow.com/questions/148856/using-pinvoke-correctly#150019">stackoverflow</A> regarding P/Invoke that is worth blogging about.&nbsp; The question regarded the translation of a native API with a parameter of type LONG.&nbsp; The user mistakenly used the .Net long type as the parameter.&nbsp; The error is that a C++ LONG is not the same as a .Net long.</P>
+<P>When talking about types and PInvoke it's easier to discuss byte size and signed-ness than type names.&nbsp; Otherwise confusion around long and short crop up.&nbsp; Really there are four integer byte sizes each of which can be signed or unsigned: 1,2,4 and 8</P>
+<P>The problem the user encountered is the C++ long is 4 byte signed and .Net long is 8 byte signed.&nbsp; PInvoke requires the parameters to have the same size.&nbsp; Below is a quick table of the various types in C++ and .Net.</P>
+<UL>
+<LI>1 byte</LI>
+<UL>
+<LI>C++ - char, __int8, BYTE, BOOLEAN</LI>
+<LI>.Net - byte</LI></UL>
+<LI>2 byte</LI>
+<UL>
+<LI>C++ - wchar, __int16, short, WORD</LI>
+<LI>.Net - char, short</LI></UL>
+<LI>4 byte </LI>
+<UL>
+<LI>C++ - int, LONG, long, __int32, DWORD</LI>
+<LI>.Net - int</LI></UL>
+<LI>8 byte</LI>
+<UL>
+<LI>C++ - __int64, LONGLONG, DWORDLONG, LARGE_INTEGER</LI>
+<LI>.Net - long</LI></UL></UL>
+<P>Based on this table when translating a C++ LONG, you should use a .Net int. </P>
+<P>Edit1: Moved C++ short to 2 byte, added several other C++ types. (thanks Raymond)</P></div>
+    

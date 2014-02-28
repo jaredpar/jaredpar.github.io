@@ -1,0 +1,39 @@
+<p>One source of confusion I find myself clearing up a lot is the use of evaluating extension methods in the debugger windows.&#160; Users report evaluation as working sometimes but not others for the exact same piece of code.&#160; Such flaky behavior can only be the result of a poorly implemented feature or subtle user error.&#160; Right???&#160; </p>  <p>Unfortunately no.&#160; In this case the behavior described is very possible and “By Design”[1].&#160; It’s an unfortunate fallout from how the way the debugger works.</p>  <p>Quick review.&#160; Expression evaluators strive to have evaluation parity with the compiler.&#160; So if expression <em>expr </em>is valid at the place the debugger is stopped, <em>expr</em> should also be a valid expression in the immediate, watch, etc … windows.&#160; This holds true for extension methods.&#160; For example</p>  <pre class="code"><span style="color: blue">using </span>System;
+<span style="color: blue">using </span>System.Collections.Generic;
+<span style="color: blue">using </span>System.Linq;
+<span style="color: blue">using </span>System.Diagnostics;
+
+<span style="color: blue">namespace </span>ConsoleApplication1 {
+    <span style="color: blue">class </span><span style="color: #2b91af">ExtensionMethodExample </span>{
+        <span style="color: blue">public static void </span>Example() {
+            <span style="color: blue">var </span>col = <span style="color: blue">new </span><span style="color: #2b91af">List</span>&lt;<span style="color: blue">int</span>&gt;();
+            col.Add(42);
+            <span style="color: #2b91af">Debugger</span>.Break();
+        }
+    }
+}</pre>
+
+
+<p>At the Debugger.Break line expressions like ‘col.First()’ are valid and legal (assuming System.Core is referenced).&#160; Hence they should also be available in the debugger windows.&#160; But with extension methods developers will occasionally see the following. </p>
+
+<p><a href="http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/8053.image_5F00_69C1B239.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" class="wlDisabledImage" title="image" border="0" alt="image" src="http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/0820.image_5F00_thumb_5F00_0D0EA6DF.png" width="766" height="158" /></a></p>
+
+<p>Clearly it failed to evaluate but is legal in code so users often interpret this as a bug (and I can’t blame them, the behavior is odd).&#160; </p>
+
+<p>Expression evaluators host the compiler in order to evaluate expressions.&#160; In order to semantically interpret an expression compilers need symbols to bind to.&#160; In a debugging session symbols are acquired by reading the metadata from the DLLs loaded into the debugee process.&#160; So the evaluation essentially occurs by referencing the set of DLL’s loaded into the debugee process.&#160; </p>
+
+<p>For most expressions this poses no problem.&#160; In order to even have a given value to run an expression off of it’s DLL must be loaded and hence symbols for the type of the value and it’s members are available.&#160; Extension methods are quite different though in that the target method can, and often does, live in a separate DLL.&#160; So unlike normal members, simply having a value in the debugger does not necessitate symbols for it’s extension method are loaded into the process.&#160; When they are not binding fails.&#160; </p>
+
+<p>This is the case for the above sample.&#160; The symbols for the value ‘col’ are in mscorlib while the ‘First’ extension method are in System.Core.dll.&#160; If System.Core.dll is not loaded into the process then it’s symbols are not available and attempts to bind to the LINQ extension methods will fail. </p>
+
+<p>This is what makes the behavior appear to be flaky.&#160; The ability to call an extension method is directly related to whether or not it’s DLL is currently loaded in the debugee process.&#160;&#160; When there is a disconnect between DLL’s available at compile time and loaded in the process there becomes a gap in what can be evaluated.&#160;&#160; DLL’s are loaded on demand and if no extension method, or other type, in the DLL has been used up until the current point in the process it will not be loaded and hence not available. </p>
+
+<p>What complicates this discussion even further is a side effect of the hosting process in Visual Studio is that it hides this problem for certain DLLs (primarily System.Core).&#160; One of the features of the hosting process is that it preloads a set of DLL’s into the debugee process including System.Core.dll.&#160; As a result LINQ extension methods are readily available in most projects.&#160; For a normal console application the above won’t ever fail with F5 unless you specifically disable the hosting process in the debug tab of the project properties page.</p>
+
+<p><a href="http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/6371.image_5F00_7A59AD27.png"><img style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" class="wlDisabledImage" title="image" border="0" alt="image" src="http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/0523.image_5F00_thumb_5F00_6810E665.png" width="319" height="144" /></a></p>
+
+<p>This further adds to the perception of extension methods in the debugger are flaky since LINQ works but user defined extension methods fail.&#160; It creates additional confusion because the hosting process does not work for all project types (devices, certain types of web projects, etc …) and does not come into play in an attach scenarios.&#160; </p>
+
+<p>
+  <br />[1] I do hate using the “By Design” tag to describe a feature as successfully failing but such is life.&#160; </p><div style="clear:both;"></div></div>
+    

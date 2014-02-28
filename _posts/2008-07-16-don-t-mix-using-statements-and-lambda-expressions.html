@@ -1,0 +1,7 @@
+<P>Title pretty much says it all but what good is a rule without any explanation.&nbsp; The main issue here is that at the core, using statements and lambda expressions both alter variable lifetimes.&nbsp; Unfortunately they alter the lifetime in different directions.&nbsp; Using will shorten the life time of a variable to the specified block.&nbsp; This is a somewhat artificial way because the object is still technically alive but can't be trusted to do anything.&nbsp; Lambda expressions take a variable limited to a specific scope and extends their lifetime to potentially be that of a heap value. Anytime two features alter the attribute of a variable in different directions, they can probably cause problems when used in conjunction.&nbsp; </P>
+<P>Take the following contrived but real example.&nbsp; </P><PRE class=code>        <SPAN style="COLOR: rgb(0,0,255)">static</SPAN> <SPAN style="COLOR: rgb(43,145,175)">Future</SPAN>&lt;<SPAN style="COLOR: rgb(0,0,255)">int</SPAN>&gt; Example() {
+            <SPAN style="COLOR: rgb(0,0,255)">using</SPAN> (<SPAN style="COLOR: rgb(0,0,255)">var</SPAN> obj = <SPAN style="COLOR: rgb(0,0,255)">new</SPAN> <SPAN style="COLOR: rgb(43,145,175)">MyDisosableObject</SPAN>()) {
+                <SPAN style="COLOR: rgb(0,0,255)">return</SPAN> <SPAN style="COLOR: rgb(43,145,175)">Future</SPAN>.Create(() =&gt; obj.SomeFunction());
+            }
+        }</PRE><A href="http://11011.net/software/vspaste" mce_href="http://11011.net/software/vspaste"></A></div>
+    

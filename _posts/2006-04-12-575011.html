@@ -1,0 +1,28 @@
+<P>One of the big difficulties still remaining in .NET 2.0 is the interoping with native API's which takes in types that have different sizes on 32 and 64 bit machines. For most API's this is not a problem. But for many, including most of the memory API's for example, the signature is technically different from 32 to 64 bit with respect to parameter size.</P>
+<P>The problem occurs if any of the API’s parameters have a different size on 32 and 64 bit.&nbsp; IMHO, most common Win32 API parameters are composed of types that do not have different sizes on 64 bit (DWORD, UINT, LONG, etc …).&nbsp; The biggest culprit for me has been size_t.</P>
+<P>Unfortunately there is no predefined solution for these types in .NET 2.0.&nbsp; So one has to be devised.&nbsp; The biggest issue is that you typically run the same .NET binary or 32 and 64 bit.&nbsp; So we need a type whose size is determined at runtime based on hints from the platform.&nbsp; Defining a type like this just isn’t possible with .NET.&nbsp; The best recourse is to define a fixed size type and a custom marshaler that will make the runtime size decision.&nbsp; </P>
+<P>As a proof of concept I added a type SizeT to my interop library and a custom marshaling class to do the dirty work for 32 and 64 bit platforms.&nbsp; Here are the definitions.&nbsp; <CODE></P>
+<P>&nbsp;public sealed class SizeT<BR>&nbsp;{<BR>&nbsp;&nbsp;private ulong m_value;</P>
+<P>&nbsp;&nbsp;public ulong Value<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;get { return m_value; }<BR>&nbsp;&nbsp;&nbsp;set { m_value = value; }<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;public SizeT(ulong val)<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;m_value = val;<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;[SuppressMessage("Microsoft.Usage", "CA2225")]<BR>&nbsp;&nbsp;public static implicit operator SizeT(ulong value)<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;return new SizeT(value);<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;[SuppressMessage("Microsoft.Usage", "CA2225")]<BR>&nbsp;&nbsp;public static implicit operator ulong(SizeT value)<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;return value.Value;<BR>&nbsp;&nbsp;}<BR>&nbsp;}</P>
+<P>&nbsp;public sealed class SizeTMarshaler : ICustomMarshaler<BR>&nbsp;{<BR>&nbsp;&nbsp;[SuppressMessage("Microsoft.Usage", "CA1801", Justification="data parameter is a hidden requirement of the API")]<BR>&nbsp;&nbsp;public static ICustomMarshaler GetInstance(string data)<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;return new SizeTMarshaler();<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;#region ICustomMarshaler Members</P>
+<P>&nbsp;&nbsp;public void CleanUpManagedData(object ManagedObj)<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;// Nothing to do<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;public void CleanUpNativeData(IntPtr pNativeData)<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;Marshal.FreeCoTaskMem(pNativeData);<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;public int GetNativeDataSize()<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;return IntPtr.Size;<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;public IntPtr MarshalManagedToNative(object ManagedObj)<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;SizeT value = (SizeT)ManagedObj;</P>
+<P>&nbsp;&nbsp; checked {</P>
+<P>&nbsp;&nbsp;&nbsp;IntPtr ptr = Marshal.AllocCoTaskMem(IntPtr.Size);<BR>&nbsp;&nbsp;&nbsp;if (IntPtr.Size == 4)<BR>&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;Marshal.StructureToPtr((uint)value.Value, ptr, true);<BR>&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;else if (IntPtr.Size == 8)<BR>&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;Marshal.StructureToPtr(value.Value, ptr, true);<BR>&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;throw new ArgumentException("Invalid Pointer Size");<BR>&nbsp;&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;&nbsp;return ptr;<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;public object MarshalNativeToManaged(IntPtr pNativeData)<BR>&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;if (IntPtr.Size == 4)<BR>&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;uint val = (uint)Marshal.PtrToStructure(pNativeData, typeof(uint));<BR>&nbsp;&nbsp;&nbsp;&nbsp;return new SizeT(val);<BR>&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;else if (IntPtr.Size == 8)<BR>&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;ulong val = (ulong)Marshal.PtrToStructure(pNativeData, typeof(ulong));<BR>&nbsp;&nbsp;&nbsp;&nbsp;return new SizeT(val);<BR>&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;&nbsp;else<BR>&nbsp;&nbsp;&nbsp;{<BR>&nbsp;&nbsp;&nbsp;&nbsp;throw new ArgumentException("Invalid Pointer Size");<BR>&nbsp;&nbsp;&nbsp;}<BR>&nbsp;&nbsp;}</P>
+<P>&nbsp;&nbsp;#endregion<BR>&nbsp;}</P>
+<P>&nbsp;</P></CODE>
+<P>There are two ways to determine if your interop API's are affected by the move to a 64 bit platform. 
+<P>
+<OL>
+<LI>Brute Force. Find all of the native types that you use and determine if there are different on 64 bit 
+<LI>Turn on FxCop Portability rules and it will catch the majority of your errors.</LI></OL></div>
+    

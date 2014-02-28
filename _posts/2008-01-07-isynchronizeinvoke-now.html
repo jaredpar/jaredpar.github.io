@@ -1,0 +1,83 @@
+<p><a href="http://msdn2.microsoft.com/en-us/library/system.componentmodel.isynchronizeinvoke.aspx">ISynchronizeInvoke</a> is an interface which allows you to execute a delegate synchronously or asynchronously.&nbsp; The implementer of the interface can control how the delegate is executed.&nbsp; In particular the implementer controls on which thread the delegate is executed.&nbsp; </p> <p>It's common for thread sensitive objects to implement this interface.&nbsp; It allows consumers to execute long lived actions on a background thread and then use the ISynchronizeInvoke interface to get back onto the original thread.&nbsp; System.Windows.Forms.Control is a great example of this usage pattern.</p> <p>Several API's that I own are very thread aware and will often defer to a background thread for the completion of their operation.&nbsp; It makes it easier to build UI on top of it.&nbsp; They take an ISynchronizedInvoke as a parameter in order to properly signal the caller than an operation is completed.&nbsp; </p> <p>The difficulty can come in testing it.&nbsp; Many implementers of ISynchronizeInvoke use message pumping to implement the behavior.&nbsp; As a result it's not always easy to use for testing (unit testing in particular).&nbsp; To work around this I designed an implementation of ISynchronizeInvoke that does not rely on the message pumping but provides a completely compliant ISynchronizeInvoke implementation.&nbsp; </p> <p>The idea is to just do it ... now.&nbsp; I call the class ImmediateInvoke.&nbsp; The basic methods are straight forward.&nbsp; </p><pre class="code">        <span style="color: rgb(0,0,255)">object</span> <span style="color: rgb(43,145,175)">ISynchronizeInvoke</span>.Invoke(<span style="color: rgb(43,145,175)">Delegate</span> method, <span style="color: rgb(0,0,255)">object</span>[] args)
+        {
+            <span style="color: rgb(0,0,255)">return</span> method.DynamicInvoke(args);
+        }
+
+        <span style="color: rgb(0,0,255)">bool</span> <span style="color: rgb(43,145,175)">ISynchronizeInvoke</span>.InvokeRequired
+        {
+            <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">false</span>; }
+        }</pre><a href="http://11011.net/software/vspaste"></a>
+<p>The other two methods are a little more tricky.&nbsp; The require an implementation of <a href="http://msdn2.microsoft.com/en-us/library/system.iasyncresult.aspx">IAsyncResult</a>.&nbsp; The basic usage pattern is the consumer will call BeginInvoke, peform some operations and finally call EndInvoke when it wants to join with the asynchronous operation.&nbsp; I will use the thread pool to perform this operation and define a private nested class for the IAsnycResult implementation called AsyncResult</p>
+<p>The implementation needs a few variables to implement the contract. </p>
+<ul>
+<li>m_handle - An implementation of ManualResetEvent to satisfy the AsyncWaitHandle property</li>
+<li>m_completed - A simple int to capture whether or not we have completed</li>
+<li>m_return - Return of the delegate</li>
+<li>m_exception - Exception thrown by calling the delegate.&nbsp; </li></ul>
+<p>Most of the properties are straight forward.</p><pre class="code">            <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">object</span> AsyncState
+            {
+                <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">this</span>; }
+            }
+
+            <span style="color: rgb(0,0,255)">public</span> System.Threading.<span style="color: rgb(43,145,175)">WaitHandle</span> AsyncWaitHandle
+            {
+                <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> m_handle; }
+            }
+
+            <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">bool</span> CompletedSynchronously
+            {
+                <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">false</span>; }
+            }
+
+            <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">bool</span> IsCompleted
+            {
+                <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> m_completed == 1; }
+            }</pre><a href="http://11011.net/software/vspaste"></a>
+<p>Now we need to define a method to run the delegate passed to BeginInvoke in the thread pool and update the state as we go along.&nbsp; I call this method directly from the constructor.</p><pre class="code">            <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">void</span> RunDelegateAsync(<span style="color: rgb(43,145,175)">Delegate</span> method, <span style="color: rgb(0,0,255)">object</span>[] args)
+            {
+                <span style="color: rgb(43,145,175)">WaitCallback</span> del = <span style="color: rgb(0,0,255)">delegate</span>(<span style="color: rgb(0,0,255)">object</span> unused)
+                {
+                    <span style="color: rgb(0,0,255)">try
+</span>                    {
+                        <span style="color: rgb(0,0,255)">object</span> temp = method.DynamicInvoke(args);
+                        <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_return, temp);
+                    }
+                    <span style="color: rgb(0,0,255)">catch</span> (<span style="color: rgb(43,145,175)">Exception</span> ex)
+                    {
+                        <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_exception, ex);
+                    }
+
+                    <span style="color: rgb(43,145,175)">Interlocked</span>.Exchange(<span style="color: rgb(0,0,255)">ref</span> m_completed, 1);
+                    m_handle.Set();
+                };
+
+                <span style="color: rgb(43,145,175)">ThreadPool</span>.QueueUserWorkItem(del);
+            }</pre><a href="http://11011.net/software/vspaste"></a>
+<p>Notice I've avoided using a lock in this implementation.&nbsp; This is safe for this case.&nbsp; All of the members are set atomically.&nbsp; Only m_completed can be accessed before the operation is completed and it is simply checked for the value 1.&nbsp; Since the value is set atomically this is safe.&nbsp; In the implementation of EndInvoke I will not access any of the other variables until the WaitHandle is signaled and then I will not make any decision based on the contents of their values (rather the abscence or presence).&nbsp; </p>
+<p>Also notice that I did not explicitly dispose of the WaitHandle.&nbsp; This is a quirk of the ISynchronizeInvoke interface.&nbsp; It specifies that callers of BeginInvoke must call EndInvoke and that the IAsyncResult must be valid until EndInvoke is called.&nbsp; As such you can't really free a resource inside of the IAsyncResult implementation.&nbsp; In fact if you implement IDisposable, who will see it (generally not possible since C# and VB don't support covariant return types).&nbsp; Instead you should free it as part of your EndInvoke implementation.</p>
+<p>Now BeginInvoke and EndInvoke.</p><pre class="code">        <span style="color: rgb(43,145,175)">IAsyncResult</span> <span style="color: rgb(43,145,175)">ISynchronizeInvoke</span>.BeginInvoke(<span style="color: rgb(43,145,175)">Delegate</span> method, <span style="color: rgb(0,0,255)">object</span>[] args)
+        {
+            <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">AsyncResult</span>(method, args);
+        }
+
+        <span style="color: rgb(0,0,255)">object</span> <span style="color: rgb(43,145,175)">ISynchronizeInvoke</span>.EndInvoke(<span style="color: rgb(43,145,175)">IAsyncResult</span> result)
+        {
+            <span style="color: rgb(0,0,255)">var</span> r = (<span style="color: rgb(43,145,175)">AsyncResult</span>)result;
+            <span style="color: rgb(0,0,255)">try
+</span>            {
+                r.AsyncWaitHandle.WaitOne();
+            }
+            <span style="color: rgb(0,0,255)">finally
+</span>            {
+                r.AsyncWaitHandle.Close();
+            }
+
+            <span style="color: rgb(0,0,255)">if</span> (r.m_exception != <span style="color: rgb(0,0,255)">null</span>)
+            {
+                <span style="color: rgb(0,0,255)">throw</span> <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">Exception</span>(<span style="color: rgb(163,21,21)">"Error during BeginInvoke"</span>, r.m_exception);
+            }
+            <span style="color: rgb(0,0,255)">return</span> r.m_return;
+        }</pre>
+<p>Unfortunately EndInvoke has to take care of two cases.&nbsp; The first is the delegate completed successfully and produced a value which can now be returned as a part of the interface contract.&nbsp; The other case is when the delegate throws and exception and it's a bit more tricky.&nbsp; The exception cannot be simply re-thrown because you will loose all of the original call stack and generally speaking most of the data which would help track down the problem.&nbsp; The better option is to throw a new exception and make this exception the inner exception.&nbsp; </p>
+<p>This sample could be improved in a few ways (delay create the WaitHandle, rethrow with something other than System.Exception).&nbsp; But it's a compliant version that gets the job done.&nbsp; </p></div>
+    

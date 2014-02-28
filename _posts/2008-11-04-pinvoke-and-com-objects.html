@@ -1,0 +1,13 @@
+<p>I've occasionally found the need to mix COM interop and PInvoke.&#160; For certain scenarios it's just easier to code up a PInvoke declaration and function.&#160; It's perfectly legal to include COM objects in these scenarios provided the appropriate Marshal attributes are added to the signature. </p>  <p>The easiest way to accomplish scenario is to have the native signature only expose IUnknown instances.&#160; On the managed side use an object declaration annotated with MarshalAs(UnmanagedType.IUnknown).&#160; Example:</p>  <pre class="code">[<span style="color: #2b91af">DllImport</span>(<span style="color: #a31515">&quot;SomeDll.dll&quot;</span>)]
+[<span style="color: blue">return</span>: <span style="color: #2b91af">MarshalAs</span>(<span style="color: #2b91af">UnmanagedType</span>.IUnknown)]
+<span style="color: blue">public static extern object </span>GetSomeComObject();</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>One item to remember though is how to managed the ref counting in this scenario.&#160; In any case where a COM object is considered to be coming out of the PInvoke signature, the CLR will assume that it has an obligation to call IUnknown::Release() at some point in the future.&#160; The corresponding native code must take this into account and appropriately AddRef() the object.&#160; </p>
+
+<p>This includes any scenario, as displayed above, where the COM object is the actual return value of the function [1].</p>
+
+<p>&#160;</p>
+
+<p>[1] Got bit by this last week.</p></div>
+    

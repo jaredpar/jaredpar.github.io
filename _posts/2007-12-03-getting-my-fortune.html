@@ -1,0 +1,68 @@
+<p><a href="http://en.wikipedia.org/wiki/Fortune_(program)">Fortune</a> is a Unix command that gets a random message from a set of databases and displays it on the screen.&#160; These messages have a wide variety but tend to be funny, quirky or famous quotes (most are indeed geeky).&#160; </p>  <p>Nearly all unix systems have a version of Fortune.&#160; Windows doesn't have any version by default.&#160; It provides no real functionality other than humor and amusement but it's something I miss.&#160; Most users add it to their .profile script so they get a new fortune every time they log in.</p>  <p>There are a couple of heavy weight options to get fortune on my machine&#160; but I prefer something a bit lighter.&#160; I did a quick search and discovered that <a href="http://www.doughughes.net/index.cfm?event=fortune">Doug Hughes</a> implemented a fortune web service.&#160; This is just above as light weight as it gets so I implemented a simple PSCmdlet, get-fortune, to do the work (code below).</p>  <p>Now I can just add a quick get-fortune to my profile script. </p>  <p>C:\Users\jaredp&gt; get-fortune pets    <br />Does the name Pavlov ring a bell?</p>  <pre>&lt;Cmdlet(VerbsCommon.<span style="color: blue">Get</span>, <span style="color: maroon">&quot;Fortune&quot;</span>)&gt; _
+<span style="color: blue">Public</span> <span style="color: blue">Class</span> GetFortune
+    <span style="color: blue">Inherits</span> PSCmdlet
+
+    <span style="color: blue">Public</span> <span style="color: blue">Const</span> TopicHelpMessage = <span style="color: maroon">&quot;Restricts fortune output to the specified topic&quot;</span>
+
+    <span style="color: blue">Private</span> m_topic <span style="color: blue">As</span> <span style="color: blue">String</span> = <span style="color: blue">String</span>.Empty
+    <span style="color: blue">Private</span> m_minimumLength <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+    <span style="color: blue">Private</span> m_maximumLength <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+    <span style="color: blue">Private</span> m_timeout <span style="color: blue">As</span> <span style="color: blue">Integer</span> = <span style="color: maroon">100000</span>
+
+    &lt;Parameter( _
+               Position:=<span style="color: maroon">0</span>, _
+               HelpMessage:=TopicHelpMessage, _
+               ValueFromPipeline:=<span style="color: maroon">True</span>, _
+               ValueFromPipelineByPropertyName:=<span style="color: maroon">True</span>)&gt; _
+    <span style="color: blue">Public</span> <span style="color: blue">Property</span> Topic() <span style="color: blue">As</span> <span style="color: blue">String</span>
+        <span style="color: blue">Get</span>
+            <span style="color: blue">Return</span> m_topic
+        <span style="color: blue">End</span> <span style="color: blue">Get</span>
+        <span style="color: blue">Set</span>(<span style="color: blue">ByVal</span> value <span style="color: blue">As</span> <span style="color: blue">String</span>)
+            m_topic = value
+        <span style="color: blue">End</span> <span style="color: blue">Set</span>
+    <span style="color: blue">End</span> <span style="color: blue">Property</span>
+
+    &lt;Parameter(Position:=<span style="color: maroon">1</span>)&gt; _
+    <span style="color: blue">Public</span> <span style="color: blue">Property</span> MinimumLength() <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+        <span style="color: blue">Get</span>
+            <span style="color: blue">Return</span> m_minimumLength
+        <span style="color: blue">End</span> <span style="color: blue">Get</span>
+        <span style="color: blue">Set</span>(<span style="color: blue">ByVal</span> value <span style="color: blue">As</span> <span style="color: blue">Integer</span>)
+            m_minimumLength = value
+        <span style="color: blue">End</span> <span style="color: blue">Set</span>
+    <span style="color: blue">End</span> <span style="color: blue">Property</span>
+
+    &lt;Parameter(Position:=<span style="color: maroon">2</span>)&gt; _
+    <span style="color: blue">Public</span> <span style="color: blue">Property</span> MaximumLength() <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+        <span style="color: blue">Get</span>
+            <span style="color: blue">Return</span> m_maximumLength
+        <span style="color: blue">End</span> <span style="color: blue">Get</span>
+        <span style="color: blue">Set</span>(<span style="color: blue">ByVal</span> value <span style="color: blue">As</span> <span style="color: blue">Integer</span>)
+            m_maximumLength = value
+        <span style="color: blue">End</span> <span style="color: blue">Set</span>
+    <span style="color: blue">End</span> <span style="color: blue">Property</span>
+
+    &lt;Parameter(Position:=<span style="color: maroon">3</span>)&gt; _
+    <span style="color: blue">Public</span> <span style="color: blue">Property</span> Timeout() <span style="color: blue">As</span> <span style="color: blue">Integer</span>
+        <span style="color: blue">Get</span>
+            <span style="color: blue">Return</span> m_timeout
+        <span style="color: blue">End</span> <span style="color: blue">Get</span>
+        <span style="color: blue">Set</span>(<span style="color: blue">ByVal</span> value <span style="color: blue">As</span> <span style="color: blue">Integer</span>)
+            m_timeout = value
+        <span style="color: blue">End</span> <span style="color: blue">Set</span>
+    <span style="color: blue">End</span> <span style="color: blue">Property</span>
+
+    <span style="color: blue">Protected</span> <span style="color: blue">Overrides</span> <span style="color: blue">Sub</span> ProcessRecord()
+        <span style="color: blue">Dim</span> proxy <span style="color: blue">As</span> <span style="color: blue">New</span> DougHughes.fortune
+        <span style="color: blue">Dim</span> topic = m_topic
+        <span style="color: blue">If</span> topic <span style="color: blue">Is</span> <span style="color: blue">Nothing</span> <span style="color: blue">Then</span>
+            topic = <span style="color: blue">String</span>.Empty
+        <span style="color: blue">End</span> <span style="color: blue">If</span>
+
+        proxy.Timeout = m_timeout
+        WriteObject(proxy.getFortune(topic, m_minimumLength, m_maximumLength))
+    <span style="color: blue">End</span> <span style="color: blue">Sub</span>
+
+<span style="color: blue">End</span> <span style="color: blue">Class</span></pre></div>
+    

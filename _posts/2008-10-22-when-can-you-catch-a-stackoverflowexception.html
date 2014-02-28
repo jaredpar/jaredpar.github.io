@@ -1,0 +1,32 @@
+<p>Answer: When you're the one who threw it.&#160; </p>  <p>Starting with the CLR version 2.0, the policy for handling a <a href="http://msdn.microsoft.com/en-us/library/system.stackoverflowexception.aspx">StackOverflowException</a> was changed.&#160; User code can no longer handle the exception[1].&#160; Instead the CLR will simply terminate the process.&#160; </p>  <p>This is not 100% true though.&#160; User code can still handle StackOverflowExceptions which are artificially thrown.&#160; That is thrown by the user instead of resulting from an actual overflow of the stack.&#160; This is in contradiction to the documentation but can be demonstrated with a quick and dirty sample program (see end of the post).&#160; </p>  <p>This is a trivial point for sure.&#160; Yet I feel the need to point it out because I recently saw a newsgroup conversation where someone posted sample exception logging code and happened to use a StackOverflowException in the sample.&#160; Their sample explicitly threw the exception so it worked and they had good reason to suspect it worked in production as well.&#160; I was equally amazed it worked at all.&#160; </p>  <p>Please don't take this post as advocating that you should handle a StackOverflowException (you shouldn't).&#160; This is merely an oddity I found interesting.&#160; Personally I'd prefer it not be catch-able in any circumstance. </p>  <pre class="code"><span style="color: blue">public static void </span>CatchStackOverflow1() {
+    <span style="color: blue">try </span>{
+        <span style="color: blue">throw new </span><span style="color: #2b91af">StackOverflowException</span>();
+    } <span style="color: blue">catch </span>(<span style="color: #2b91af">StackOverflowException </span>ex) {
+        <span style="color: green">// Executes and handles the exception.  User code continues
+        </span><span style="color: #2b91af">Console</span>.WriteLine(ex.Message);
+    }
+}
+
+<span style="color: blue">static int </span>CreateRealOverflow(<span style="color: blue">int </span>p1) {
+    <span style="color: blue">return </span>42 + CreateRealOverflow(p1 + 1);
+}
+
+<span style="color: blue">public static void </span>CatchStackOverflow2() {
+    <span style="color: blue">try </span>{
+        CreateRealOverflow(42);
+    } <span style="color: blue">catch </span>(<span style="color: #2b91af">StackOverflowException </span>ex) {
+        <span style="color: green">// Will not execute
+        </span><span style="color: #2b91af">Console</span>.WriteLine(ex.Message);
+    }
+}
+
+<span style="color: blue">static void </span>Main(<span style="color: blue">string</span>[] args) {
+    CatchStackOverflow1();
+    CatchStackOverflow2();
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>[1] Unless you are hosting the CLR in which case you can implement some recovery mechanism.&#160; This is certainly the exception though and not the rule [2]</p>
+
+<p>[2] Sorry for the pun</p></div>
+    

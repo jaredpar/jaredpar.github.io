@@ -1,0 +1,37 @@
+<P>One of the features I implemented for VB 9.0 is lexical closure support.&nbsp; This a great addition to the VB language and I wanted to do a series of blog posts to describe this feature and how it will impact your code.</P>
+<P>Lexical Closures (more often referred to as simply Closures) are the underpinnings for several new features in Visual Basic 9.0.&nbsp; The are part of the guts of Lambda and Query expressions.&nbsp; This will be a several part series on Closures in VB 9.0; how they work, their limitations, pitfalls surrounding their use.&nbsp; </P>
+<P>To start off, let's get a basic summary of what a Closure is.&nbsp; <A href="http://en.wikipedia.org/wiki/Closure_%28computer_science%29" target=_blank mce_href="http://en.wikipedia.org/wiki/Closure_%28computer_science%29">Wikipedia</A> defines it as "... a&nbsp; is a semantic concept referring to a function paired with an environment ...".&nbsp; I prefer to describe it as follows.&nbsp; A closure is a feature which allows users to seemlessly access an environment (locals, parameters&nbsp;and methods) from more than one function.&nbsp; Even better are samples :) </P><PRE>    <SPAN style="COLOR: blue">Class</SPAN> C1
+        <SPAN style="COLOR: blue">Sub</SPAN> Test()
+            <SPAN style="COLOR: blue">Dim</SPAN> x = <SPAN style="COLOR: maroon">5</SPAN>
+            <SPAN style="COLOR: blue">Dim</SPAN> f = <SPAN style="COLOR: blue">Function</SPAN>(<SPAN style="COLOR: blue">ByVal</SPAN> y <SPAN style="COLOR: blue">As</SPAN> <SPAN style="COLOR: blue">Integer</SPAN>) x + y
+            <SPAN style="COLOR: blue">Dim</SPAN> result = f(<SPAN style="COLOR: maroon">42</SPAN>)
+        <SPAN style="COLOR: blue">End</SPAN> <SPAN style="COLOR: blue">Sub</SPAN>
+
+    <SPAN style="COLOR: blue">End</SPAN> <SPAN style="COLOR: blue">Class</SPAN></PRE>
+<P>In this code we have a lambda expression which takes in a single parameter and adds it with a local variable.&nbsp; Lambda expressions are implemented as functions in VB (and C#).&nbsp; So now we have two functions, "Test" and "f", which are accessing a single local variable.&nbsp; This is where closures come into play.&nbsp; Closures are responsible for making the single variable "x" available to both functions in a process that is referred to as "lifting the variable".</P>
+<P>To do this the compiler will take essentially&nbsp;4 actions.&nbsp; </P>
+<OL>
+<LI>Create a class which will contain "x" in order to share it among both functions.&nbsp; Call it "Closure" for now 
+<LI>It will create a new function for the lambda expression in the class "Closure".&nbsp; Call it "f" for now 
+<LI>Create a new instance of the class "Closure" inside the sub "Test" 
+<LI>Rewrite all access of "x" into the member "x" of "Closure".</LI></OL><PRE>    <SPAN style="COLOR: blue">Class</SPAN> Closure
+        <SPAN style="COLOR: blue">Public</SPAN> x <SPAN style="COLOR: blue">As</SPAN> <SPAN style="COLOR: blue">Integer</SPAN>
+
+        <SPAN style="COLOR: blue">Function</SPAN> f(<SPAN style="COLOR: blue">ByVal</SPAN> y <SPAN style="COLOR: blue">As</SPAN> <SPAN style="COLOR: blue">Integer</SPAN>) <SPAN style="COLOR: blue">As</SPAN> <SPAN style="COLOR: blue">Integer</SPAN>
+            <SPAN style="COLOR: blue">Return</SPAN> x + y
+        <SPAN style="COLOR: blue">End</SPAN> <SPAN style="COLOR: blue">Function</SPAN>
+    <SPAN style="COLOR: blue">End</SPAN> <SPAN style="COLOR: blue">Class</SPAN>
+
+    <SPAN style="COLOR: blue">Class</SPAN> C1
+        <SPAN style="COLOR: blue">Sub</SPAN> Test()
+            <SPAN style="COLOR: blue">Dim</SPAN> c <SPAN style="COLOR: blue">As</SPAN> <SPAN style="COLOR: blue">New</SPAN> Closure()
+            c.x = <SPAN style="COLOR: maroon">5</SPAN>
+            <SPAN style="COLOR: blue">Dim</SPAN> f <SPAN style="COLOR: blue">As</SPAN> Func(Of <SPAN style="COLOR: blue">Integer</SPAN>, <SPAN style="COLOR: blue">Integer</SPAN>) = <SPAN style="COLOR: blue">AddressOf</SPAN> c.f
+            <SPAN style="COLOR: blue">Dim</SPAN> result = f(<SPAN style="COLOR: maroon">42</SPAN>)
+        <SPAN style="COLOR: blue">End</SPAN> <SPAN style="COLOR: blue">Sub</SPAN>
+
+    <SPAN style="COLOR: blue">End</SPAN> <SPAN style="COLOR: blue">Class</SPAN></PRE>
+<P>Now "x" is shared amongst both functions and the user didn't have to know anything about the code we generated.&nbsp; You can see from this simplified example just how much code Closures and all of the other new VB 9.0 features are saving you here (Type Inference, Lambda Expressions).&nbsp; </P>
+<P>Note this is only a simulation of what is generated when you use a closure, the actual generated code is much uglier and involves lots of unbindable names "$Lambda_1", etc ... </P>
+<P>In the next part of this article I'll dive into some more uses of closures (multiple variables, method access, &nbsp;terminology, etc...).</P></div>
+    

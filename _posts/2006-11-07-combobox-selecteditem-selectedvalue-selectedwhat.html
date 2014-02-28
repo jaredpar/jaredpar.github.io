@@ -1,0 +1,16 @@
+<P>ComboBox has a lot of helpful properties that allow you to get access to items selected by the Control.&nbsp; The problem is knowing which one is best in which scenario.&nbsp; The documentation is not 100% clear on what the values will be in various situtations.&nbsp; The most important factor to know is whether or not you are DataBinding in the ComboBox.&nbsp; </P>
+<P><STRONG>DataBinding Case</STRONG></P>
+<P>In this case the properties will have the following values </P>
+<UL>
+<LI>SelectedItem - For gets this will return the actual object in the DataSource that is being displayed in the ComboBox.&nbsp; For sets if the value exists in the DataSource, it will be selected, otherwise the operation will complete without an exception but won't actually do anything.</LI>
+<LI>SelectedValue - This property depends on the value of ValueMember.&nbsp; 
+<P>If the property ValueMember is not Nothing the ComboBox will look for a member on SelectedItem with the name specified in ValueMember and return that.&nbsp; This is also the value displayed in the ComboBox.</P>
+<P>If the property ValueMember is Nothing, then the SelectedValue will return .ToString() on the SelectedItem</P></LI>
+<LI>SelectedIndex - Index of SelectedItem in the DataSource </LI></UL>
+<P mce_keep="true"><STRONG>Non-DataBinding Case</STRONG></P>
+<UL>
+<LI>SelectedItem - Gets and Sets both go to the currently selected object from the Items collection</LI>
+<LI>SelectedValue - Will be Nothing/null </LI>
+<LI>SelectedIndex - Index in the Items collection of the SelectedItem</LI></UL>
+<P mce_keep="true">&nbsp;</P><div style="clear:both;"></div></div>
+    

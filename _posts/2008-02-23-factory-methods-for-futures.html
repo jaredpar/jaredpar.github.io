@@ -1,0 +1,35 @@
+<p>Like most generic classes, I prefer to create Future instances through static factory methods which allows me to take maximum advantage of type inference.&nbsp; </p> <p>In addition to the 2 straight forward declaration of Func&lt;T&gt; and Action, the methods will include overloads which take in Func&lt;T&gt; with varying numbers of arguments.&nbsp; The overloads will cury the arguments and create a Func&lt;T&gt; taking no arguments.&nbsp; This is a great convenience to the user and takes little extra code to implement.&nbsp; </p> <p>In addition because we don't expose the EmptyFuture class directly we need to provide a factory method to create it in a non-run state.&nbsp; Otherwise we are forcing the EmptyFuture to always be created and run in the ThreadPool.&nbsp; </p><pre class="code">        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">Future</span> Create(<span style="color: rgb(43,145,175)">Action</span> action)
+        {
+            <span style="color: rgb(0,0,255)">var</span> f = <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">EmptyFuture</span>(action);
+            f.RunInThreadPool();
+            <span style="color: rgb(0,0,255)">return</span> f;
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">Future</span> Create&lt;TArg1&gt;(<span style="color: rgb(43,145,175)">Action</span>&lt;TArg1&gt; action, TArg1 arg1)
+        {
+            <span style="color: rgb(0,0,255)">return</span> Create(() =&gt; action(arg1));
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">Future</span>&lt;T&gt; Create&lt;T&gt;(<span style="color: rgb(43,145,175)">Func</span>&lt;T&gt; func)
+        {
+            <span style="color: rgb(0,0,255)">var</span> f = <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">Future</span>&lt;T&gt;(func);
+            f.RunInThreadPool();
+            <span style="color: rgb(0,0,255)">return</span> f;
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">Future</span>&lt;TReturn&gt; Create&lt;TArg1,TReturn&gt;(<span style="color: rgb(43,145,175)">Func</span>&lt;TArg1, TReturn&gt; func, TArg1 arg1)
+        {
+            <span style="color: rgb(0,0,255)">return</span> Create(() =&gt; func(arg1));
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">Future</span>&lt;T&gt; CreateNoRun&lt;T&gt;(<span style="color: rgb(43,145,175)">Func</span>&lt;T&gt; func)
+        {
+            <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">Future</span>&lt;T&gt;(func);
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">Future</span> CreateNoRun(<span style="color: rgb(43,145,175)">Action</span> action)
+        {
+            <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">EmptyFuture</span>(action);
+        }
+</pre><a href="http://11011.net/software/vspaste"></a><pre class="code"></pre><a href="http://11011.net/software/vspaste"></a></div>
+    

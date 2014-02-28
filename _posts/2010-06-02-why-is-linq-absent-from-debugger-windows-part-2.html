@@ -1,0 +1,111 @@
+<p>Some readers may remember an <a href="http://blogs.msdn.com/jaredpar/archive/2009/08/26/why-no-linq-in-debugger-windows.aspx">article</a> I published almost half a year ago about LINQ being absent from the debugger windows.&#160; That post explored the initial design of the feature, it’s limitations and ultimately why it was absent but promised a future article on a slightly different approach.&#160; It’s quite late but I’ve finally had some time to write the second part of this article [1]</p>  <p>No, I didn’t forget about the article or really get too lazy.&#160; The pace of Dev10 really picked up shortly after publishing that article and the follow up was put on the back burner.&#160; This week I finally find myself with a bit of free time and decided to follow up on my promise.&#160; </p>  <p>First a quick refresher.&#160; Features in the Expression Evaluator are started on the basis of having complete parity with the feature as it exists in the language and then paired down based on cost.&#160; Having complete parity with LINQ is prohibitably costly due to it being much more of an ENC expression instead of an inspection one (the latter being the primary purpose of an expression evaluator).&#160; Now comes the compromise phase. </p>  <p>As stated in the previous article the most expensive portion of this design is adding ENC support to the Expression Evaluator.&#160; ENC is necessary for true parity because closures in C# and VB.Net are mutable and requiring altering program state to implement.&#160; The standard example is evaluating the following expression in the EE which modifies the value of a local variable.</p>  <pre class="code">((<span style="color: #2b91af">Action</span>)(() =&gt; { local1 = 42; }))();</pre>
+
+<p>Properly implementing this requires program mutation not just inspection.&#160; </p>
+
+<p>Now comes the compromise.&#160; How often do users really want to do this?&#160; In my observations the answer is rarely if ever.&#160; When I talk with customers about LINQ in the debugger windows almost every single answer comes down to allowing filtering / where expressions.&#160; These are inherently, but not strictly, non-mutating operations.&#160; </p>
+
+<pre class="code">list.Where(x =&gt; x.Name == <span style="color: #a31515">&quot;Jared&quot;</span>);</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Cutting mutation is a huge advantage because we can forget about the impact into existing closures and alteration of program structure.&#160; Instead we can generate new closures which copy the initial state of the values and work from there.&#160; This removes all of the state tracking problems examined in the previous article.&#160; </p>
+
+<p>If we cut mutation, and hence ENC, we can move to a different approach for generating code.&#160; Instead of generating all of the types and methods in the current assembly with ENC, create a generated assembly in the target process which contains the new types and methods.&#160; This can be done through existing technologies like Reflection.Emit.&#160; </p>
+
+<p>So How does that change the cost of the feature?&#160; If we look at the major feature list discussed in the previous article we’d only be left with the following</p>
+
+<ol>
+  <li>A metadata generation service to support the backing for closures and lambda expressions </li>
+
+  <li>Converting expressions typed in the EE to IL </li>
+</ol>
+
+<p>Lets take a deeper look at this given our new proposed architecture.</p>
+
+<p><strong>Metadata Generation Service</strong></p>
+
+<p>The debugger and expression evaluator live in a different process than the debugee.&#160; Any generated lambda expression needs to be done in the debugee process.&#160; Yet all of the information needed to create the lambda exists in the debugger process.&#160; Implementing this feature requires that all of this data to be transferred between the processes.&#160; In effect we’d have to serialize both the metadata and IL of the trees and send them across the process boundary.&#160; </p>
+
+<p>Creating a DLL to host the service, defining the interfaces and calling them from the EE all have costs.&#160; Yet many of these are done on every release and the cost is very much understood.&#160; Due to the regularity with which we do this we can cost this part with high confidence. </p>
+
+<p>What’s expensive here is defining the format for the data transfer.&#160; Today we don’t directly generate IL in our compilers but instead use services exposed by the CLR to do so.&#160; We would need to define a new serialization format for transferring our representation of trees to the debugee process, deserializing this in the debugee and converting it to metadata and IL.&#160; This is actually very costly when you consider all of the details</p>
+
+<ul>
+  <li>Needs to work in both a 32 and 64 bit environment </li>
+
+  <li>The sheer amount of data as the number of nodes in our trees is quite large </li>
+
+  <li>Data is transferred from a native process to a managed one so the structure for serializing data gets defined twice </li>
+
+  <li>Versioning: 
+    <ul>
+      <li>This service must support both the current and new versions of the EE </li>
+
+      <li>The serialization format must be able to handle the changes we make to our nodes over the course of several releases </li>
+    </ul>
+  </li>
+
+  <li>Performance </li>
+</ul>
+
+<p>Of all of these “versioning” is the biggest cost.&#160; All to often we don’t consider versioning when designing EE features and it comes back to haunt us in the long term.&#160;&#160; To implement such a large feature and not consider the versioning aspects would be a huge mistake.&#160; </p>
+
+<p>The lack of previous work in this area and the overall size produces a feature with a high cost which has low confidence.&#160; Not what a manager wants to hear. </p>
+
+<p><strong>Converting Expressions in the EE to IL</strong></p>
+
+<p>The expression evaluator does not actually compile expressions down into IL.&#160; Instead it compiles it down to a low level semantic tree which is then directly interpreted by the expression evaluator.&#160; </p>
+
+<p>This approach grants a lot of flexibility to the EE and allows us to evaluate expressions that are not necessarily valid at the current place in the program.&#160; For example the ability to directly evaluate object id expressions.&#160; This flexibility hurts us here because it creates a subset of expressions which are not, or at least very difficult to, translate to IL.&#160; How would an object id expression for instance be expressed in IL?&#160; </p>
+
+<p>The problem is not just limited to object id expressions but also include a host of other items allowed in the EE.&#160; There are too many to list in this article but suffice it to say this is not a trivial problem to solve [2].&#160; Any cost for this area would have at best a medium level of confidence. </p>
+
+<p>The next problem with this approach is that our infrastructure which generates IL is heavily geared towards doing so for EXEs and DLLs.&#160; It has been so for every release of our code base and contains a lot of code very specific to this process.&#160; Converting this to be more general purpose is very costly at this point.&#160; It would entail almost a complete rewrite of those components.&#160; </p>
+
+<p>Once again this cost in itself is not prohibitive but does add up.&#160; Really it amounts to a known type of refactoring with medium to high confidence.&#160; </p>
+
+<p><strong>Wait there’s more: Don’t forget testing</strong></p>
+
+<p>There are two costs to consider for the testing of this new feature.&#160; The first is the straight forward costs you get with any new features.&#160; This is a pretty standard and well understood process.&#160; The language side of the feature is not too difficult to test.&#160; The cost really starts adding up though when you consider all of the other parts which can go wrong: loading DLL’s into the process, 32 / 64 bit issues, making sure all instructions serialize, versioning, etc …</p>
+
+<p>The second more hidden cost though is the impact of this new feature on existing ones.&#160; Consider again that today all expressions typed into the EE are interpreted.&#160; However with our current design if the expression was inside of a lambda expression it would be executed not interpreted.&#160; This is a completely different process and would require a completely different set of tests to verify it’s functionality. </p>
+
+<p>In effect this would double the cost for QA for all existing features as they’d need to be tested inside a lambda expression.&#160; This is an enormous cost and one that cannot be ignored.</p>
+
+<p><strong>In summary</strong></p>
+
+<p>Here is a summary of the larger cost items</p>
+
+<ol>
+  <li>Define a version friendly serialization format for transferring metadata and IL across the native and managed boundaries </li>
+
+  <li>Implement both the native serializer and managed deserializer for this format </li>
+
+  <li>Implementing a metadata generation service </li>
+
+  <li>All of the work around getting this DLL into the target process </li>
+
+  <li>Finding solutions for generating IL for all expressions which don’t directly map to IL </li>
+
+  <li>Refactoring our existing compiler infrastructure to be friendly to generating IL for the EE </li>
+
+  <li>QA costs for testing this feature </li>
+
+  <li>QA work to double test every type of expression (inside and outside of a lambda) </li>
+</ol>
+
+<p>This doesn’t take into account a lot of the smaller items I’ve ignored [3] or the items we’d only find once we started implementing.&#160; This is after all a very large feature and those always have hidden costs that aren’t found until implementation hits a certain point.&#160; </p>
+
+<p>I’m very hesitant to put a strict time estimate on this feature (it would almost certainly be wrong given the hidden costs and the lack of confidence in estimating several areas).&#160; To put it in a bit of context though, I would estimate it as large and likely larger than any other feature I’ve worked on since I joined Microsoft.&#160; </p>
+
+<p>Once again I’m not writing this blog post to justify why we won’t ever implement LINQ debugging.&#160; Instead I write this to justify why we haven’t done it up till this point.&#160; This is a feature which has clear customer value and a fair bit of demand and I want to help customers understand our decision making process in this area. </p>
+
+<p>I’m still very hopeful this feature will make it into the product at a future release.&#160; Perhaps we’ll find a cheaper route we’re not currently considering.&#160; Or maybe a future feature we need will offset some of the costs here.</p>
+
+<p>&#160;</p>
+
+<p>[1] This gap is certainly a personal record and one I hope to never beat</p>
+
+<p>[2] One day I may write about these items because pretty much all exist to support a richer user experience.&#160; </p>
+
+<p>[3] Anonymous types, transparent identifiers and VB generated delegates for starters</p><div style="clear:both;"></div></div>
+    

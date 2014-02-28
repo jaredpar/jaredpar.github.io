@@ -1,0 +1,31 @@
+<p>In a <a href="http://blogs.msdn.com/jaredpar/archive/2010/05/17/the-debugger-is-different.aspx">previous post</a> I discussed how accessibility is ignored when evaluating expressions in the debugger and the unexpected scenarios that it creates.&#160; One case I neglected to mention in that article is how this behavior works with the VB late binding engine.&#160; </p>  <p>The expression evaluator only relaxes accessibility rules when binding an expression.&#160; This is possible because the expression evaluator effectively hosts the compiler and can override items like accessibility checks.</p>  <p>In the case of late binding the compiler only participates in building an expression that will call into the VB runtime late binding engine.&#160; The accessibility determination for the target of late bound call occurs in the VB runtime and is not (currently) overidable by the expression evaluator.&#160; </p>  <p>Late bound access combined with static access can lead to additional confusing behavior.&#160; For example.</p>  <pre class="code"><span style="color: blue">Class </span><span style="color: #2b91af">C1
+    </span><span style="color: blue">Private </span>Field1 <span style="color: blue">As Integer
+    Public Property </span>Property1 <span style="color: blue">As Integer
+End Class
+
+Module </span><span style="color: #2b91af">Module1
+
+    </span><span style="color: blue">Sub </span>Main()
+        <span style="color: blue">Dim </span>v1 <span style="color: blue">As New </span><span style="color: #2b91af">C1
+        </span><span style="color: blue">Dim </span>v2 <span style="color: blue">As Object </span>= v1
+        <span style="color: blue">Stop
+    End Sub
+
+End Module
+
+</span></pre>
+
+<p>When the following code is run, all members are accessible from the v1 local.&#160; It is statically typed to C1 and hence the expression evaluator can ignore accessibility and access the values.</p>
+
+<p><a href="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/Nothingisprivateinthedebuggerpart2_10EBA/image_2.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/Nothingisprivateinthedebuggerpart2_10EBA/image_thumb.png" width="628" height="170" /></a> </p>
+
+<p>The local v2 references the same object instance so it’s reasonable to assume it can access the same values.&#160; However because it’s statically typed as object, calls like v1.Field1 actually turn into late bound calls and hence are subject to the rules of the late binder.</p>
+
+<p>&#160;</p>
+
+<p><a href="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/Nothingisprivateinthedebuggerpart2_10EBA/image_4.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/Nothingisprivateinthedebuggerpart2_10EBA/image_thumb_1.png" width="628" height="165" /></a></p>
+
+<p>Evaluation of Field1 fails here because the late binder does not allow access to private fields.&#160; Property1 evaluates just fine though because it’s public. </p>
+
+<p>We are considering changing this behavior in a future release.&#160; As usual no promises. </p><div style="clear:both;"></div></div>
+    

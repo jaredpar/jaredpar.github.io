@@ -1,0 +1,85 @@
+<p>Sorry for the terrible pun in the title.&#160; I wanted to blog about developing an F# style Option class for C# and I couldn't resist.</p>  <p>The basics of an Option class are very straight forward.&#160; It's a class that either has a value or doesn't.&#160; It's almost like nullable but for every type and allows for nulls to be a valid value.&#160; Here's a straight forward Option class I coded up. </p>  <pre class="code"><span style="color: blue">public sealed class </span><span style="color: #2b91af">Option</span>&lt;T&gt; {
+    <span style="color: blue">private readonly </span>T m_value;
+    <span style="color: blue">private readonly bool </span>m_hasValue;
+    <span style="color: blue">public static </span><span style="color: #2b91af">Option</span>&lt;T&gt; Empty {
+        <span style="color: blue">get </span>{ <span style="color: blue">return new </span><span style="color: #2b91af">Option</span>&lt;T&gt;(); }
+    }
+    <span style="color: blue">public bool </span>HasValue {
+        <span style="color: blue">get </span>{ <span style="color: blue">return </span>m_hasValue; }
+    }
+    <span style="color: blue">public </span>T Value {
+        <span style="color: blue">get </span>{
+            <span style="color: blue">if </span>(!HasValue) {
+                <span style="color: blue">throw new </span><span style="color: #2b91af">InvalidOperationException</span>(<span style="color: #a31515">&quot;Option does not have a value&quot;</span>);
+            }
+            <span style="color: blue">return </span>m_value;
+        }
+    }
+    <span style="color: blue">public </span>Option(T value) {
+        m_hasValue = <span style="color: blue">true</span>;
+        m_value = value;
+    }
+    <span style="color: blue">private </span>Option() {
+        m_hasValue = <span style="color: blue">false</span>;
+        m_value = <span style="color: blue">default</span>(T);
+    }
+}
+
+<span style="color: blue">public sealed class </span><span style="color: #2b91af">Option </span>{
+    <span style="color: blue">public static </span><span style="color: #2b91af">Option</span>&lt;T&gt; Create&lt;T&gt;(T value) {
+        <span style="color: blue">return new </span><span style="color: #2b91af">Option</span>&lt;T&gt;(value);
+    }
+}</pre>
+
+<p>I modified a bit of terminology to be more consistent with other frameworks I use (Some/None -&gt; Value,HasValue).&#160; It's succinct, generic and has type inference friendly create functions.&#160; Or does it?&#160; </p>
+
+<p>Lets consider a function which has a return type of Option&lt;int&gt;.&#160; Case 1 is Option with a value.&#160; There is a type inference friendly Option.Create method which makes for a simple return expression.&#160; No types needed.</p>
+
+<pre class="code"><span style="color: #2b91af">Option</span>&lt;<span style="color: blue">int</span>&gt; SomeMethod() {
+    <span style="color: blue">return </span><span style="color: #2b91af">Option</span>.Create(42);
+}</pre>
+
+<p>Now lets consider Case #2, None.&#160; Here there is no handy inference method because what would we use for inference.&#160; There is no variable with a Type to use so we are forced to be explicit about the type.&#160; </p>
+
+<pre class="code"><span style="color: #2b91af">Option</span>&lt;<span style="color: blue">int</span>&gt; SomeMethod2() {
+    <span style="color: blue">return </span><span style="color: #2b91af">Option</span>&lt;<span style="color: blue">int</span>&gt;.Empty;
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>In this case we're not so bad off because we're dealing with a simple type.&#160; But what about more complex types?&#160; Consider for example a hypothetical Unfold method.&#160; The termination expression would be Option&lt;Tuple&lt;int,string&gt;&gt;.Empty.&#160; Anonymous types are even worse since they are unnamable and can not ever be the source of an option with this design.&#160; This really pales in the usage category when compared with F#.</p>
+
+<p>Lets see if we can do better.&#160; </p>
+
+<p>First we could consider a design where we have a static creation method Empty which takes variables that aren't ever used.&#160; This will give us the benefit of type inference but at the expense of an API which is faulty to the core.&#160; It forces the user to create parameters that aren't ever used.&#160; Definitely not a good design.</p>
+
+<p>This leaves us with using a solution that doesn't involve variables of the necessary type.&#160; This essentially forces us into a non-generic solution since we need variables for type inference.&#160; This non-generic Option won't be compatible with our generic return type. But wait, what will the compiler do if two expressions have conflicting types?&#160; Eventually it will attempt to perform a conversion.&#160; So if we make our non-generic empty Option convertible to any generic empty Option we can use the compilers type safety to our advantage.&#160; </p>
+
+<p>Definition a non-generic empty Option is straight forward.&#160; <br /></p>
+
+<pre class="code"><span style="color: blue">public sealed class </span><span style="color: #2b91af">Option </span>{
+    <span style="color: blue">private static </span><span style="color: #2b91af">Option </span>s_empty = <span style="color: blue">new </span><span style="color: #2b91af">Option</span>();
+    <span style="color: blue">private </span>Option() {
+    }
+    <span style="color: blue">public static </span><span style="color: #2b91af">Option </span>Empty {
+        <span style="color: blue">get </span>{ <span style="color: blue">return </span>s_empty; }
+    }
+    <span style="color: blue">public static </span><span style="color: #2b91af">Option</span>&lt;T&gt; Create&lt;T&gt;(T value) {
+        <span style="color: blue">return new </span><span style="color: #2b91af">Option</span>&lt;T&gt;(value);
+    }
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Using a private constructor allows us a high degree of confidence that any Option instance hanging around came from our Empty property and hence represents an empty option.&#160; Now all we need to do is define a conversion on Option&lt;T&gt;.&#160; Essentially we want to say that any non-generic Option is convertible to this instance.&#160; Add the following to Option&lt;T&gt;</p>
+
+<pre class="code"><span style="color: blue">public static implicit operator </span><span style="color: #2b91af">Option</span>&lt;T&gt;(<span style="color: #2b91af">Option </span>option) {
+    <span style="color: blue">return </span><span style="color: #2b91af">Option</span>&lt;T&gt;.Empty;
+}</pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Now, we can use an empty option in any generic scenario without having to specify ugly type parameters.&#160; </p>
+
+<pre class="code"><span style="color: #2b91af">Option</span>&lt;<span style="color: blue">int</span>&gt; SomeMethod3() {
+    <span style="color: blue">return </span><span style="color: #2b91af">Option</span>.Empty;
+}</pre>
+<a href="http://11011.net/software/vspaste"></a></div>
+    

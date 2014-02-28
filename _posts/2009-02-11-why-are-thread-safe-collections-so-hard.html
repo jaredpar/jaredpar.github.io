@@ -1,0 +1,53 @@
+<p>Writing a collection which is mutable, thread safe and usable is an extremely difficult process.&nbsp; At least that’s what you’ve likely been told all through your schooling.&nbsp; But then you get out on the web and see a multitude of thread safe lists, maps and queues.&nbsp; If it’s so hard, why are there so many examples?&nbsp; </p>  <p>The problem is there are several levels of thread safe collections.&nbsp; I find that when most people say thread safe collection what they really mean “a collection that will not be corrupted when modified and accessed from multiple threads”.&nbsp;&nbsp; Lets call this “data thread safe” for brevity.&nbsp; This type of collection is rather easy to build.&nbsp; Virtually any collection that is not thread safe can be made “data thread safe” by synchronizing access via a simple locking mechanism.&nbsp; </p>  <p>For Example, lets build a data thread safe List&lt;T&gt;.&nbsp; </p>  <pre class="code"><span style="color: blue;">public sealed class </span><span style="color: rgb(43, 145, 175);">ThreadSafeList</span>&lt;T&gt; : <span style="color: rgb(43, 145, 175);">IEnumerable</span>&lt;T&gt; {<br>    <span style="color: blue;">private </span><span style="color: rgb(43, 145, 175);">List</span>&lt;T&gt; m_list = <span style="color: blue;">new </span><span style="color: rgb(43, 145, 175);">List</span>&lt;T&gt;();<br>    <span style="color: blue;">private object </span>m_lock = <span style="color: blue;">new object</span>();<br><br>    <span style="color: blue;">public void </span>Add(T value) {<br>        <span style="color: blue;">lock </span>(m_lock) {<br>            m_list.Add(value);<br>        }<br>    }<br>    <span style="color: blue;">public void </span>Remove(T value) {<br>        <span style="color: blue;">lock </span>(m_lock) {<br>            m_list.Remove(value);<br>        }<br>    }<br>    <span style="color: blue;">public bool </span>Contains(T value) {<br>        <span style="color: blue;">lock </span>(m_lock) {<br>            <span style="color: blue;">return </span>m_list.Contains(value);<br>        }<br>    }<br>    <span style="color: blue;">public int </span>Count { <span style="color: blue;">get </span>{ <span style="color: blue;">lock </span>(m_lock) { <span style="color: blue;">return </span>m_list.Count; } } }<br>    <span style="color: blue;">public </span>T <span style="color: blue;">this</span>[<span style="color: blue;">int </span>index] {<br>        <span style="color: blue;">get </span>{ <span style="color: blue;">lock </span>(m_lock) { <span style="color: blue;">return </span>m_list[index]; } }<br>        <span style="color: blue;">set </span>{ <span style="color: blue;">lock </span>(m_lock) { m_list[index] = <span style="color: blue;">value</span>; } }<br>    }<br>    <span style="color: green;">// IEnumerable&lt;T&gt; left out<br></span>}</pre>
+<a href="http://11011.net/software/vspaste" mce_href="http://11011.net/software/vspaste"></a><a href="http://11011.net/software/vspaste" mce_href="http://11011.net/software/vspaste"></a><a href="http://11011.net/software/vspaste" mce_href="http://11011.net/software/vspaste"></a>
+
+<p>And there you have it.&nbsp; The lock statement prevents concurrent access from multiple threads.&nbsp; So the actual m_list instance is only ever accessed by a single thread at a time which is all it’s designed to do.&nbsp; This means instances of ThreadSafeList&lt;T&gt; can be used from any thread without fear of corrupting the underlying data.&nbsp; </p>
+
+<p>But if building a data thread safe list is so easy, why doesn’t Microsoft add these standard collections in the framework?</p>
+
+<p>Answer: ThreadSafeList&lt;T&gt; is a virtually unusable class because the design leads you down the path to bad code.</p>
+
+<p>The flaws in this design are not apparent until you examine how lists are commonly used.&nbsp; For example,&nbsp; take the following code which attempts to grab the first element out of the list if there is one.&nbsp; </p>
+
+<pre class="code"><span style="color: blue;">static int </span>GetFirstOrDefault(<span style="color: rgb(43, 145, 175);">ThreadSafeList</span>&lt;<span style="color: blue;">int</span>&gt; list) {<br>    <span style="color: blue;">if </span>(list.Count &gt; 0) {<br>        <span style="color: blue;">return </span>list[0];<br>    }<br>    <span style="color: blue;">return </span>0;<br>}</pre>
+<a href="http://11011.net/software/vspaste" mce_href="http://11011.net/software/vspaste"></a>
+
+<p>This code is a classic race condition.&nbsp; Consider the case where there is only one element in the list.&nbsp; If another thread removes that element in between the if statement and the return statement, the return statement will throw an exception because it’s trying to access an invalid index in the list.&nbsp; Even though ThreadSafeList&lt;T&gt; is data thread safe, there is nothing guaranteeing the validity of a return value of one call across the next call to the same object.&nbsp;&nbsp; </p>
+
+<p>I refer to procedures like Count as decision procedures.&nbsp; They server only to allow you to make a decision about the underlying object.&nbsp; Decision procedures on a concurrent object are virtually useless.&nbsp; As soon as the decision is returned, you must assume the object has changed and hence you cannot use the result to take any action.</p>
+
+<p>Decision procedures are one of the reasons why <a href="http://code.msdn.microsoft.com/BclExtras" mce_href="http://code.msdn.microsoft.com/BclExtras">Immutable Collections</a> are so attractive.&nbsp; They are both data thread safe and allow you to reason about there APIs.&nbsp; Immutable Collections don’t change <b>ever.&nbsp; </b>Hence it’s perfectly ok to have decision procedures on them because the result won’t get invalidated.</p>
+
+<p>The fundamental issue with ThreadSafeList&lt;T&gt; is it is designed to act like a List&lt;T&gt;.&nbsp; Yet List&lt;T&gt; is not designed for concurrent access.&nbsp;&nbsp; When building a mutable concurrent collection, in addition to considering the validity of the data, you must consider how design the API to deal with the constantly changing nature of the collection.&nbsp; </p>
+
+<p>When designing a concurrent collection you should follow different guidelines than for a normal collection class.&nbsp; For example.&nbsp; </p>
+
+<ol>
+  <li>Don’t add an decision procedures.&nbsp; They lead users down the path to bad code. </li>
+
+  <li>Methods which query the object can always fail and the API should reflect this. </li>
+</ol>
+
+<p>Based on that, lets look at a refined design for ThreadSafeList&lt;T&gt;</p>
+
+<pre class="code"><span style="color: blue;">public sealed class </span><span style="color: rgb(43, 145, 175);">ThreadSafeList</span>&lt;T&gt; {<br>    <span style="color: blue;">private </span><span style="color: rgb(43, 145, 175);">List</span>&lt;T&gt; m_list = <span style="color: blue;">new </span><span style="color: rgb(43, 145, 175);">List</span>&lt;T&gt;();<br>    <span style="color: blue;">private object </span>m_lock = <span style="color: blue;">new object</span>();<br><br>    <span style="color: blue;">public void </span>Add(T value) {<br>        <span style="color: blue;">lock </span>(m_lock) {<br>            m_list.Add(value);<br>        }<br>    }<br>    <span style="color: blue;">public bool </span>TryRemove(T value) {<br>        <span style="color: blue;">lock </span>(m_lock) {<br>            <span style="color: blue;">return </span>m_list.Remove(value);<br>        }<br>    }<br>    <span style="color: blue;">public bool </span>TryGet(<span style="color: blue;">int </span>index, <span style="color: blue;">out </span>T value) {<br>        <span style="color: blue;">lock </span>( m_lock ) {<br>            <span style="color: blue;">if</span>( index &lt; m_list.Count ) {<br>                value = m_list[index];<br>                <span style="color: blue;">return true</span>;<br>            }<br>            value = <span style="color: blue;">default</span>(T);<br>            <span style="color: blue;">return false</span>;<br>        }<br>    }<br>}</pre>
+<a href="http://11011.net/software/vspaste" mce_href="http://11011.net/software/vspaste"></a>
+
+<p>Summary of the changes</p>
+
+<ul>
+  <li>Both the Contains and Count procedures were removed because they were decision procedures </li>
+
+  <li>Remove was converted to TryRemove to indicate it’s potential to fail </li>
+
+  <li>The TryGet property was added and is reflective of the fragile nature of the method.&nbsp; Sure it’s possible for users to simply ignore the return value and plow on with the invalid value.&nbsp; However the API is not lulling the user into a false sense of security </li>
+
+  <li>The collection no longer implements IEnumerable&lt;T&gt;.&nbsp; IEnumerable&lt;T&gt; is only valid when a collection is not changing under the hood.&nbsp; There is no way to easily make this guarantee with a collection built this way and hence it was removed.&nbsp; </li>
+
+  <li>The indexers were removed as well.&nbsp; I’m a bit wishy washy in this particular point as there is nothing in the API which gives a user a false sense of security.&nbsp; But at the same time mutable concurrent collections are dangerous and should be treated with a heightened sense of respect so the indexers were removed. </li>
+</ul>
+
+<p>This version of ThreadSafeList is more resilient, but not immune to, accidental user failure.&nbsp; The design tends to lead users on the path to better code.&nbsp; </p>
+
+<p>But is it really usable?&nbsp; Would you use it in your application?</p></div>
+    

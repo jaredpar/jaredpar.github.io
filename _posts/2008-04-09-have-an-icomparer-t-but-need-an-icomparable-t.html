@@ -1,0 +1,79 @@
+<p><a href="http://blogs.msdn.com/jaredpar/archive/2008/04/02/have-a-icomparable-of-t-but-need-an-icomparer-of-t.aspx">Previously</a> we discussed the opposite problem.&#160; This is a lesser but often more frustrating problem because there is no, AFAIK, built in solution for the BCL.&#160; However it's problem that can be solved once and reused with a generic solution. IComparable&lt;T&gt; has all of the methods necessary implement IComparer&lt;T&gt;.&#160; </p>  <p>To work around this we'll create a new class that can wrap both a value and an instance of IComparable(Of T).&#160; Lets call it ComparerNode&lt;T&gt;.&#160; This class can be used wherever an IComparable&lt;T&gt; is needed.&#160; </p>  <p>Unfortunately generic classes will not provide a 1:1 mapping.&#160; However getting to the actual data is strongly typed and comes through a simple property.&#160; </p>  <pre class="code">   <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">sealed</span> <span style="color: rgb(0,0,255)">class</span> <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; : <span style="color: rgb(43,145,175)">IComparable</span>&lt;<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt;&gt; {
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">readonly</span> <span style="color: rgb(43,145,175)">IComparer</span>&lt;T&gt; m_comparer;
+        <span style="color: rgb(0,0,255)">private</span> <span style="color: rgb(0,0,255)">readonly</span> T m_value;
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(43,145,175)">IComparer</span>&lt;T&gt; Comparer {
+            <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> m_comparer; }
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> T Value {
+            <span style="color: rgb(0,0,255)">get</span> { <span style="color: rgb(0,0,255)">return</span> m_value; }
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> ComparerNode(<span style="color: rgb(43,145,175)">IComparer</span>&lt;T&gt; comparer, T value) {
+            <span style="color: rgb(0,0,255)">if</span> (comparer == <span style="color: rgb(0,0,255)">null</span>) {
+                <span style="color: rgb(0,0,255)">throw</span> <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">ArgumentNullException</span>(<span style="color: rgb(163,21,21)">&quot;comparer&quot;</span>);
+            }
+
+            m_comparer = comparer;
+            m_value = value;
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">override</span> <span style="color: rgb(0,0,255)">int</span> GetHashCode() {
+            <span style="color: rgb(0,0,255)">if</span> (m_value == <span style="color: rgb(0,0,255)">null</span>) {
+                <span style="color: rgb(0,0,255)">return</span> 0;
+            }
+
+            <span style="color: rgb(0,0,255)">return</span> m_value.GetHashCode();
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">override</span> <span style="color: rgb(0,0,255)">bool</span> Equals(<span style="color: rgb(0,0,255)">object</span> obj) {
+            <span style="color: rgb(0,0,255)">var</span> other = obj <span style="color: rgb(0,0,255)">as</span> <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt;;
+            <span style="color: rgb(0,0,255)">if</span> (other == <span style="color: rgb(0,0,255)">null</span>) {
+                <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">false</span>;
+            }
+
+            <span style="color: rgb(0,0,255)">return</span> 0 == m_comparer.Compare(m_value, other.m_value);
+        }
+
+<span style="color: rgb(0,0,255)">        #region</span> IComparable&lt;ComparerNode&lt;T&gt;&gt; Members
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">int</span> CompareTo(<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; other) {
+            <span style="color: rgb(0,0,255)">if</span> (other == <span style="color: rgb(0,0,255)">null</span>) {
+                <span style="color: rgb(0,0,255)">return</span> 1;
+            }
+
+            <span style="color: rgb(0,0,255)">return</span> m_comparer.Compare(m_value, other.m_value);
+        }
+
+<span style="color: rgb(0,0,255)">        #endregion
+
+</span>        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(0,0,255)">bool</span> <span style="color: rgb(0,0,255)">operator</span> &lt;(<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; left, <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; right) {
+            <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(43,145,175)">Comparer</span>&lt;<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt;&gt;.Default.Compare(left, right) &lt; 0;
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(0,0,255)">bool</span> <span style="color: rgb(0,0,255)">operator</span> &gt;(<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; left, <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; right) {
+            <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(43,145,175)">Comparer</span>&lt;<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt;&gt;.Default.Compare(left, right) &gt; 0;
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(0,0,255)">bool</span> <span style="color: rgb(0,0,255)">operator</span> ==(<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; left, <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; right) {
+            <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(43,145,175)">EqualityComparer</span>&lt;<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt;&gt;.Default.Equals(left, right);
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(0,0,255)">bool</span> <span style="color: rgb(0,0,255)">operator</span> !=(<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; left, <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; right) {
+            <span style="color: rgb(0,0,255)">return</span> !<span style="color: rgb(43,145,175)">EqualityComparer</span>&lt;<span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt;&gt;.Default.Equals(left, right);
+        }
+    }
+
+    <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(0,0,255)">class</span> <span style="color: rgb(43,145,175)">ComparerNode</span> {
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; Create&lt;T&gt;(<span style="color: rgb(43,145,175)">IComparer</span>&lt;T&gt; comparer, T value) {
+            <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt;(comparer, value);
+        }
+
+        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt; Create&lt;T&gt;(T value)
+            <span style="color: rgb(0,0,255)">where</span> T : <span style="color: rgb(43,145,175)">IComparable</span>&lt;T&gt; {
+            <span style="color: rgb(0,0,255)">return</span> <span style="color: rgb(0,0,255)">new</span> <span style="color: rgb(43,145,175)">ComparerNode</span>&lt;T&gt;(<span style="color: rgb(43,145,175)">Comparer</span>&lt;T&gt;.Default, value);
+        }
+    }</pre>
+<a href="http://11011.net/software/vspaste"></a></div>
+    

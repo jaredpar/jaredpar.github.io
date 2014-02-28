@@ -1,0 +1,25 @@
+<P>When developing an ASP.Net page I tend to pass a lot of data between pages.&nbsp; A lot of it comes from being fairly OO natured and wanting to have a page that displays a particular type of content.&nbsp; </P>
+<P>There are lots of articles detailing how to pass data between pages that have a 1-1 relationship using the PreviousPage property and PreviousPageType directive.&nbsp; That is great for wizard style pages where there is only one page that is allowed to pass data to a particular page.&nbsp; However it's not as helpful when the target page is meant to take input from multiple sources because you can only specify a single PreviousPageType directive.</P>
+<P>The approach I take is interface based.&nbsp; The PreviousPage property is available whether or not the PreviousPageType directive is present in the page.&nbsp; All the PreviousPageType directive does is make the property strongly typed.&nbsp; Without it the directive it's just typed as Page.&nbsp; To make it strongly typed, I create an interface that the calling page must implement and then attempt to cast the source page into the specific interface.</P><PRE><FONT color=#0000ff size=2>
+<P>Partial</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Public</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Class</FONT><FONT size=2> _Default</P>
+<P></FONT><FONT color=#0000ff size=2>  Inherits</FONT><FONT size=2> System.Web.UI.Page</P>
+<P></FONT><FONT color=#0000ff size=2>  Protected</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Sub</FONT><FONT size=2> Page_Load(</FONT><FONT color=#0000ff size=2>ByVal</FONT><FONT size=2> sender </FONT><FONT color=#0000ff size=2>As</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Object</FONT><FONT size=2>, </FONT><FONT color=#0000ff size=2>ByVal</FONT><FONT size=2> e </FONT><FONT color=#0000ff size=2>As</FONT><FONT size=2> System.EventArgs) </FONT><FONT color=#0000ff size=2>Handles</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Me</FONT><FONT size=2>.Load</P>
+<P></FONT><FONT color=#0000ff size=2>    Dim</FONT><FONT size=2> source </FONT><FONT color=#0000ff size=2>As</FONT><FONT size=2> ITextSource = </FONT><FONT color=#0000ff size=2>TryCast</FONT><FONT size=2>(</FONT><FONT color=#0000ff size=2>Me</FONT><FONT size=2>.PreviousPage, ITextSource)</P>
+<P></FONT><FONT color=#0000ff size=2>    If</FONT><FONT size=2> source </FONT><FONT color=#0000ff size=2>IsNot</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Nothing</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Then</P>
+</FONT><FONT size=2>
+<P>      Display(source) </P>
+<P></FONT><FONT color=#0000ff size=2>    Else</P>
+</FONT><FONT size=2>
+<P>      ...</P>
+<P></FONT><FONT color=#0000ff size=2>    End</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>If</P>
+</FONT><FONT size=2>
+<P></FONT><FONT color=#0000ff size=2>  End</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Sub</P>
+<P>End</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Class</FONT></P>
+<P><FONT color=#0000ff size=2>&nbsp;</P>
+<P>Public</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Interface</FONT><FONT size=2> ITextSource</P>
+<P></FONT><FONT color=#0000ff size=2>  ReadOnly</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Property</FONT><FONT size=2> Text() </FONT><FONT color=#0000ff size=2>As</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>String</P>
+<P>End</FONT><FONT size=2> </FONT><FONT color=#0000ff size=2>Interface</P>
+</FONT>
+</PRE>
+<P>This gives us all of the benefits of using the PreviousPageType directive with just a few lines of overhead.&nbsp; It makes passing data between pages trivial.&nbsp; </P><div style="clear:both;"></div></div>
+    

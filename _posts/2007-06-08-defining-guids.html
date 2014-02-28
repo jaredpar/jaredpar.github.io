@@ -1,0 +1,5 @@
+<P>One of the tasks I find to be annoying during development is pasting GUID's into my code.&nbsp; You need GUID's for lots of different functions (COM, Constants, etc ...).&nbsp; GuidGen is a good tool for getting the Guid into your code.&nbsp; However I don't insert GUID's very often.&nbsp; Everytime I do, I find I've forgotten where the tool is.&nbsp; Then I go through the process of locating it and getting my GUID out.&nbsp; </P>
+<P>PowerShell to the rescue :)</P>
+<P>PS&gt; [Guid]::NewGuid().ToString() | out-clipboard</P>
+<P>&nbsp;[Edit1] Corrected ToString-&gt;ToString() Tom Barnum's feedback.&nbsp; </P></div>
+    

@@ -1,0 +1,52 @@
+<p>One of the lacking's of the latest F# CTP is debugger visualization support for the built-in list types.&#160; Viewing a list in the debugger is decidedly tedious compared to the mscorlib collection classes.&#160; Take the following quick code sample</p>  <pre class="code"><span style="color: blue">module </span>Main =
+    <span style="color: blue">do
+        let </span>l1 = [0..4]
+        <span style="color: blue">let </span>l2 = List.map (<span style="color: blue">fun </span>a <span style="color: blue">-&gt; </span>a.ToString()) l1
+        <span style="color: blue">let </span>l3 = <span style="color: blue">new </span>System.Collections.Generic.List&lt;int&gt;()
+        List.iter (<span style="color: blue">fun </span>i <span style="color: blue">-&gt; </span>l3.Add(i)) l1
+        MainModuleTemp.Main()   <span style="color: green">// Breakpoint here</span></pre>
+<a href="http://11011.net/software/vspaste"></a>
+
+<p>Hit F5 in a F# console application and you'll get the following display. </p>
+
+<p><a href="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/DebuggingFlists_129AA/image_2.png"><img style="border-bottom: 0px; border-left: 0px; border-top: 0px; border-right: 0px" border="0" alt="image" src="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/DebuggingFlists_129AA/image_thumb.png" width="449" height="348" /></a> </p>
+
+<p>Notice how the elements of the mscorlib List&lt;&gt; are immediately visible.&#160; Getting to the data in a F# list is possible but it takes a lot more clicks than the mscorlib version.&#160; This doesn't appear to be an oversight on the F# team either.&#160; The expansion of mscorlib List&lt;T&gt; is controlled by the DebuggerTypeProxy attribute on the class definition.&#160; If you fire up Reflector and dig into Fsharp.Core.dll and navigate to List&lt;T&gt; you'll notice it indeed has a DebuggerTypeProxy entry which is well formed and points to ListDebugView&lt;T&gt;.&#160; </p>
+
+<p>ListDebugView&lt;T&gt; is essentially identical to the one for mscorlib List&lt;T&gt;.&#160; So what gives?&#160; The bug appears to be in the accessibility of the constructor.&#160; Even though it's not explicit in the documentation of DebuggerTypeProxy, it appears that the target type must have a single argument constructor which is public.&#160; The one for ListDebugView&lt;T&gt; is internal.&#160; </p>
+
+<p>Normally this would be an easy enough problem to work around.&#160; Add an assembly level attribute of type DebuggerTypeProxy pointing to List&lt;T&gt; and a modified version of ListDebugView.&#160; Unfortunately that will not work in this case.&#160; The debugger will prefer DebuggerTypeProxy instances added directly to a type over ones defined at an assembly level.&#160; </p>
+
+<p>That is, except for two cases.&#160; The debugger will give precedence to assembly level attributes which are defined in an assembly named autoexp.dll and placed in one of the following two locations</p>
+
+<ol>
+  <li>Visualizers folder for the current user.&#160; One my machine it is C:\Users\jaredp\Documents\Visual Studio 2008\Visualizers</li>
+
+  <li>Devenv global visualizer folder. C:\Program Files\Microsoft Visual Studio 9.0\Common7\Packages\Debugger\Visualizers\Original</li>
+</ol>
+
+<p>If you navigate to either of these directories you will find both the default autoexp.dll and the source code used to compile it.&#160; It's got quite a few entries you may want to add in a modified version.&#160; Adding a new ListDebugView&lt;T&gt; here is possible but lets do it in F# instead.</p>
+
+<p>Since autoexp.dll has predecence all we need to do is build a new version which has the appropriate debugger attributes for the F# collections.&#160; Fire up a new class library project named autoexp and have it output to either of the directories listed above.&#160; Below is a sample definition to get you started.</p>
+
+<pre class="code"><span style="color: blue">#light
+open </span>System.Diagnostics
+
+<span style="color: blue">module </span>Main =
+    <span style="color: blue">type </span>ListProxy&lt;'a&gt;(l:List&lt;'a&gt;) =
+        [&lt;DebuggerBrowsableAttribute(DebuggerBrowsableState.RootHidden)&gt;]
+        <span style="color: blue">member </span>this.Items = 
+            Array.of_list l
+            
+    [&lt;assembly: DebuggerDisplayAttribute(<span style="color: maroon">&quot;{Length}&quot;</span>, Target=typeof&lt;List&lt;int&gt;&gt;)&gt;]
+    [&lt;assembly: DebuggerTypeProxyAttribute(typeof&lt;ListProxy&lt;int&gt;&gt;, Target=typeof&lt;List&lt;int&gt;&gt;)&gt;]
+    <span style="color: blue">do 
+        </span>()
+        </pre>
+
+<p><a href="http://11011.net/software/vspaste"></a>Don't be alarmed at the typeof&lt;List&lt;int&gt;&gt;.&#160; The visualizer will work for any generic binding of List&lt;T&gt;.&#160; In fact, reflector confirms that this attribute will be emitted with the type pointing at the unbound List&lt;T&gt; instead of List&lt;int&gt;. My lack of F# skills is failing me as to why.&#160; I'd love to cry bug but I've found crying bug at a compiler is usually ... wrong.&#160; </p>
+
+<p>In either case, once you build this and place in the appropriate folder, you should find the visualizations for List&lt;&gt; much more accessible.</p>
+
+<p><a href="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/DebuggingFlists_129AA/image_4.png"><img style="border-bottom: 0px; border-left: 0px; border-top: 0px; border-right: 0px" border="0" alt="image" src="http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/DebuggingFlists_129AA/image_thumb_1.png" width="478" height="349" /></a></p></div>
+    
