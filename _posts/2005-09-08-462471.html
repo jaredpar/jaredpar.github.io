@@ -1,4 +1,0 @@
-<P>It's important in multi threaded programs to understand the difference between an assigment operation and Interlocked.Exchange when you are dealing with shared references (memory).</P>
-<P>The .NET ECMA spec in section 12.6.6 sets that reference assigment (and any other platform word size set) will be an atomic operation (when memory is properly aligned).&nbsp; I've seen some devs sight this when using simple assigment operations on a shared reference.&nbsp; The problem is the assigment is atomic but it makes no gaurantees about when the update will reach other threads (i.e. memory locations, caches).&nbsp; So it will cause no apparent errors but the change may not be immediately visible to other threads </P>
-<P>Interlocked.Exchange while atomic also gaurantees that the change will be propagated to all other threads in the program.&nbsp; It's a bit slower though.&nbsp; </P><div style="clear:both;"></div></div>
-    

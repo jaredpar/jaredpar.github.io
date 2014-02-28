@@ -1,9 +1,0 @@
-<p>Quick follow up to my earlier <a href="http://blogs.msdn.com/jaredpar/archive/2007/10/04/ienumerable-and-ienumerable-of-t.aspx">post</a>.&nbsp; Fixing this issue in C# is even easier because of the existence of iterators.&nbsp; </p><pre class="code">        <span style="color: rgb(0,0,255)">public</span> <span style="color: rgb(0,0,255)">static</span> <span style="color: rgb(43,145,175)">IEnumerable</span>&lt;<span style="color: rgb(0,0,255)">object</span>&gt; Shim(System.Collections.<span style="color: rgb(43,145,175)">IEnumerable</span> enumerable)
-        {
-            <span style="color: rgb(0,0,255)">foreach</span> (<span style="color: rgb(0,0,255)">var</span> cur <span style="color: rgb(0,0,255)">in</span> enumerable)
-            {
-                <span style="color: rgb(0,0,255)">yield</span> <span style="color: rgb(0,0,255)">return</span> cur;
-            }
-        }
-</pre><a href="http://11011.net/software/vspaste"></a></div>
-    

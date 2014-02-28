@@ -1,7 +1,0 @@
-<P>Scripts often need to dynamically find out what directory they are executed from.&nbsp; In CMD scripts this is done by %~dp0.&nbsp; For powershell the following will do the trick.</P>
-<P>&nbsp; split-path -parent $MyInvocation.MyCommand.Definition</P>
-<P>&nbsp;When this is run anywhere in the script body (not a function within the script) it will return the directory currently holding the running script.&nbsp; If you execution this from a function within a script though, it will print out the body of the function.&nbsp; If you need to know the directory of the script inside the body of the script, store it in script level variable. </P>
-<P>&nbsp; $script:mypath = $MyInvocation.MyCommand.Definition</P>
-<P>&nbsp; function printScriptPath() { return $script:mypath; }</P>
-<P mce_keep="true">&nbsp;</P><div style="clear:both;"></div></div>
-    

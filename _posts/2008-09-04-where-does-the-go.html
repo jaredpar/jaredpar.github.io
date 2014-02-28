@@ -1,5 +1,0 @@
-<p>This is a more amusing than functional debate I enter into from time to time.&nbsp; On a line where you declare a pointer type in C++, where should the * go?&nbsp; </p> <ol> <li>Next to the type (i.e. Type* p1;) <li>Next to the variable name&nbsp; (i.e. Type *p1;) <li>Who cares</li></ol> <p>For the moment lets ignore #3 (after all they don't care).&nbsp; I'm a firm believer in #1.&nbsp; After all * is a part of the type of the variable, not the name and therefore should be closer to the type.&nbsp; </p> <p>#2 believers disagree with this notion.&nbsp; They believe the * is a part of the individual variable's type and not the actual type.&nbsp; This is technically correct and can be demonstrated with the following code</p> <p></p><pre>  Type* p1, p2;
-</pre>
-<p>The type of p2 is of course Type and not Type*. Therefore they argue, #2 is the superior way</p>
-<p>This is true but I'm also a firm believer in don't declare multiple variables in a single declaration statement while coding in C++ unless the type has a user defined constructor.&nbsp; Namely to avoid situations just like this.&nbsp; </p></div>
-    
