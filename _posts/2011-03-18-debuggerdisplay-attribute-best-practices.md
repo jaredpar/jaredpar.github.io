@@ -1,5 +1,6 @@
 ---
 layout: post
+title: DebuggerDisplay Attribute Best Practices
 ---
 The [DebuggerDisplayAttribute](http://msdn.microsoft.com/en-us/library/system.diagnostics.debuggerdisplayattribute.aspx) is a powerful way to customize the way values are displayed at debug time. Instead of getting a simple type name display, interesting fields, properties or even custom strings can be surfaced to the user in useful combinations
 
