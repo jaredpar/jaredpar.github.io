@@ -21,7 +21,7 @@ compiler features in the debugger.
 Languages in Visual Studio typically provide the following major components to
 support the debugging experience.
 
-  * Expression Evaluator (EE): This is the language specific component which provides all of the data used in the watch, locals and immediate window, data tips, conditional breakpoints and several other components.  It???s primary input is an expression in string form which is converted to a value (typically an ICorDebugValue instance) and outputs a COM object capable of inspecting that value to the core debugger [1].   Everything typed into the debugger windows goes through the EE.
+  * Expression Evaluator (EE): This is the language specific component which provides all of the data used in the watch, locals and immediate window, data tips, conditional breakpoints and several other components.  It's primary input is an expression in string form which is converted to a value (typically an ICorDebugValue instance) and outputs a COM object capable of inspecting that value to the core debugger [1].   Everything typed into the debugger windows goes through the EE.
 
 This component lives in the MTA of Visual Studio and has almost no interaction
 with the UI / STA thread.
@@ -30,7 +30,7 @@ with the UI / STA thread.
 
 This component lives in the main STA of Visual Studio
 
-The important thing to understand about the expression evaluator is that it???s
+The important thing to understand about the expression evaluator is that it's
 purpose is primarily to provide an expression evaluation and data inspection
 service.  How expression evaluation works is an article in itself but suffice
 it to say that it converts the string to a very low level AST then walks the
@@ -41,7 +41,7 @@ services.
 The design philosophy for Both VB.Net and C# is to have the highest level of
 fidelity between expressions evaluated in the EE and the actual running
 program.  To do otherwise would lead to extremely confusing results for users.
-When spec???ing feature support in the VB.Net EE we start from the point of 100%
+When spec'ing feature support in the VB.Net EE we start from the point of 100%
 fidelity, determine the problems with this design (if any) and then start the
 difficult process of making compromises.
 
@@ -54,14 +54,14 @@ of the biggest hurdles to getting LINQ (and other features) into the EE.
 Evaluating a LINQ expression is actually much closer to an ENC operation than
 a traditional EE one.
 
-Currently the EE???s have no capacity for generating metadata, only interpreting
+Currently the EE's have no capacity for generating metadata, only interpreting
 it.  Operations which mutate or generate metadata have traditionally only been
 allowed via the ENC service.  Getting LINQ to work in the EE with true
 fidelity would require at least a minimal amount of ENC feature work.
 
 Without getting into too much detail, lets enumerate the** new** major
 features necessary to evaluate a LINQ expression in the EE with true fidelity
-to the running program.  To simplify things, we???ll start by assuming there is
+to the running program.  To simplify things, we'll start by assuming there is
 no other LINQ expression used in the current method and the method is only
 being executed at most once at any given time in the process.  
 
@@ -72,14 +72,14 @@ being executed at most once at any given time in the process.
 
 Issues #1 and #2 are for the most part internal architecture issues and can be
 solved via normal processes of code base refactoring and adding new features
-to an existing component.   I don???t mean to imply these problems are cheap (in
+to an existing component.   I don't mean to imply these problems are cheap (in
 fact they are relatively expensive)  But fixing these is somewhat of an
 understood quantity.
 
-Issues #3 and #4 are where the problems start.  As implemented EE???s do not
+Issues #3 and #4 are where the problems start.  As implemented EE's do not
 have capability to create or modify metadata in the running process (that is
-the job of the ENC service).  EE???s do have access to the underlying CLR ENC
-APIs so it is possible to implement ENC operations in the EE.  It???s just
+the job of the ENC service).  EE's do have access to the underlying CLR ENC
+APIs so it is possible to implement ENC operations in the EE.  It's just
 simply not been done yet.
 
 Wait!  Why not reuse our ENC implementation in the EE?  Unfortunately the ENC
@@ -87,7 +87,7 @@ service is currently tied heavily to our in memory IDE compiler and many other
 IDE / STA features.  It in fact lives in a completely separate DLL, separate
 COM apartment and works on a different symbol table than the EE.
 
-More fundamental though is that it???s designed for a completely different
+More fundamental though is that it's designed for a completely different
 purpose.  ENC is designed to track edits in live code, determining the
 differences and applying them to the running program.  The hypothetical EE
 feature would be tracking expressions that modify a running DLL for which code
@@ -95,16 +95,16 @@ is not guaranteed (and not likely) to be available and applying the difference
 to the running program.  There are some similarities but the differences are
 significant enough to make code reuse have limited value.
 
-Some people may wonder why it???s necessary to implement #4.  Couldn???t we just
+Some people may wonder why it's necessary to implement #4.  Couldn't we just
 avoid removing the variable from the current method and make the feature
 cheaper?  This is possible but it would cause a significant fidelity
 difference in the feature.  Any mutations of the local variable within the
 LINQ expression would not be visible on the stack frame as it would if the
 LINQ expression was present in the original program.
 
-It???s easy to think of this ENC in the EE as just the same type of cost as #1
+It's easy to think of this ENC in the EE as just the same type of cost as #1
 and #2 (in many ways it is).  However taking advantage of the CLR ENC APIs in
-the EE also means that we inherit it???s limitations as well.  ENC as as
+the EE also means that we inherit it's limitations as well.  ENC as as
 implemented in the CLR has many limitations which fly in the face of LINQ.  In
 particular the following ENC limitations present major problems ([ENC
 limitations
@@ -119,7 +119,7 @@ reference](http://blogs.msdn.com/jmstall/archive/2005/02/19/376666.aspx)).
 
 So even if we implemented everything possible on the language service side the
 resulting feature would be limited in several impactful ways.  Additionally
-these limitations are somewhat orthogonal to the current limitations EE???s face
+these limitations are somewhat orthogonal to the current limitations EE's face
 and would require a bit of user education.  And this is only for the most
 basic LINQ feature under unrealistic scenarios.
 
@@ -140,7 +140,7 @@ same value as it has in the current method which runs us into ENC limitation
 method in which it was created. For those closures no stack value is available
 so what value should we give fields in that instance?  Ideally it should have
 the value of the variable at the point the method exited but realistically
-that???s not possible.
+that's not possible.
 
 
 
@@ -158,7 +158,7 @@ features to the EE, ENC limitations would significantly limit the usefulness
 of the resulting feature.
 
 Does this mean that LINQ, or any future metadata requiring expression, will
-never be added to the debugger window?  Absolutely not.  We???ve just hit the
+never be added to the debugger window?  Absolutely not.  We've just hit the
 difficult stage of making compromises on the level of fidelity in the feature.
 If you back off of true fidelity in a few small ways the resulting feature,
 while still very expensive, is significantly cheaper and removes many of the

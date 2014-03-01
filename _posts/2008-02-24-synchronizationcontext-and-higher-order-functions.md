@@ -2,21 +2,21 @@
 layout: post
 ---
 It's often useful to ensure that actions occur on specific threads, in
-particular event handlers.?? Take Windows Forms for instance where all
-operations on a Control must occur on the thread it was created on.?? Typically
+particular event handlers. Take Windows Forms for instance where all
+operations on a Control must occur on the thread it was created on. Typically
 this is not a problem since WinForms respond to events such as Click, Move,
-etc...?? These events are sourced from the same thread so it's not an issue.
+etc... These events are sourced from the same thread so it's not an issue.
 
 But there are cases where events are sourced from a separate thread and we
-need to Marshal it back onto the Control thread.?? One good example of this is
+need to Marshal it back onto the Control thread. One good example of this is
 [FileSystemWatcher](http://msdn2.microsoft.com/en-
-us/library/system.io.filesystemwatcher.aspx).?? If a SynchronizationObject is
-not provided it will raise the event on an unspecified thread.?? This event
+us/library/system.io.filesystemwatcher.aspx). If a SynchronizationObject is
+not provided it will raise the event on an unspecified thread. This event
 cannot directly touch a Control or an "Illegal cross thread call exception"
-will occur.?? Many examples use ISynchronizedInvoke to marshal the code back.
+will occur. Many examples use ISynchronizedInvoke to marshal the code back.
 There are a couple of downsides to this approach including
 
-  1. ISynchronizedInvoke on Controls won't work until the Handle is created or after it's destroyed.?? So if the event fires in either of these cases an unhandled exception will occur and typically crash the process. 
+  1. ISynchronizedInvoke on Controls won't work until the Handle is created or after it's destroyed. So if the event fires in either of these cases an unhandled exception will occur and typically crash the process. 
   2. Can't use an anonymous lambda because ISynchronizedInvoke is not typed to a specific delegate 
   3. Code is easy to get subtly wrong 
 
@@ -57,9 +57,9 @@ Here is an example implementation.
             }
 
 It would be easier if we could bind a delegate to a particular thread in such
-way that calls automatically marshal to the appropriate thread.?? Imagine for
+way that calls automatically marshal to the appropriate thread. Imagine for
 instance if we could type the following in such a way that all invocations of
-"del" below would automatically marshal to the thread for the Control.?? We
+"del" below would automatically marshal to the thread for the Control. We
 could then freely pass this to any event source and not have to worry about
 what thread the event is raised on.
 
@@ -69,29 +69,29 @@ what thread the event is raised on.
 
 Instead of ISynchronizedInvoke we'll use
 [SynchronizationContext](http://msdn2.microsoft.com/en-
-us/library/system.threading.synchronizationcontext.aspx).?? IMHO this is a
-better approach for this type of work.?? It has the same functionality as
-ISynchronizedInvoke and helps with a few of the quirks.?? The Windows Forms
+us/library/system.threading.synchronizationcontext.aspx). IMHO this is a
+better approach for this type of work. It has the same functionality as
+ISynchronizedInvoke and helps with a few of the quirks. The Windows Forms
 Application Model (and if memory serves WPF) insert a
 [SynchronizationContext](http://msdn2.microsoft.com/en-
 us/library/system.threading.synchronizationcontext.aspx) for every thread
-running a WinForm application.?? It greatly reduces the chance your code will
+running a WinForm application. It greatly reduces the chance your code will
 run into problem #1 above because the timespan for when it can be used to
 Marshal between threads is not dependent upon the internal workings of a
-particular Control.?? Instead it's tied to the lifetime of the Thread[1].
+particular Control. Instead it's tied to the lifetime of the Thread[1].
 
 The basic strategy we'll take is to create a new delegate which wraps the
-original delegate.?? This will Marshal the call onto the appropriate thread and
+original delegate. This will Marshal the call onto the appropriate thread and
 then call the original delegate.
 [SynchronizationContext](http://msdn2.microsoft.com/en-
 us/library/system.threading.synchronizationcontext.aspx) has two methods to
 Marshal calls between threads; Post and Send.
 
-Creating a delegate instance on the fly is not straight forward.?? Unless we
+Creating a delegate instance on the fly is not straight forward. Unless we
 code all permutations of delegate signatures into a class we cannot use the
 Delegate.Create API because we cannot provide a method with the matching
-signature.?? Instead we need to go through Reflection.Emit.?? This allows us to
-build a method on the fly to match the delegate signature.?? In addition we can
+signature. Instead we need to go through Reflection.Emit. This allows us to
+build a method on the fly to match the delegate signature. In addition we can
 generate the IL to route the code through Post/Send before calling the
 delegate.
 
@@ -125,8 +125,8 @@ helper class.
 
     }
 
-Next is a class which injects the Send/Post call.?? We need this as a storage
-mechanism for holding the context and delegate.?? Essentially this is a hand
+Next is a class which injects the Send/Post call. We need this as a storage
+mechanism for holding the context and delegate. Essentially this is a hand
 generate closure.
 
     
@@ -193,11 +193,11 @@ generate closure.
 
         }
 
-Now comes the actual delegate generation.?? The dynamic method will be bound to
-an instance of the DelegateData class.?? As such we must add an additional
-parameter to the delegate of type DelegateData in position 0.?? The rest of the
+Now comes the actual delegate generation. The dynamic method will be bound to
+an instance of the DelegateData class. As such we must add an additional
+parameter to the delegate of type DelegateData in position 0. The rest of the
 method creates an object array with length equal to the number of parameters
-in the delegate.?? Each of the arguments are added to this array.?? Then it will
+in the delegate. Each of the arguments are added to this array. Then it will
 call Post/Send in DelegateData passing the arguments along.
 
     

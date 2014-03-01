@@ -1,11 +1,11 @@
 ---
 layout: post
 ---
-Is it better to be wrong once or to be right then think you???re wrong but find
+Is it better to be wrong once or to be right then think you're wrong but find
 out you were right but wrong about being wrong? Besides the obvious be right
-the first time, it???s certainly an educational experience.
+the first time, it's certainly an educational experience.
 
-Here???s the original sample:
+Here's the original sample:
 
     
     
@@ -35,15 +35,15 @@ Here???s the original sample:
 
         inner (fun x -> x )
 
-[Brian McNamara](http://lorgonblog.spaces.live.com/blog/) pointed out I wasn???t
-considering all of the call sites for this sample.?? In addition to the
-recursive call to ???inner??? and the initial inner call, there is the actual
-recursive invocation of the of the continuations.?? Effectively the ???inner???
+[Brian McNamara](http://lorgonblog.spaces.live.com/blog/) pointed out I wasn't
+considering all of the call sites for this sample. In addition to the
+recursive call to 'inner' and the initial inner call, there is the actual
+recursive invocation of the of the continuations. Effectively the 'inner'
 function is building up a list of list of lambdas which call the combine
-function.?? The output of the combine function is simply passed into the next
-lambda in the list.?? The last lambda in the list is the identity lambda and
-returns the final call to combine.?? This value is the actual value returned
-from the initial invocation ???cont acc???.?? Lambdas are methods under the hood.
+function. The output of the combine function is simply passed into the next
+lambda in the list. The last lambda in the list is the identity lambda and
+returns the final call to combine. This value is the actual value returned
+from the initial invocation 'cont acc'. Lambdas are methods under the hood.
 Without a tail instruction, this chain of lambda calls will just as easily
 overflow the stack.
 

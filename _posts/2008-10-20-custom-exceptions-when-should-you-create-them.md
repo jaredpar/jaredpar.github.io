@@ -1,21 +1,21 @@
 ---
 layout: post
 ---
-I think the best answer is: rarely.???? It's really hard to go straight to a
-justification here though.?? I find that answering a different question will
+I think the best answer is: rarely.'? It's really hard to go straight to a
+justification here though. I find that answering a different question will
 eventually shed led on when to create a new exception.
 
 > "What are the benefits of creating a new/custom exception?"
 
 The answers I come up with or have heard before are ...
 
-  1. Provides a type safe mechanism for a developer to detect an error condition.??
+  1. Provides a type safe mechanism for a developer to detect an error condition.
 
 Without a custom exception a developer would be forced to compare an existing
 value on an existing exception class in order to determine if a particular
-error occurred.?? To ensure this was unique across applications and
+error occurred. To ensure this was unique across applications and
 environments a unique identifier would need to be inserted as well (likely a
-GUID).?? The resulting code would be quite ugly and maintainability would be a
+GUID). The resulting code would be quite ugly and maintainability would be a
 question mark.
 
   2. Add situation specific data to an exception 
@@ -42,16 +42,16 @@ I'd argue against this because of
 us/library/system.invalidoperationexception.aspx). Invalid operation should
 cover most exceptional cases
 
-So of these reasons only #1 is a stand alone benefit of a new exception.?? Now
+So of these reasons only #1 is a stand alone benefit of a new exception. Now
 lets re-state this advantage in the context of the original question.
 
 > Creating a new exception allows a developer to catch them
 
-Simple right??? But what benefit does this give to a developer??? From my
+Simple right' But what benefit does this give to a developer' From my
 experience there are only two reasons to catch an exception.
 
-  * It's a particular for which the underlying exceptional problem can be corrected.?? Perhaps the user is prompted to fix the condition by performing some outside action (like re-inserting a disk).
-  * Logging errors for post-mortem debugging.?? Note: You could also use the Data dictionary and extension methods above to introduce a new method ShouldLog().?? This would allow you to avoid creating a new exception type.??
+  * It's a particular for which the underlying exceptional problem can be corrected. Perhaps the user is prompted to fix the condition by performing some outside action (like re-inserting a disk).
+  * Logging errors for post-mortem debugging. Note: You could also use the Data dictionary and extension methods above to introduce a new method ShouldLog(). This would allow you to avoid creating a new exception type.
 
 Now I think we can answer the original question of this blog post.
 

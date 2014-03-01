@@ -2,15 +2,15 @@
 layout: post
 ---
 A few days ago, I recklessly added a [Serialization] attribute to a few of my
-immutable collection types.?? I needed to pass data between AppDomain's and
-adding [Serialization] was the quick and dirty fix.?? Compiled, ran and I
+immutable collection types. I needed to pass data between AppDomain's and
+adding [Serialization] was the quick and dirty fix. Compiled, ran and I
 didn't think much about it.
 
 Luckily I was updating some unit tests last night and I remembered this and
-added a couple of serialization sanity tests.?? Most of the tests passed first
-time but for my ImmutableStack class[1] was throwing an exception.?? Well, it
+added a couple of serialization sanity tests. Most of the tests passed first
+time but for my ImmutableStack class[1] was throwing an exception. Well, it
 was actually my ImmutableQueue but it was failing in one of the inner
-ImmutableStack instances.?? The test code was fairly straight forward
+ImmutableStack instances. The test code was fairly straight forward
 
     
     
@@ -41,7 +41,7 @@ ImmutableStack instances.?? The test code was fairly straight forward
     }
 
 I did a bit of digging and discovered the exception was coming from the
-stack2.Reverse() call.?? Jumped through the code and didn't see much wrong.?? I
+stack2.Reverse() call. Jumped through the code and didn't see much wrong. I
 had several existing tests around ImmutableStack.Reverse() and I couldn't see
 why Serialization would make any difference.
 
@@ -78,9 +78,9 @@ why Serialization would make any difference.
 
 Can you see what's wrong with the code?
 
-It took me a few minutes of debugging and frustration.?? The bug is in the
-while loop conditional.?? Until you introduce serialization this code is just
-fine.?? ImmutableStack<T>.Empty is a static readonly declaration.?? The code
+It took me a few minutes of debugging and frustration. The bug is in the
+while loop conditional. Until you introduce serialization this code is just
+fine. ImmutableStack<T>.Empty is a static readonly declaration. The code
 implementation only allows for one to be created so it a singleton and
 equality can be done with a quick reference check.
 
@@ -101,11 +101,11 @@ equality can be done with a quick reference check.
     }
 
 Unfortunately serialization breaks the assumption that EmptyImmutableStack is
-a singleton.?? The EmptyImmutableStack class is a singleton by convention only.
+a singleton. The EmptyImmutableStack class is a singleton by convention only.
 It's a private nested class that's only instantiated once per AppDomain.
 There is nothing stopping the CLR or Serialization for that matter from
-creating a second instance.?? In the case of deserialization that's exactly
-what happens.?? The serializer isn't built to recognize this pattern and
+creating a second instance. In the case of deserialization that's exactly
+what happens. The serializer isn't built to recognize this pattern and
 instead simply creates a new instance of EmptyImmutableStack upon
 deserialization.
 

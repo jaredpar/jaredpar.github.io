@@ -12,9 +12,9 @@ Event Details:
   * Who: Me 
   * Why: Blogging's fun but it's great to go out and talk to people in person 
 
-My talk will center around how to get the most out of a LINQ query.?? I'll be
+My talk will center around how to get the most out of a LINQ query. I'll be
 covering a lot of the misunderstood aspects of LINQ such as deferred
-execution.?? Most bit of the talk will focus on the [MSDN
+execution. Most bit of the talk will focus on the [MSDN
 article](http://msdn.microsoft.com/en-us/magazine/cc721610.aspx) I wrote a few
 months back.
 

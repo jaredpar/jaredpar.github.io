@@ -2,15 +2,15 @@
 layout: post
 ---
 I just released version 0.5.0 of VsVim: a vim emulation editor extension for
-Visual Studio 2010 Beta1 written in F#.  This is a hobby project I???ve been
+Visual Studio 2010 Beta1 written in F#.  This is a hobby project I've been
 working on for awhile now.  I expect to continue updating this release as time
-goes on as I use it on a daily basis and I???m interested in getting back
+goes on as I use it on a daily basis and I'm interested in getting back
 feedback from users on it.  
 
 Link: <http://visualstudiogallery.msdn.microsoft.com/en-us/59ca71b3-a4a3-46ca-
 8fe1-0e90e3f79329>
 
-Here???s a quick break down on the state of this project
+Here's a quick break down on the state of this project
 
 **Caveats and Expectations**
 
@@ -22,10 +22,10 @@ put into it.
 
 I would classify this as a Beta style release.  I use this extension every day
 and I have a very large test bed to verify functionality.  There are still
-several known bugs (detailed below) and little quirks I???m working on.  But
+several known bugs (detailed below) and little quirks I'm working on.  But
 they are mostly minor issues
 
-**What???s Implemented**
+**What's Implemented**
 
 At this point the engine has an Insert, Normal and Command mode.
 
@@ -62,28 +62,28 @@ fixed in a later release.
 
 **Bugs**
 
-Below is the list of known issues for the extension.  I???ve noted all bugs for
+Below is the list of known issues for the extension.  I've noted all bugs for
 which I cannot get a steady repro.  If you can find one I would appreciate you
 emailing the steps to me.
 
   * Cursor appearance in normal mode is not a block cursor but instead a red cursor 
 
-  * Need Repro: Using ???o??? in normal mode can cause the line ending to switch from \r\n to \r or \n. 
-  * Both ???#??? and ???*??? match partial words instead of full words
+  * Need Repro: Using 'o' in normal mode can cause the line ending to switch from \r\n to \r or \n. 
+  * Both '#' and '*' match partial words instead of full words
 
   * Register list is limited to standard a-z alphabet 
 
-**What???s next?**
+**What's next?**
 
-Thus far I???ve been working on features which don???t conflict with existing
+Thus far I've been working on features which don't conflict with existing
 Visual Studio key bindings.  The next big release will be focusing on the
 infrastructure needed to integrate these commands smoothly into the core Vim
 engine and Visual Studio itself.  This will allow me to expand the number of
 implemented features a great deal.
 
-**Where???s the source?**
+**Where's the source?**
 
-Should be released soon.  Right now I???m working out where I should host this
+Should be released soon.  Right now I'm working out where I should host this
 project long term.  Preferably a place where users can file bugs and leave
 feedback.
 

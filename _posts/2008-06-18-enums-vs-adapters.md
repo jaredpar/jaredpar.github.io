@@ -1,8 +1,8 @@
 ---
 layout: post
 ---
-I like Enums and use them frequently for options and behavior.?? To an extent I
-use Enum's to control behavior.?? For example
+I like Enums and use them frequently for options and behavior. To an extent I
+use Enum's to control behavior. For example
 
     
     
@@ -71,23 +71,23 @@ use Enum's to control behavior.?? For example
 
     }
 
-This is an acceptable pattern and use for enums.?? However if you take a step
+This is an acceptable pattern and use for enums. However if you take a step
 back, what I've actually done here is use an enum to implement an [adapter
-pattern](http://en.wikipedia.org/wiki/Adapter_pattern).?? I've just been a bit
+pattern](http://en.wikipedia.org/wiki/Adapter_pattern). I've just been a bit
 lazy about it and not actually coded up the classes.
 
 To an extent though this violates the principle of single use as Example now
-performs N different behaviors based upon the enum.?? But lets face it, if
+performs N different behaviors based upon the enum. But lets face it, if
 ActionForKindN() is just a simple 2 line function then is it really worth it
-to create and maintain an adapter pattern??? A purest would likely say yes but
+to create and maintain an adapter pattern' A purest would likely say yes but
 I'm more pragmatic and don't believe so.
 
 Once the functions reach a certain level of complexity though an adapter
-pattern is much more suitable.?? Over time I find that many of my similar
+pattern is much more suitable. Over time I find that many of my similar
 patterns evolve to level.
 
-Yet I struggle to define the point at which an adapter is suitable.?? After
-several recent experiences I started adapting the following rules.?? If any of
+Yet I struggle to define the point at which an adapter is suitable. After
+several recent experiences I started adapting the following rules. If any of
 them is violated then I switch from an enum based behavior to adapter based
 behavior.
 

@@ -1,15 +1,15 @@
 ---
 layout: post
 ---
-Most people discover I???m a Dvorak user because they???re in my office, attempt
+Most people discover I'm a Dvorak user because they're in my office, attempt
 to drive during a conversation and find they are typing gibberish.  I take the
-keyboard, hit CTRL+LEFT_SHIFT and they???re on their way again.  Well at least
+keyboard, hit CTRL+LEFT_SHIFT and they're on their way again.  Well at least
 until they open up a new window.  It usually leads to a conversation about how
-I like Dvorak.  And most importantly ??? ???is it really faster than QWERTY????
+I like Dvorak.  And most importantly ' 'is it really faster than QWERTY'?
 
-I???ve been using a [Dvorak
+I've been using a [Dvorak
 keyboard](http://en.wikipedia.org/wiki/Dvorak_Simplified_Keyboard) for 4 years
-now.  If you???re not familiar with Dvorak, it???s an alternative keyboard layout
+now.  If you're not familiar with Dvorak, it's an alternative keyboard layout
 designed to be better in QWERTY in both efficiency and speed back in 1936.
 Other benefits are also associated with it such as ergonomics, reduced typos,
 etc.  In my experience I find developers are much more keenly interested in
@@ -21,13 +21,13 @@ of which really has seemed to end the debate.  If you are curious about the
 actual studies I encourage you to start at the [wikipedia
 page](http://en.wikipedia.org/wiki/Dvorak_Simplified_Keyboard).
 
-Before I switched to Dvorak I read a few of the studies.  In the end I???m not
-sure of their respective quality level but it didn???t stop me from trying out
+Before I switched to Dvorak I read a few of the studies.  In the end I'm not
+sure of their respective quality level but it didn't stop me from trying out
 Dvorak anyways.  Why?  As I said there appeared to be a lot of debate, typing
 faster sounded nice and my former college roommate convinced me it was a great
 idea.   The last reason being the most important.
 
-What I didn???t see a lot of though when I was reading up on it was how the
+What I didn't see a lot of though when I was reading up on it was how the
 Dvorak keyboard affects the life of a developer (at least outside the speed
 thing).  The studies were geared toward more general problems.
 
@@ -49,7 +49,7 @@ peak at 120 WPM on QWERTY but can get into 140 with Dvorak.
 
 For my normal day to day typing, I do type faster but not appreciably so.
 Maybe 5 WPM.  I can easily hit and maintain 70-80 WPM for day to day tasks and
-once you???re at that speed, much more isn???t really noticed when you???re coding.
+once you're at that speed, much more isn't really noticed when you're coding.
 
 **How long did it take to switch?**
 
@@ -73,10 +73,10 @@ Enough so that I started looking into exercises to help it out.  The symptoms
 started to go away fairly soon after I started using Dvorak as my full time
 layout.
 
-Now I am **not** actually making a claim that it???s more ergonomic.  For me in
-my situation it helped.  IMHO, I think it???s just as likely that a simple
-change of pace had as much to do with it as the actual layout.  But if you???re
-desperate and you have time to kill ???
+Now I am **not** actually making a claim that it's more ergonomic.  For me in
+my situation it helped.  IMHO, I think it's just as likely that a simple
+change of pace had as much to do with it as the actual layout.  But if you're
+desperate and you have time to kill '
 
 **Are any of the key repositioning impactful for development?**
 
@@ -90,9 +90,9 @@ This will make life difficult for the first month or so.
 
 **What weird issues did I encounter?**
 
-I think the biggest issue is I???m a VIM user.  For some reason I thought it a
+I think the biggest issue is I'm a VIM user.  For some reason I thought it a
 bright idea to not do any special VIM mapping and learn to use the standard
-VIM key mappings with Dvorak.  That was ??? a learning experience.  It took
+VIM key mappings with Dvorak.  That was ' a learning experience.  It took
 quite some time before it turned back into muscle memory.
 
 **Can you still type QWERTY?**
@@ -102,9 +102,9 @@ type to a degree.  Albeit pretty slowly.  Enough though that I can use a
 machine for a few hours and debug a problem.
 
 Using very cryptic command line programs such as WinDbg, PowerShell or VIM on
-QWERTY is very painful.  It???s amazing how much of that is just muscle memory.
+QWERTY is very painful.  It's amazing how much of that is just muscle memory.
 Even if I get into QWERTY touch type mode I have to think very hard about what
-I???m typing in those types of programs.  I flat out can???t use VIM but the rest
+I'm typing in those types of programs.  I flat out can't use VIM but the rest
 I get by after a bit of frustration.
 
 **Do you make less typos?**
@@ -113,8 +113,8 @@ That sound you heard was the rest of my coworkers and my wife laughing
 hysterically.
 
 One of the benefits I read about when I switched to Dvorak is that it would
-reduce typos and misspellings.  I???ll sum that claim up with a quick ???Didn???t
-wrok for me???.
+reduce typos and misspellings.  I'll sum that claim up with a quick 'Didn't
+wrok for me'.
 
 **Passwords**
 
@@ -140,12 +140,12 @@ move your fingers.
 For 95% of the developers out there I would say no.  The gains are minor if
 any.  Outside of WPM the gains are subjective.  Developers really seem intent
 on the speed portion of the switch.  This speed gain was minor for me.  Once
-you can steady type ~70WPM the gain really doesn???t seem worth it for
-programming.  But more importantly though, being faster won???t make you a
+you can steady type ~70WPM the gain really doesn't seem worth it for
+programming.  But more importantly though, being faster won't make you a
 better programmer, practice will.
 
 Additionally, besides the learning curve of getting to Dvorak, you have to
-retain some level of competence at QWERTY.  Whether it???s debugging problems on
+retain some level of competence at QWERTY.  Whether it's debugging problems on
 other peoples machines, or participating in a group presentation you will be
 using QWERTY more often than you think.  
 

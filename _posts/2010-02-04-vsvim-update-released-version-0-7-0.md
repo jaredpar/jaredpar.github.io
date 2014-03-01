@@ -42,12 +42,12 @@ following updates
 
   * Expanded set of commands supported in all modes 
   * The . operator in normal mode 
-  * Ability for users to change settings.  Settings supported is baked into VsVim I just haven???t exposed it via command mode or any UI 
+  * Ability for users to change settings.  Settings supported is baked into VsVim I just haven't exposed it via command mode or any UI 
   * Better UI in general.  Right now I use MessageBox.Show for any UI I need to display other than status bar updates.  I would like to expand that to include a more configurable UI 
 
 I also expect to release a 0.7.1 version once the Visual Studio RC goes
 public.  As part of releasing RC, all Beta2 extensions will be unpublished in
-the gallery and I???ll need to release an RC compatible version.  At that time I
+the gallery and I'll need to release an RC compatible version.  At that time I
 will provide a link to the Beta2 binaries for those not upgrading to the RC.
 
 **The usual caveats and expectations**

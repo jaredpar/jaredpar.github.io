@@ -2,10 +2,10 @@
 layout: post
 ---
 I've been looking for some new problems to work on in F# to get more
-comfortable with the language.?? I've been rather slack of late because of
-other projects but I had a little bit of time this week.?? I decided it would
+comfortable with the language. I've been rather slack of late because of
+other projects but I had a little bit of time this week. I decided it would
 be fun to join the crowd and play away at the problems on the [project
-euler](http://projecteuler.net/) site.?? That being said, answer #1.
+euler](http://projecteuler.net/) site. That being said, answer #1.
 
     
     

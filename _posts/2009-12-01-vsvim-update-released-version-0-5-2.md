@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-I just released an update to VsVim for Visual Studio 2010 Beta2.?? This should
+I just released an update to VsVim for Visual Studio 2010 Beta2. This should
 be available shortly from the extension manager in Visual Studio or it can be
 downloaded directly at the following link
 
@@ -26,12 +26,12 @@ out and VsVim should only be intercepting commands it intends to process
 
   * New Normal Mode Commands
     * Mark setting: m[a-zA-Z]
-    * Mark Jump: `[a-z], ???[a-z] 
+    * Mark Jump: `[a-z], '[a-z] 
       * This is currently limited to local marks 
     * Page Up, Page Down: CTRL-U,CTRL-D
     * Join: j
 
-**What???s Next?**
+**What's Next?**
 
 The biggest area I want to focus on for the next release is Command mode and
 rounding, more normal mode behavior (especially mark support) and basic range
@@ -39,11 +39,11 @@ support.
 
 At a minimum I want to expand all of the normal mode commands I have
 implemented to have their corresponding command mode version implemented.
-Join, mark, etc ????? This shouldn???t be a big work item.?? Command mode is just
-something I???ve been neglecting up to this point in favor of infrastructure.
+Join, mark, etc '?? This shouldn't be a big work item. Command mode is just
+something I've been neglecting up to this point in favor of infrastructure.
 
-The other big item I want to work on is ranges.?? Many command mode commands
-operate on ranges and it???s something I???ve yet to implement at a core level.
+The other big item I want to work on is ranges. Many command mode commands
+operate on ranges and it's something I've yet to implement at a core level.
 The basic mark support I added in this release starts the process but I have a
 ways to go.
 
@@ -51,7 +51,7 @@ Also, any suggestions users have are very welcome.
 
 **The usual caveats and expectations**
 
-This extension is being released by me, not by Microsoft.?? As such the support
+This extension is being released by me, not by Microsoft. As such the support
 level for this extension is equivalent to the amount of free time I have to
 put into it.
 

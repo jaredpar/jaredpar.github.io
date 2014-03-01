@@ -27,7 +27,7 @@ shape.
 
     
     
-                Func<???> f = () => new { Name = "foo" };
+                Func<'> f = () => new { Name = "foo" };
 
 This is fixable though by using type inference.  The method is very similar to
 [other anonymous type type

@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-Recently after I made my original post titled ???PInvoke with 32 and 64 bit???, a
+Recently after I made my original post titled 'PInvoke with 32 and 64 bit', a
 developer emailed me.  They pointed out that there is an internal structure
 that dynamically resizes based on the architecture; IntPtr.  IntPtr will be
 size of the native chip pointer value.  So for values like size_t that map to

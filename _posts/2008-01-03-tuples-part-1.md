@@ -50,7 +50,7 @@ possible such that the following code can be written.
                 Console.WriteLine(tuple.A);
 
 Why write a script to generate these classes?  Wouldn't it just be easier to
-just do this by hand???  Yes and no.  If you are doing a fixed set of short
+just do this by hand'  Yes and no.  If you are doing a fixed set of short
 used classes then yes, do it by hand.  These scripts evolved out of my use of
 tuples.  Once I would settle on a structure and I would think of a new feature
 I needed.  Typically I have tuples defined up to 5 fields.  Retyping out a new

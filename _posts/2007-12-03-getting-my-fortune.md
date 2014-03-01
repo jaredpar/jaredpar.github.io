@@ -3,18 +3,18 @@ layout: post
 ---
 [Fortune](http://en.wikipedia.org/wiki/Fortune_\(program\)) is a Unix command
 that gets a random message from a set of databases and displays it on the
-screen.?? These messages have a wide variety but tend to be funny, quirky or
+screen. These messages have a wide variety but tend to be funny, quirky or
 famous quotes (most are indeed geeky).
 
-Nearly all unix systems have a version of Fortune.?? Windows doesn't have any
-version by default.?? It provides no real functionality other than humor and
-amusement but it's something I miss.?? Most users add it to their .profile
+Nearly all unix systems have a version of Fortune. Windows doesn't have any
+version by default. It provides no real functionality other than humor and
+amusement but it's something I miss. Most users add it to their .profile
 script so they get a new fortune every time they log in.
 
 There are a couple of heavy weight options to get fortune on my machine?? but I
-prefer something a bit lighter.?? I did a quick search and discovered that
+prefer something a bit lighter. I did a quick search and discovered that
 [Doug Hughes](http://www.doughughes.net/index.cfm?event=fortune) implemented a
-fortune web service.?? This is just above as light weight as it gets so I
+fortune web service. This is just above as light weight as it gets so I
 implemented a simple PSCmdlet, get-fortune, to do the work (code below).
 
 Now I can just add a quick get-fortune to my profile script.

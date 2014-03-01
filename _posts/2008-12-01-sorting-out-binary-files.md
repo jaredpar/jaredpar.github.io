@@ -2,8 +2,8 @@
 layout: post
 ---
 I constantly get tripped up in my powershell scripts/commands because I run
-them against a binary file.?? In particular when I???m searching through a
-directory structure looking for a particular string or regex.?? I???ve found the
+them against a binary file. In particular when I'm searching through a
+directory structure looking for a particular string or regex. I've found the
 simplest way to avoid this problem is to use a simple regex check to filter
 out the known binary files.
 

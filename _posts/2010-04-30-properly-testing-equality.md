@@ -17,17 +17,17 @@ Including
     * Operator != should mimic !Object.Equals in all cases where the left side is not null 
   * If two values are equal according to Object.Equals they must have matching returns for GetHashCode 
 
-I???m sure I missed one or two subtle ones but these are the major players.?? It
+I'm sure I missed one or two subtle ones but these are the major players. It
 gets even more fun when you add in IEquatable<T> to the mix.
 
 Luckily correctly implementing equality is fairly straight forward and most
-template code available on the web respects the above rules.?? However it???s
+template code available on the web respects the above rules. However it's
 easy to miss a corner case and add hard to track down bugs.
 
-I???m not satisfied by simply following a standard template and hoping I got it
-right.?? I only sleep easy if I???ve tested these cases.?? Yet testing all of
+I'm not satisfied by simply following a standard template and hoping I got it
+right. I only sleep easy if I've tested these cases. Yet testing all of
 these cases is very tedious and involves quite a bit of code that screams for
-an abstraction.?? As a new type author I simply want to provide a collection of
+an abstraction. As a new type author I simply want to provide a collection of
 units which associate a value and corresponding equal or not equal values and
 let the abstraction verify I properly implemented equality semantics.
 
@@ -159,7 +159,7 @@ not equal values.
     }
 
 I chose a fluent interface design here because it makes the usage code very
-readable.?? For example
+readable. For example
 
     
     
@@ -175,10 +175,10 @@ readable.?? For example
         .WithNotEqualValues(new MyType(13));
 
 Now that we have the data defined we need to follow through with the actual
-test code.?? Most of it is very straight forward enforcement of the above said
-rules.?? The only trick part is how to test operator == and !=.???? The testing
+test code. Most of it is very straight forward enforcement of the above said
+rules. The only trick part is how to test operator == and !=.'? The testing
 class is necessarily generic but neither == or != can be used against open
-generic types.?? Instead we must use them against the non-generic types.
+generic types. Instead we must use them against the non-generic types.
 
 This can be solved by having the calling code provide 2 lambda expressions of
 type Func<T,T,bool> which call the == and != operator.
@@ -193,8 +193,8 @@ type Func<T,T,bool> which call the == and != operator.
 
         (x, y) => x != y,
 
-This is boiler plate code that has to be repeated for every caller but it???s
-small enough to not be that much of a burden.???? Now finally the code.
+This is boiler plate code that has to be repeated for every caller but it's
+small enough to not be that much of a burden.'? Now finally the code.
 
     
     

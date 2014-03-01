@@ -2,7 +2,7 @@
 layout: post
 ---
 The August issue of MSDN magazine will be carrying an article I wrote this
-spring.?? In it I toy around with using the deferred execution and lazy
+spring. In it I toy around with using the deferred execution and lazy
 evaluation properties of LINQ to create more responsive UI code.
 
 You can view the article [here](http://msdn.microsoft.com/en-

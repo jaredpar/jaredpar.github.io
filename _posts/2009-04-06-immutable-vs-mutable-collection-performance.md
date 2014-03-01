@@ -2,17 +2,17 @@
 layout: post
 ---
 One argument I commonly hear against immutable collections is they are slow.
-I???ve held the opposite belief for some time but shamefully had yet to look at
-actual numbers on the CLR.?? Tonight I decided to change that by benchmarking
+I've held the opposite belief for some time but shamefully had yet to look at
+actual numbers on the CLR. Tonight I decided to change that by benchmarking
 one of [my immutable collections](http://code.msdn.com/BclExtras) against a
-mutable collection in the BCL.?? The goal is not to decide the overall best
+mutable collection in the BCL. The goal is not to decide the overall best
 collection but instead to get a sense of how they perform relative to each
 other in certain scenarios.
 
-For the immutable version, I chose to use ImmutableCollection.?? This class is
-a slight variation of Eric Lippert???s [Double Ended
+For the immutable version, I chose to use ImmutableCollection. This class is
+a slight variation of Eric Lippert's [Double Ended
 Queue](http://blogs.msdn.com/ericlippert/archive/2008/02/12/immutability-in-c
--part-eleven-a-working-double-ended-queue.aspx) implementation.?? The core
+-part-eleven-a-working-double-ended-queue.aspx) implementation. The core
 algorithm is the same but the style was changed to be more inline with other
 immutable collections I own. For the mutable class I chose to use the ever
 popular [List<T>](http://msdn.microsoft.com/en-us/library/6sh2ey19.aspx)
@@ -28,53 +28,53 @@ style classes.
 
 Each scenario was run against collections of 100, 1000 and 10000 elements.
 For each count, the run was executed 1000 times and the total and average time
-was calculated.?? The full code for the benchmark is available at the end of
+was calculated. The full code for the benchmark is available at the end of
 this post.
 
 **Looking at the data**
 
 Now before I get into the results, please assume the usual caveats that come
-with any benchmark.?? That is, approach it with a skeptical eye.?? These
+with any benchmark. That is, approach it with a skeptical eye. These
 scenarios are obviously not something I do **exactly **in everyday programming
 (especially removing thousands of elements from the front of List<T>).
-However they are representative of general operations that I do use.?? Also I
+However they are representative of general operations that I do use. Also I
 find it interesting to see how the collections perform relative to each other
 in extreme scenarios.
 
-Most of the results were unsurprising.?? Remove from end is a very simple
-operation on a List<T>.?? It comes down to a bounds check, decrementing an
-index and updating a couple of internal state variables.???? Removing the end of
+Most of the results were unsurprising. Remove from end is a very simple
+operation on a List<T>. It comes down to a bounds check, decrementing an
+index and updating a couple of internal state variables.'? Removing the end of
 an immutable collection requires considerable updating of the internal
-structure.?? It ends up being roughly 1 order of magnitude slower.?????? Adding to
+structure. It ends up being roughly 1 order of magnitude slower.'' Adding to
 the end has similar implementation and numbers.
 
 Operations on the front of the list were significantly slower on List<T> than
-ImmutableCollection for suitably large collections.?? This is unsurprising
+ImmutableCollection for suitably large collections. This is unsurprising
 given that removal and insertion at the front of a List<T> requires all of the
-other elements in the underlying array to be shifted up or down.?? This is a
+other elements in the underlying array to be shifted up or down. This is a
 non-trivial operation and is evident in the benchmark.
 
 The most interesting item however, is to look at how each collection scales.
 In almost all scenarios, ImmutableCollection scaled very closely to the size
-of the input.?? That is, an order of magnitude more input resulted in an order
-of magnitude of more time.?? List<T> does not have that behavior for all
-scenarios.?? Scenarios dealing with the front of the collection saw time rises
-faster relative to input size.?? In fact there is a very dramatic jump in both
-front scenarios between 1000 and 1000 elements.?? Each case resulted in roughly
+of the input. That is, an order of magnitude more input resulted in an order
+of magnitude of more time. List<T> does not have that behavior for all
+scenarios. Scenarios dealing with the front of the collection saw time rises
+faster relative to input size. In fact there is a very dramatic jump in both
+front scenarios between 1000 and 1000 elements. Each case resulted in roughly
 2 orders of magnitude more time.
 
 **Conclusion**
 
-Winner of each category ???
+Winner of each category '
 
   * Add to End: List<T>
   * Add to Front: ImmutableCollection<T>
   * Remove from End: List<T>
   * Remove from Front: ImmutableCollection<T>
 
-No single benchmark is definitive and this one won???t change that.?? This
-benchmark says nothing about the general use of the two classes.?? However it
-can provide some insight into these specific scenarios.?? It also serves as
+No single benchmark is definitive and this one won't change that. This
+benchmark says nothing about the general use of the two classes. However it
+can provide some insight into these specific scenarios. It also serves as
 some level of proof that immutable collections can have acceptable performance
 for these scenarios.
 

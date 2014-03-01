@@ -4,20 +4,20 @@ layout: post
 When learning a [new
 language](http://blogs.msdn.com/jaredpar/archive/2008/08/14/learning-a-new-
 language-f.aspx) I find it very instructive to re-code certain structures from
-my well used libraries into the new language.?? It gives a great basis for
+my well used libraries into the new language. It gives a great basis for
 comparison in terms of ease of implementation, expressiveness of the language
-and sheer ease of implementation.?? So on that note I set out today to build an
-ImmutableStack implementation in F#.?? This is based off of my C#
+and sheer ease of implementation. So on that note I set out today to build an
+ImmutableStack implementation in F#. This is based off of my C#
 implementation in [RantPack](http://code.msdn.com/rantpack).
 
-Below is the initial implementation.?? This is my first non "hello world" data
-structure in F#.?? I found it surprisingly easy to implement and I'm really
-enjoying the language.?? The biggest stumbling block was getting the type union
+Below is the initial implementation. This is my first non "hello world" data
+structure in F#. I found it surprisingly easy to implement and I'm really
+enjoying the language. The biggest stumbling block was getting the type union
 correct and dealing with my compulsion to use "null" for end of stack instead
 of a value.
 
 After playing around with it a bit I'm left with the following
-questions/hangups.?? Most of these will just fall into the category of "I'm
+questions/hangups. Most of these will just fall into the category of "I'm
 starting out with a new language so I'm still hung up on the syntax in
 places."
 
@@ -25,7 +25,7 @@ places."
   2. The constructor still allows for invalid data combinations (but will throw)
     1. Ex: ImmutableStack None ImmutableStack.Empty()
   3. Can I get ImmutableStack.Empty to be a property instead of a function?
-  4. In All(), that can't be the most efficient way to build up a sequence.??
+  4. In All(), that can't be the most efficient way to build up a sequence.
     
     
     #light

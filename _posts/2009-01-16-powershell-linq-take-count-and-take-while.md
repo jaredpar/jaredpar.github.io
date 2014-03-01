@@ -3,9 +3,9 @@ layout: post
 ---
 The Take pair of functions are very similar to the [Skip
 functions](http://blogs.msdn.com/jaredpar/archive/2009/01/14/powershell-linq-
-skip-while.aspx).?? The Take expression does essentially the opposite of the
-Skip functions.?? Skip is useful for getting elements further down the
-pipeline.?? Take is used for getting elements from the start of the pipeline.
+skip-while.aspx). The Take expression does essentially the opposite of the
+Skip functions. Skip is useful for getting elements further down the
+pipeline. Take is used for getting elements from the start of the pipeline.
 
     
     

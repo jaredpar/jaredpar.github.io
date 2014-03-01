@@ -66,7 +66,7 @@ constructor
        IEnumerable<Module> m_modules;
 
        public Container(IEnumerable<Module> modules) { 
-         // Do I trust my caller??? 
+         // Do I trust my caller' 
          m_modules = modules;
        }
     }

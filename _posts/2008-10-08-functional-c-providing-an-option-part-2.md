@@ -4,12 +4,12 @@ layout: post
 In my [previous
 post](http://blogs.msdn.com/jaredpar/archive/2008/10/06/functional-c
 -providing-an-option.aspx) I discussed creating an Option style construct for
-C#/.Net.?? This post is a followup with the complete code snippet.?? It???s been
-updated in response to several bits of feedback I received.?? Namely
+C#/.Net. This post is a followup with the complete code snippet. It's been
+updated in response to several bits of feedback I received. Namely
 
   1. Option is now a struct vs. class 
   2. Added equality metrics 
-  3. Allowing implicit conversion T ???> Option<T>
+  3. Allowing implicit conversion T '> Option<T>
 
 As usual, this is available in the latest version of RantPack:
 <http://code.msdn.microsoft.com/RantPack>

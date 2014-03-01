@@ -1,25 +1,25 @@
 ---
 layout: post
 ---
-The PowerShell pipeline, is fairly similar to C#/VB???s LINQ.?? Both filter a
+The PowerShell pipeline, is fairly similar to C#/VB's LINQ. Both filter a
 group of elements through a series of transformations which produce a new
-series of elements.?? The devil is in the details of course but I???ll get to
+series of elements. The devil is in the details of course but I'll get to
 that in a future post.
 
 When using PowerShell I constantly find myself wanting to use various LINQ
-expressions on a pipeline.?? Unfortunately, many LINQ expressions have no
-built-in equivalent in PowerShell.?? Most are fairly straightforward to write
-but a few are a bit trickier.?? In either case, there???s no reason for people
-needing to figure them out twice.?? So I???ll be starting a series on LINQ
+expressions on a pipeline. Unfortunately, many LINQ expressions have no
+built-in equivalent in PowerShell. Most are fairly straightforward to write
+but a few are a bit trickier. In either case, there's no reason for people
+needing to figure them out twice. So I'll be starting a series on LINQ
 expressions in PowerShell.
 
-Also, my posts are getting a bit long winded as of late.?? This will be a good
+Also, my posts are getting a bit long winded as of late. This will be a good
 oppuritunity to get some shorter posts up.
 
 Today's entry is the equivalent of [Enumerable.Skip](http://msdn.microsoft.com
-/en-us/library/bb358985.aspx).?? The operation takes a count and skips ???count???
-elements in the enumeration.?? For PowerShell, it???s the equivalent of skipping
-???count??? elements in the pipeline.
+/en-us/library/bb358985.aspx). The operation takes a count and skips 'count'
+elements in the enumeration. For PowerShell, it's the equivalent of skipping
+'count' elements in the pipeline.
 
     
     

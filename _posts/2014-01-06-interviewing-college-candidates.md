@@ -37,7 +37,7 @@ One technique I've found that helps relax people is to get them talking about
 something they are passionate about.  I get every candidates resume a day or
 two before the interview and I look over it in detail.  I'm looking for
 anything that they have put significant time or effort into: a senior project,
-GitHub contributions, stack overflow, etc ???
+GitHub contributions, stack overflow, etc '
 
 Once I find that project I spend 30 minutes or so researching it myself.  My
 goal is to get enough of an understanding of the project that I can have a
@@ -130,7 +130,7 @@ It's not critical that they solve every twist I give them.  Really what I'm
 after here is how they think about coding and whether or not they can adapt
 their solution to changing requirements (aka my life as a programmer).  I'm
 also curious how they react on a personal level to the changes.  Do they get
-angry, excited, etc ???
+angry, excited, etc '
 
 Throughout this section of the interview there is one thing I'm constantly
 vigilant about
@@ -169,7 +169,7 @@ are the only "No Hire" they will get all day long.  Or maybe they're not good
 enough now but a year from now they've gotten enough better that they nail the
 interview and you end up working with them.
 
-To sum it up in one statement ???
+To sum it up in one statement '
 
 > Never let a candidate leave feeling bad about themselves.
 

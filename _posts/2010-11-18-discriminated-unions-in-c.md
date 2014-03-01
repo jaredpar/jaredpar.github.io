@@ -33,7 +33,7 @@ benefits I find with discriminated unions.  In particular
   * Declarative Syntax 
   * Typed value access without the need to cast 
   * Allow mixing of flag only and flags with values 
-  * Customized naming of entries (no tuple style First, Second, etc ???)
+  * Customized naming of entries (no tuple style First, Second, etc ')
   * Instances are read only 
 
 After a bit of tinkering I came up with a solution (full source at end of

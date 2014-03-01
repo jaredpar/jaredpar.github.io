@@ -1,11 +1,11 @@
 ---
 layout: post
 ---
-Recently at work I started using Windows 2008 64 bit edition.?? Mainly for
+Recently at work I started using Windows 2008 64 bit edition. Mainly for
 hyper-v but powershell also comes as part of the deal.
 
 I'm starting to work through the fun issues of getting some of my environment
-specific scripts to run in a 64 bit powershell process.?? The following scripts
+specific scripts to run in a 64 bit powershell process. The following scripts
 are turning out to be fairly handy
 
     

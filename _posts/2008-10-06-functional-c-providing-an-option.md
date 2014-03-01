@@ -1,12 +1,12 @@
 ---
 layout: post
 ---
-Sorry for the terrible pun in the title.?? I wanted to blog about developing an
+Sorry for the terrible pun in the title. I wanted to blog about developing an
 F# style Option class for C# and I couldn't resist.
 
-The basics of an Option class are very straight forward.?? It's a class that
-either has a value or doesn't.?? It's almost like nullable but for every type
-and allows for nulls to be a valid value.?? Here's a straight forward Option
+The basics of an Option class are very straight forward. It's a class that
+either has a value or doesn't. It's almost like nullable but for every type
+and allows for nulls to be a valid value. Here's a straight forward Option
 class I coded up.
 
     
@@ -107,12 +107,12 @@ class I coded up.
     }
 
 I modified a bit of terminology to be more consistent with other frameworks I
-use (Some/None -> Value,HasValue).?? It's succinct, generic and has type
-inference friendly create functions.?? Or does it?
+use (Some/None -> Value,HasValue). It's succinct, generic and has type
+inference friendly create functions. Or does it?
 
-Lets consider a function which has a return type of Option<int>.?? Case 1 is
-Option with a value.?? There is a type inference friendly Option.Create method
-which makes for a simple return expression.?? No types needed.
+Lets consider a function which has a return type of Option<int>. Case 1 is
+Option with a value. There is a type inference friendly Option.Create method
+which makes for a simple return expression. No types needed.
 
     
     
@@ -124,8 +124,8 @@ which makes for a simple return expression.?? No types needed.
 
     }
 
-Now lets consider Case #2, None.?? Here there is no handy inference method
-because what would we use for inference.?? There is no variable with a Type to
+Now lets consider Case #2, None. Here there is no handy inference method
+because what would we use for inference. There is no variable with a Type to
 use so we are forced to be explicit about the type.
 
     
@@ -139,26 +139,26 @@ use so we are forced to be explicit about the type.
     }
 
 In this case we're not so bad off because we're dealing with a simple type.
-But what about more complex types??? Consider for example a hypothetical Unfold
-method.?? The termination expression would be Option<Tuple<int,string>>.Empty.
+But what about more complex types' Consider for example a hypothetical Unfold
+method. The termination expression would be Option<Tuple<int,string>>.Empty.
 Anonymous types are even worse since they are unnamable and can not ever be
-the source of an option with this design.?? This really pales in the usage
+the source of an option with this design. This really pales in the usage
 category when compared with F#.
 
 Lets see if we can do better.
 
 First we could consider a design where we have a static creation method Empty
-which takes variables that aren't ever used.?? This will give us the benefit of
-type inference but at the expense of an API which is faulty to the core.?? It
-forces the user to create parameters that aren't ever used.?? Definitely not a
+which takes variables that aren't ever used. This will give us the benefit of
+type inference but at the expense of an API which is faulty to the core. It
+forces the user to create parameters that aren't ever used. Definitely not a
 good design.
 
 This leaves us with using a solution that doesn't involve variables of the
-necessary type.?? This essentially forces us into a non-generic solution since
-we need variables for type inference.?? This non-generic Option won't be
+necessary type. This essentially forces us into a non-generic solution since
+we need variables for type inference. This non-generic Option won't be
 compatible with our generic return type. But wait, what will the compiler do
-if two expressions have conflicting types??? Eventually it will attempt to
-perform a conversion.?? So if we make our non-generic empty Option convertible
+if two expressions have conflicting types' Eventually it will attempt to
+perform a conversion. So if we make our non-generic empty Option convertible
 to any generic empty Option we can use the compilers type safety to our
 advantage.
 
@@ -200,9 +200,9 @@ Definition a non-generic empty Option is straight forward.
 
 Using a private constructor allows us a high degree of confidence that any
 Option instance hanging around came from our Empty property and hence
-represents an empty option.?? Now all we need to do is define a conversion on
-Option<T>.?? Essentially we want to say that any non-generic Option is
-convertible to this instance.?? Add the following to Option<T>
+represents an empty option. Now all we need to do is define a conversion on
+Option<T>. Essentially we want to say that any non-generic Option is
+convertible to this instance. Add the following to Option<T>
 
     
     

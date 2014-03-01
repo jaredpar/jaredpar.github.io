@@ -7,7 +7,7 @@ and-backwards-compatibility.aspx), one of the readers, Jeremy Gray, noted that
 I was using a [NotImplementedException](http://msdn.microsoft.com/en-
 us/library/system.notimplementedexception.aspx) where I should have been using
 a [NotSupportedException](http://msdn.microsoft.com/en-
-us/library/system.notsupportedexception.aspx).?? At first I did not agree.
+us/library/system.notsupportedexception.aspx). At first I did not agree.
 There was a method on an interface which my underlying object could not
 implement therefore I felt the choice of
 [NotImplementedException](http://msdn.microsoft.com/en-
@@ -16,8 +16,8 @@ us/library/system.notimplementedexception.aspx) was an appropriate.
 However I was also not very familiar with
 [NotSupportedException](http://msdn.microsoft.com/en-
 us/library/system.notsupportedexception.aspx) and decided to investigate a bit
-more.?? After all, part of the fun of blogging is being wrong in a very public
-fashion and this was certainly a golden opportunity.?? The post was commenting
+more. After all, part of the fun of blogging is being wrong in a very public
+fashion and this was certainly a golden opportunity. The post was commenting
 on API design, what better way to be wrong than with a different API design
 issue?
 
@@ -35,8 +35,8 @@ For Example:
 
 For Example: ICollection.Count, ICloneable.Clone, etc ... [1]
 
-The method in question on my previous blog post was ICollection<T>.Add().?? I
-was dealing with an immutable collection for which Add is not possible.?? Since
+The method in question on my previous blog post was ICollection<T>.Add(). I
+was dealing with an immutable collection for which Add is not possible. Since
 there is a property, IsReadOnly, which serves as an indicator that Add() is
 not allowed, [NotSupportedException](http://msdn.microsoft.com/en-
 us/library/system.notsupportedexception.aspx) is the better choice.

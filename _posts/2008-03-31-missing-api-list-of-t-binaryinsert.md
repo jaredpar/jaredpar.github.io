@@ -2,20 +2,20 @@
 layout: post
 ---
 One API that seems to be missing from [List(Of T)](http://msdn2.microsoft.com
-/en-us/library/6sh2ey19.aspx) is a BinaryInsert method.?? Especially since
+/en-us/library/6sh2ey19.aspx) is a BinaryInsert method. Especially since
 there is already a [BinarySearch](http://msdn2.microsoft.com/en-
 us/library/3f90y839.aspx) method.
 
 Binary insert is a method for inserting a value into an already sorted list.
 Since the list is already sorted we can do a binary search to find the
-appropriate place to insert.?? The insert keeps the list sorted so the cost of
+appropriate place to insert. The insert keeps the list sorted so the cost of
 a binary insert is just the cost of the search which is O(Log(N)).
 
 An alternative method for keeping a sorted list sorted is to insert and then
-resort.?? Most sorting algorithms have a cost of O(N*Log(N)).?? In other words
+resort. Most sorting algorithms have a cost of O(N*Log(N)). In other words
 it's N times more expensive.
 
-Yet this API doesn't exist.?? No matter.?? We can quickly fix this problem with
+Yet this API doesn't exist. No matter. We can quickly fix this problem with
 a couple of extension methods.
 
     

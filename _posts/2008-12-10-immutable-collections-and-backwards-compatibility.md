@@ -3,11 +3,11 @@ layout: post
 ---
 When developing my [immutable collections
 library](http://code.msdn.microsoft.com/RantPack), I spent a lot of time on
-usability.  After all, if a library is not useful then what???s the point?
+usability.  After all, if a library is not useful then what's the point?
 
 A big portion of usability is being able to work with existing frameworks and
 technologies.  For .Net and collections that means items like Data binding,
-LINQ etc ???  Without integrating into popular technologies the usefulness of a
+LINQ etc '  Without integrating into popular technologies the usefulness of a
 particular library is severely impacted and hence usability decreases.
 
 Most of the existing collection based infrastructures use the .Net collection
@@ -69,7 +69,7 @@ new instance of the collection.
             var created = this.Add(item);
 
 
-            // What to do with created???
+            // What to do with created'
 
 
         }
@@ -98,7 +98,7 @@ Or do we?
 The design for ICollection<T> with respect to read only or immutable
 collections is not optimal.  It attempts to combine to separate behaviors into
 a single interface: mutable and readonly view of a collection.  Dual purpose
-interfaces run into problems because it???s impossible to separate out the
+interfaces run into problems because it's impossible to separate out the
 behaviors at compile time.  This is especially problematic when the behaviors
 are conflicting.  There is no way a read only collection can prevent itself
 from being passed to a function that expects a mutable collection at compile
@@ -133,7 +133,7 @@ only collection from being passed.
 
     }
 
-But isn???t it the responsibility of the user of ICollection<T> to verify that
+But isn't it the responsibility of the user of ICollection<T> to verify that
 IsReadOnly is false before mutating a instance?  Given the current design of
 ICollection<T> it is indeed both the responsibility of the consumer to verify
 this and the implementer to ensure they are not called incorrectly.  The
@@ -144,11 +144,11 @@ A quick search of the BCL with reflector can give us evidence of how much
 consumers actually check for the read only scenario.  For the search I used
 mscorlib, System, System.Xml, System.Data, System.Drawing and System.Core and
 System.Windows.Forms.  And the number of classes which actually take into
-account ICollection<T>.IsReadOnly is ??? 1.
-System.Collections.ObjectModel.Collection<T>.  That???s it.
+account ICollection<T>.IsReadOnly is ' 1.
+System.Collections.ObjectModel.Collection<T>.  That's it.
 
 So even if an immutable collection implements this interface in a read-only
-fashion there???s little chance anyone will be checking for it.
+fashion there's little chance anyone will be checking for it.
 
 **IList<T>**
 
@@ -243,7 +243,7 @@ hierarchy for a set of collections.  One that will allow us to avoid this
 problem altogether going forward.
 
 [1] It actually contains overloads for a set of truly read only collection
-interfaces that I wrote for my library but we???ll get to that another time.
+interfaces that I wrote for my library but we'll get to that another time.
 
 Edit: Updated the exception to be NotSupportedException
 

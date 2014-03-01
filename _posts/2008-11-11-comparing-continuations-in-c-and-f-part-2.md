@@ -10,11 +10,11 @@ The F# code does indeed generate tail calls for part of the continuation.
 However this is only a very small portion of the actual code and is in fact
 only generated for the call in the empty case.  I misread this function to be
 the call for the overall continuation.  Instead it is the function for the
-entire ???inner??? lambda.
+entire 'inner' lambda.
 
 So why does F# perform differently than C# in this scenario?
 
-Andrew Kennedy pointed out that F# will actually transform the ???inner???
+Andrew Kennedy pointed out that F# will actually transform the 'inner'
 function into a loop.  In affect the code generated looks like the following.
 
     

@@ -17,7 +17,7 @@ serves essentially the same purpose and has the same states and state
 transition semantics.  Like any good paranoid programmer I wanted to add
 contracts to check my state transitions and semantics.
 
-> Contract.VerifyState(ExpectedState, ???CurrentState)
+> Contract.VerifyState(ExpectedState, 'CurrentState)
 
 The question is where to store the state information for a thread?  A global
 state variable won't suffice because there are N threads.  A global array of

@@ -3,12 +3,12 @@ layout: post
 ---
 Recently I had to test a class which heavily depended upon a
 [SynchronizationContext](http://msdn.microsoft.com/en-
-us/library/system.threading.synchronizationcontext.aspx).?? This threw me off
+us/library/system.threading.synchronizationcontext.aspx). This threw me off
 for about half an hour as I didn't want to write multi-threaded unit tests.
 Multi-threaded code is difficult enough without adding needless threads.
 
 The solution I came up with is simple and gives the unit test a large degree
-of control over the execution of posted delegates.?? The resulting tests were
+of control over the execution of posted delegates. The resulting tests were
 much easier to code and understand.
 
     
