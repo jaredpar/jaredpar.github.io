@@ -1,22 +1,13 @@
 ---
 layout: post
+title: Not all "true" are created equal
 ---
 
-During a review of some low level bit manipulation logic a developer raised a
-question about the correctness of a piece of code which allowed any arbitrary
-byte to be seen as a bool. No one could recall if true was defined as not 0
-or simply 1. If it was the latter then the code was allowing for a large
-range of invalid bool values to be created. A quick look at the CLI spec
-revealed the immediate answer (partition III section 1.1.2)
+During a review of some low level bit manipulation logic a developer raised a question about the correctness of a piece of code which allowed any arbitrary byte to be seen as a bool. No one could recall if true was defined as not 0 or simply 1. If it was the latter then the code was allowing for a large range of invalid bool values to be created. A quick look at the CLI spec revealed the immediate answer (partition III section 1.1.2)
 
-> A CLI Boolean type occupies 1 byte in memory. A bit pattern of all zeroes
-denotes a value of false. A bit pattern with any one or more bits set
-(analogous to a non-zero integer) denotes a value of true.
+> A CLI Boolean type occupies 1 byte in memory. A bit pattern of all zeroes denotes a value of false. A bit pattern with any one or more bits set (analogous to a non-zero integer) denotes a value of true.
 
-A quick test backed up this particular assertion. Any non-zero value is true
-and 0 is indeed false. We took the test one step further and discovered, to
-the surprise of about half of us, that just because two bool values are true,
-doesn't mean they're equal.
+A quick test backed up this particular assertion. Any non-zero value is true and 0 is indeed false. We took the test one step further and discovered, to the surprise of about half of us, that just because two bool values are true, doesn't mean they're equal.
 
 {% highlight csharp %}
 class Program
