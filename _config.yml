@@ -4,9 +4,9 @@ permalink: /posts/:title
 rdiscount:
   extensions: [smart]
 
-name: Zach Holman
-url: http://zachholman.com
-description: A fantastic blog that is fantastic.
-twitter: holman
-github: holman
-gravatar_url: http://gravatar.com/avatar/6f63cde8b16b035280ca615f621a6c8c
+name: Jared Parsons
+url: http://twitter.com/jaredpar
+description: Rantings of a Programmer
+twitter: jaredpar
+github: jaredpar
+gravatar_url: http://www.gravatar.com/avatar/529ba429a58902bef56c2fcb672d5ccb
