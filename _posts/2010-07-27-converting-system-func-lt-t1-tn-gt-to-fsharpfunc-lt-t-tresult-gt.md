@@ -1,5 +1,6 @@
 ---
 layout: post
+title: Convirting System.Func<T, TResult> to FSharpFunc<T, TResult>
 ---
 Interop of delegate style types between F# and other .Net languages is a pain point that results from a fundamental difference in how delegates are represented in the F# language. Typical .Net languages like C# see a delegate as taking 0 to N parameters and potentially returning a value. F# represents all exposed delegates as taking and returning a single value via the [FSharpFunc<T,TResult>](http://msdn.microsoft.com/en-us/library/ee340302.aspx) type. Multiple parameters are expressed by having the TResult type be yet another [FSharpFunc<T,TResult>](http://msdn.microsoft.com/en-us/library/ee340302.aspx).  
 

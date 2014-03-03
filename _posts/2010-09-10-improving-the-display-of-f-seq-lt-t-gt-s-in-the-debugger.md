@@ -1,5 +1,6 @@
 ---
 layout: post
+title: Improving the Display of seq<T> in the Debugger
 ---
 F#'s seq<T> expressions are a frustrating item to inspect at debug time. A seq<T> value is a collection and when users inspect such a value at debug time they want to see the contents of the collection. Instead they are often presented with a view resembling the following
 
