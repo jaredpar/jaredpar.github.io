@@ -10,12 +10,12 @@ The variations include verify no one else has the file open, if the file is in u
 
 The file system is a resource with multiple levels of control that is shared between all users and processes in the system. The levels of control include but are not limited to file system and sharing permissions. At **any** point in time any entity on the computer may change a file system object or it's controls in any number of ways. For example
 
-* The file could be deleted 
-* A file could be created at place one previously did not exist 
-* Permissions could change on the file in such a way that the current process does not have access 
-* Another process could open the file in such a way that is not conducive to sharing 
-* The user remove the USB key containing the file 
-* The network connection to the mapped drive could get disconnected 
+- The file could be deleted 
+- A file could be created at place one previously did not exist 
+- Permissions could change on the file in such a way that the current process does not have access 
+- Another process could open the file in such a way that is not conducive to sharing 
+- The user remove the USB key containing the file 
+- The network connection to the mapped drive could get disconnected 
 
 Or in short
 
