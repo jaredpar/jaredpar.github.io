@@ -1,10 +1,13 @@
+---
+layout: post
+---
 Part 1 of the series outlined the basic structure of the tuple.  This entry will produce a PowerShell script that will generate N tuple classes containing 1-N name value pairs. 
 
 The first step is to get a few script variables defined.  All of the names used in the tuples will be lower and upper case single characters tied to a specific index.  To make the script a bit shorter we will define indexable arrays up front for the letters.   We'll also grad the tuple count.
 
-$script:tupleCount = [int]$args[0] 
-$script:lowerList = 0..25 | %{ [char]([int][char]'a'+$_) } 
-$script:upperList = 0..25 | %{ [char]([int][char]'A'+$_) }
+    $script:tupleCount = [int]$args[0] 
+    $script:lowerList = 0..25 | %{ [char]([int][char]'a'+$_) } 
+    $script:upperList = 0..25 | %{ [char]([int][char]'A'+$_) }
 
 All of the functions in this script will output an array of strings into the PowerShell pipeline.  One of the neat/confusing features of PowerShell is that values that are not directly used in a function are passed onto the pipeline.  This will conveniently allow us to type in literal code and hopefully increase readability. 
 

@@ -1,3 +1,6 @@
+---
+layout: post
+---
 There are only a few missing features from our tuple implementation.  Mainly FxCop compliance, debugging support and test case code.  The actual functional work is complete. 
 
 The one issue with FxCop compliance is the chosen names.  Namely using A,B etc.  FxCop, rightly, believes names should have more value.  Accordingly, calling the generic argument corresponding to A, TA also causes the same issue.  This is a design decision made from the begining.  I don't believe changing the name to ValueA adds any more value than simply A.  Therefore the warning for this will simply be suppressed.

@@ -1,3 +1,6 @@
+---
+layout: post
+---
 Part 6 left us with comparable tuples.  At this point, the Tuple class is functionally complete.  There will be a little more done with the debugability and overall fit into larger projects.  But otherwise it is sound. 
 
 Now the focus shifts to generating mutable tuples.  Immutability is nice for threading, memoization, etc ...  However it's not always practical to use immutable objects.  Often an algorithm does not benefit from immutability and lends itself to a more mutable type. 
