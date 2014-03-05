@@ -1,8 +1,7 @@
 ---
 layout: post
 ---
-I just released an update to VsVim for Visual Studio 2010 Beta2. This should be available shortly from the extension manager in Visual Studio or it can be downloaded directly at the following link
-
+I just released an update to VsVim for Visual Studio 2010 Beta2. This should be available shortly from the extension manager in Visual Studio or it can be downloaded directly at the following link 
 Link: <http://visualstudiogallery.msdn.microsoft.com/en-us/59ca71b3-a4a3-46ca-8fe1-0e90e3f79329>
 
 **Changes**
