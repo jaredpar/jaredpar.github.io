@@ -1,4 +1,4 @@
-markdown: redcarpt
+markdown: rdiscount
 pygments: true
 permalink: /posts/:title
 rdiscount:
