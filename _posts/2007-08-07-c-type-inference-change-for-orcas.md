@@ -1,8 +1,8 @@
 ---
 layout: post
 ---
-While playing around with a batch of Orcas code recently I found a welcome change to the C# type inference rules for Orcas.  The return type of a generic delegate can now be inferred from the actual return values.  Here is some sample code demonstrating the problem.
-    
+While playing around with a batch of Orcas code recently I found a welcome change to the C# type inference rules for Orcas.  The return type of a generic delegate can now be inferred from the actual return values.  Here is some sample code demonstrating the problem.  
+
 {% highlight csharp %}
 class Program
 {
@@ -16,10 +16,10 @@ class Program
     static void Main(string[] args)
     {
         M(delegate { return 42; });
-    }
+}
 }
 {% endhighlight %}
-
+    
 In Whidbey the above code will fail with a compiler error.
 
     error CS0411: The type arguments for method 'ConsoleApplication34.Program.M<T>(ConsoleApplication34.Program.Operation<T>)' cannot be inferred from the usage. Try specifying the type arguments explicitly.
@@ -30,7 +30,6 @@ This is really frustrating in Whidbey because the you have to modify the call to
 M<int>(delegate { return 42; });
 {% endhighlight %}
     
-
 However this code now works without modification in Orcas.  This is a welcome and extremely useful change.
 
 And yes, the same inference is possible with VB in Orcas.  In Whidbey this was not an issue because VB did not support lambda expressions.
