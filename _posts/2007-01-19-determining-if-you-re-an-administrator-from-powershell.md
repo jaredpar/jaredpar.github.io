@@ -1,9 +1,9 @@
 ---
 layout: post
 ---
-Here's a handy PowerShell function I used to determine if I'm currently
-running as an Administrator in PowerShell
+Here's a handy PowerShell function I used to determine if I'm currently running as an Administrator in PowerShell
 
+{% highlight powershell %}
 # Determine if I am running as an Admin  
 function AmIAdmin()  
 {  
@@ -25,4 +25,5 @@ $groupSid.IsWellKnown("BuiltinAdministratorsSid"))
   
  return $false;  
 }  
+{% endhighlight %}
 
