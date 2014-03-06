@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Dvorak Keyboard: Is it really faster??? <gasp> 
+title: Dvorak Keyboard&58; Is it really faster??? <gasp> 
 ---
 Most people discover I'm a Dvorak user because they're in my office, attempt to drive during a conversation and find they are typing gibberish.  I take the keyboard, hit CTRL+LEFT_SHIFT and they're on their way again.  Well at least until they open up a new window.  It usually leads to a conversation about how I like Dvorak.  And most importantly ' 'is it really faster than QWERTY'?
 

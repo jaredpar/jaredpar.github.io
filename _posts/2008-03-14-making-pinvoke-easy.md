@@ -36,7 +36,7 @@ struct S1
 };
 
 float CalculateData(S1* p);
-{% highlight csharp %}
+{% endhighlight %}
 
 Start up the tool and switch to the "SigImp Translate Snippet" tab.  Then paste the code in and then hit the Generate button.
 

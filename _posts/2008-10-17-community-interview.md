@@ -1,12 +1,9 @@
 ---
 layout: post
 ---
-Recently I did a community interview with Microsoft MVP [Alessandro Del
-Sole](http://community.visual-basic.it/Alessandro/).
+Recently I did a community interview with Microsoft MVP [Alessandro Del Sole](http://community.visual-basic.it/Alessandro/).
 
-The Italian version can be read [here.](http://community.visual-
-basic.it/alessandro/archive/2008/10/15/23937.aspx)?? And no, I don't speak
-Italian. The original transcript is below.
+The Italian version can be read [here.](http://community.visual-basic.it/alessandro/archive/2008/10/15/23937.aspx)?? And no, I don't speak Italian. The original transcript is below.
 
 1\. Nice to meet you Jared Parsons! Let's begin by asking a simple question:
 where are you from?

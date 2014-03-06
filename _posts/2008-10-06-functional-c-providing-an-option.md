@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Functional C#: Providing an Option
+title: Functional C#&#58; Providing an Option
 ---
 Sorry for the terrible pun in the title. I wanted to blog about developing an F# style Option class for C# and I couldn't resist.
 
