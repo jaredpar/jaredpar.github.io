@@ -1,6 +1,6 @@
 markdown: redcarpet
 pygments: true
-permalink: /posts/:title
+permalink: date
 rdiscount:
   extensions: [smart]
 
