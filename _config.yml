@@ -1,9 +1,6 @@
 markdown: redcarpet
 pygments: true
 permalink: date
-rdiscount:
-  extensions: [smart]
-
 name: Jared Parsons
 url: http://twitter.com/jaredpar
 description: Rantings of a Programmer
