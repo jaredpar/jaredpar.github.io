@@ -18,7 +18,7 @@ These method interleavings can be the source of many subtle bugs in the program.
 x += await y;
 {% endhighlight %}
 
-The C# compiler will rewrite this code into roughly the following [1]
+The C# compiler will rewrite this code into roughly the following [^1]
 
 {% highlight csharp %}
 x = x + await y;
@@ -88,5 +88,5 @@ Console.WriteLine(accumulator.Sum);
 
 This code will print out 2 instead of the expected 5
 
-[1] I use 'roughly' here because it the compiler actually does a more complicated rewrite. It ensures that the side effects of 'x' happen exactly once during the execution of this method. For locals though this is roughly the code that is generated and serves fine for this example
+[^1]: I use 'roughly' here because it the compiler actually does a more complicated rewrite. It ensures that the side effects of 'x' happen exactly once during the execution of this method. For locals though this is roughly the code that is generated and serves fine for this example
 

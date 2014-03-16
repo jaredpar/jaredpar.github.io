@@ -5,7 +5,7 @@ This is a bit of a follow up to a [previous post](http://blogs.msdn.com/jaredpar
 
 Unfortunately this is not the case.  Several parts of the framework link IEquatable(Of T).Equals and Object.GetHashCode() in the same way that Object.Equals() and Object.GetHashCode() are linked.  
 
-The prime example of this is [EqualityComparer(Of T)](http://msdn.microsoft.com/en-us/library/ms132123.aspx).  This class is used to provide instances of IEqualityComparer(Of T) for any given type.  Under the hood it tries to determine the best way checking for equality in types.  If T implements IEquatable(Of T) it will eventually create an instance of GenericEqualityComparer(Of T) [1].  The methods of IEqualityComparer(Of T) are implemented as follows (boundary cases removed)
+The prime example of this is [EqualityComparer(Of T)](http://msdn.microsoft.com/en-us/library/ms132123.aspx).  This class is used to provide instances of IEqualityComparer(Of T) for any given type.  Under the hood it tries to determine the best way checking for equality in types.  If T implements IEquatable(Of T) it will eventually create an instance of GenericEqualityComparer(Of T) [^1].  The methods of IEqualityComparer(Of T) are implemented as follows (boundary cases removed)
 
   * Equals(left, right): return left.Equals(right) 
     * Equals in this case is IEquatable(Of T).Equals
@@ -15,5 +15,5 @@ This implicitly links IEquatable(Of T).Equals to Object.GetHashCode().  Therefor
 
 What's even more unfortunate is there is no feedback to indicate this relationship exists.  If you override Equals or GetHashCode both the C# and VB compilers will issue a warning/error.  Implementing IEquatable(Of T) produces no such warning.
 
-[1] Unfortunately this is a private type so you will need to use Reflector to view the type.
+[^1]: Unfortunately this is a private type so you will need to use Reflector to view the type.
 

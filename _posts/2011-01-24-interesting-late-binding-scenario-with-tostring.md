@@ -23,7 +23,7 @@ i = 100
     TargetSite: {Int32 ToInteger(System.String)}
 {% endhighlight %}
 
-The customer expected the method Integer.ToString(String) to be invoked and found the conversion to Integer to be a bug. Surprisingly to the user, and several people on the team, this behavior is 'By Design' [1]. To understand why we have to get a better picture of how exactly this is evaluated in the immediate window. There are two particular areas of importance here.
+The customer expected the method Integer.ToString(String) to be invoked and found the conversion to Integer to be a bug. Surprisingly to the user, and several people on the team, this behavior is 'By Design' [^1]. To understand why we have to get a better picture of how exactly this is evaluated in the immediate window. There are two particular areas of importance here.
 
   1. The static type of the variable **i** is Object not Integer. The first expression `i = 1` declares a variable named **i** in the context of the debugger and assigns it the value 100. The ability to declare variables in the debugger predates type inference and uses Option Explicit Off semantics resulting in a type of Object for the variable
   2. The debugger does not inherit project settings for Option Strict and instead evaluates all expressions with Option Strict Off.
@@ -50,5 +50,5 @@ End Sub
 
 I certainly found this interesting the first time I encountered it.
 
-[1] Please don't confuse me saying an issue is 'By Design' with me thinking the behavior is ideal. It's merely a statement that the behavior conforms to the specification at the time of this writing.
+[^1]: Please don't confuse me saying an issue is 'By Design' with me thinking the behavior is ideal. It's merely a statement that the behavior conforms to the specification at the time of this writing.
 

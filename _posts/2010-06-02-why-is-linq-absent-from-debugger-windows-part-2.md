@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-Some readers may remember an [article](http://blogs.msdn.com/jaredpar/archive/2009/08/26/why-no-linq-in-debugger-windows.aspx) I published almost half a year ago about LINQ being absent from the debugger windows. That post explored the initial design of the feature, it's limitations and ultimately why it was absent but promised a future article on a slightly different approach. It's quite late but I've finally had some time to write the second part of this article [1]
+Some readers may remember an [article](http://blogs.msdn.com/jaredpar/archive/2009/08/26/why-no-linq-in-debugger-windows.aspx) I published almost half a year ago about LINQ being absent from the debugger windows. That post explored the initial design of the feature, it's limitations and ultimately why it was absent but promised a future article on a slightly different approach. It's quite late but I've finally had some time to write the second part of this article [^1]
 
 No, I didn't forget about the article or really get too lazy. The pace of Dev10 really picked up shortly after publishing that article and the follow up was put on the back burner. This week I finally find myself with a bit of free time and decided to follow up on my promise.
 
@@ -59,7 +59,7 @@ The expression evaluator does not actually compile expressions down into IL.  In
 
 This approach grants a lot of flexibility to the EE and allows us to evaluate expressions that are not necessarily valid at the current place in the program. For example the ability to directly evaluate object id expressions.  This flexibility hurts us here because it creates a subset of expressions which are not, or at least very difficult to, translate to IL. How would an object id expression for instance be expressed in IL?  
 
-The problem is not just limited to object id expressions but also include a host of other items allowed in the EE. There are too many to list in this article but suffice it to say this is not a trivial problem to solve [2]. Any cost for this area would have at best a medium level of confidence.
+The problem is not just limited to object id expressions but also include a host of other items allowed in the EE. There are too many to list in this article but suffice it to say this is not a trivial problem to solve [^2]. Any cost for this area would have at best a medium level of confidence.
 
 The next problem with this approach is that our infrastructure which generates IL is heavily geared towards doing so for EXEs and DLLs. It has been so for every release of our code base and contains a lot of code very specific to this process. Converting this to be more general purpose is very costly at this point. It would entail almost a complete rewrite of those components.
 
@@ -86,7 +86,7 @@ Here is a summary of the larger cost items
   7. QA costs for testing this feature 
   8. QA work to double test every type of expression (inside and outside of a lambda) 
 
-This doesn't take into account a lot of the smaller items I've ignored [3] or the items we'd only find once we started implementing. This is after all a very large feature and those always have hidden costs that aren't found until implementation hits a certain point.
+This doesn't take into account a lot of the smaller items I've ignored [^3] or the items we'd only find once we started implementing. This is after all a very large feature and those always have hidden costs that aren't found until implementation hits a certain point.
 
 I'm very hesitant to put a strict time estimate on this feature (it would almost certainly be wrong given the hidden costs and the lack of confidence in estimating several areas). To put it in a bit of context though, I would estimate it as large and likely larger than any other feature I've worked on since I joined Microsoft.
 
@@ -94,9 +94,9 @@ Once again I'm not writing this blog post to justify why we won't ever implement
 
 I'm still very hopeful this feature will make it into the product at a future release. Perhaps we'll find a cheaper route we're not currently considering.  Or maybe a future feature we need will offset some of the costs here.  
 
-[1] This gap is certainly a personal record and one I hope to never beat
+[^1]: This gap is certainly a personal record and one I hope to never beat
 
-[2] One day I may write about these items because pretty much all exist to support a richer user experience.
+[^2]: One day I may write about these items because pretty much all exist to support a richer user experience.
 
-[3] Anonymous types, transparent identifiers and VB generated delegates for starters
+[^3]: Anonymous types, transparent identifiers and VB generated delegates for starters
 

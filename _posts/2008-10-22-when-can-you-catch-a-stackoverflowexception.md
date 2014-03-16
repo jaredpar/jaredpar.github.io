@@ -3,7 +3,7 @@ layout: post
 ---
 Answer: When you're the one who threw it.
 
-Starting with the CLR version 2.0, the policy for handling a [StackOverflowException](http://msdn.microsoft.com/en-us/library/system.stackoverflowexception.aspx) was changed. User code can no longer handle the exception[1]. Instead the CLR will simply terminate the process.
+Starting with the CLR version 2.0, the policy for handling a [StackOverflowException](http://msdn.microsoft.com/en-us/library/system.stackoverflowexception.aspx) was changed. User code can no longer handle the exception[^1]. Instead the CLR will simply terminate the process.
 
 This is not 100% true though. User code can still handle StackOverflowExceptions which are artificially thrown. That is thrown by the user instead of resulting from an actual overflow of the stack. This is in contradiction to the documentation but can be demonstrated with a quick and dirty sample program (see end of the post).
 
@@ -40,7 +40,7 @@ static void Main(string[] args) {
 }
 {% endhighlight %}
 
-[1] Unless you are hosting the CLR in which case you can implement some recovery mechanism. This is certainly the exception though and not the rule
+[^1]: Unless you are hosting the CLR in which case you can implement some recovery mechanism. This is certainly the exception though and not the rule
 
 [2] Sorry for the pun
 

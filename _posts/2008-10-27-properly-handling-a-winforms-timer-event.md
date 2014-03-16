@@ -5,7 +5,7 @@ The WinForms [Timer](http://msdn.microsoft.com/en-us/library/system.windows.form
 
 Occasionally users are surprised to find that the Tick event will fire much faster than they are expecting. Instead of waiting for 2 seconds between calls, they event will fire almost immediately after one is finished processing.
 
-What's going on here is a side effect of how this event works under the hood.  The interval for the timer event is calculated in real world time. So quite literally every 2 seconds Windows will consider the internal reached and will issue a new tick message. The next time a WinForms event is not executing developer code a tick event is raised [1].
+What's going on here is a side effect of how this event works under the hood.  The interval for the timer event is calculated in real world time. So quite literally every 2 seconds Windows will consider the internal reached and will issue a new tick message. The next time a WinForms event is not executing developer code a tick event is raised [^1].
 
 So imagine we had the following code.
 
@@ -32,4 +32,4 @@ To work around this developers should stop the timer when processing a timer eve
     End Sub
 {% endhighlight %}
 
-[1] This is not 100% true. It's really whenever the Application begins to pump messages again. Message pumping, more specifically when it does and does not occur, is too involved for this discussion.  
+[^1]: This is not 100% true. It's really whenever the Application begins to pump messages again. Message pumping, more specifically when it does and does not occur, is too involved for this discussion.  

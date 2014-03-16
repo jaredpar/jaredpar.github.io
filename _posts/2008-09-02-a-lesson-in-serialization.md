@@ -3,7 +3,7 @@ layout: post
 ---
 A few days ago, I recklessly added a [Serialization] attribute to a few of my immutable collection types. I needed to pass data between AppDomain's and adding [Serialization] was the quick and dirty fix. Compiled, ran and I didn't think much about it.
 
-Luckily I was updating some unit tests last night and I remembered this and added a couple of serialization sanity tests. Most of the tests passed first time but for my ImmutableStack class[1] was throwing an exception. Well, it was actually my ImmutableQueue but it was failing in one of the inner ImmutableStack instances. The test code was fairly straight forward
+Luckily I was updating some unit tests last night and I remembered this and added a couple of serialization sanity tests. Most of the tests passed first time but for my ImmutableStack class[^1] was throwing an exception. Well, it was actually my ImmutableQueue but it was failing in one of the inner ImmutableStack instances. The test code was fairly straight forward
 
     
 {% highlight csharp %}
@@ -51,4 +51,4 @@ This essentially prevents you from safely using a functional style Empty pattern
 
 The fix is simple enough, alter the conditional to be (!current.IsEmpty).
 
-[1] The version of ImmutableStack I'm using is heavily based off of [Eric Lippert's implementation](http://blogs.msdn.com/ericlippert/archive/2007/12/04/immutability-in-c-part-two-a-simple-immutable-stack.aspx).  
+[^1]: The version of ImmutableStack I'm using is heavily based off of [Eric Lippert's implementation](http://blogs.msdn.com/ericlippert/archive/2007/12/04/immutability-in-c-part-two-a-simple-immutable-stack.aspx).  

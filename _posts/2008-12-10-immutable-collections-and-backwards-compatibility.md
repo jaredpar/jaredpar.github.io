@@ -67,7 +67,7 @@ In order to facilitate usability with existing frameworks immutable collections 
 
 After debating this for awhile I decided that loss of compile time validation was a too heavy of a price to pay for the default scenario.  But trading away usability was also unacceptable.  As a compromise I opted for adding a compatibility layer to the collections.  Instead of implementing the ICollection<T> and IList<T> collections directly I created a set of proxy objects that implement the interfaces on behalf of the immutable collections.
 
-In order to centralize this effort I created a factory class, CollectionUtility, which contains appropriate overloads for all of my immutable collection classes [1].
+In order to centralize this effort I created a factory class, CollectionUtility, which contains appropriate overloads for all of my immutable collection classes [^1].
 
 {% highlight csharp %}
 public static class CollectionUtility {
@@ -99,7 +99,7 @@ I feel like this as an appropriate tradeoff.   In the worst case scenario, a dev
 
 Next time, lets take a look at a different way of approaching an interface hierarchy for a set of collections.  One that will allow us to avoid this problem altogether going forward.
 
-[1] It actually contains overloads for a set of truly read only collection interfaces that I wrote for my library but we'll get to that another time.
+[^1]: It actually contains overloads for a set of truly read only collection interfaces that I wrote for my library but we'll get to that another time.
 
 Edit: Updated the exception to be NotSupportedException
 

@@ -5,7 +5,7 @@ Paul Vick [posted](http://www.panopticoncentral.net/archive/2008/05/08/23317.asp
 
 Sanity.
 
-Going through legacy code is hard enough already.  Reserved words at least allow you to mentally structure the code you are looking at.  If there was open season on the use of keywords you know someone will take advantage and flat out abuse the system.  Can you imagine digging through some legacy C++ and seeing the following [1]
+Going through legacy code is hard enough already.  Reserved words at least allow you to mentally structure the code you are looking at.  If there was open season on the use of keywords you know someone will take advantage and flat out abuse the system.  Can you imagine digging through some legacy C++ and seeing the following [^1]
 
     
 {% highlight c++ %}
@@ -21,5 +21,5 @@ Reading that makes my head hurt.
 
 Having reserved words is a language adds a modicum of structure.  Language structure allows developers to more quickly grasp the meaning and intent of a piece of code.  Can you imagine trying to grasp a more complex example?  Now imagine the programmer had several thousand lines of undocumented code with this pattern.  Not fun.
 
-[1] Yes I realize that making new/int non-reserved words may not be possible in C++.  But this is just a hypothetical example.
+[^1] Yes I realize that making new/int non-reserved words may not be possible in C++.  But this is just a hypothetical example.
 

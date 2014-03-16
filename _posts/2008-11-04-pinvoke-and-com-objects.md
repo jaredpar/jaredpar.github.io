@@ -13,7 +13,7 @@ public static extern object GetSomeComObject();
 
 One item to remember though is how to managed the ref counting in this scenario. In any case where a COM object is considered to be coming out of the PInvoke signature, the CLR will assume that it has an obligation to call IUnknown::Release() at some point in the future. The corresponding native code must take this into account and appropriately AddRef() the object.  
 
-This includes any scenario, as displayed above, where the COM object is the actual return value of the function [1].
+This includes any scenario, as displayed above, where the COM object is the actual return value of the function [^1].
 
-[1] Got bit by this last week.
+[^1]: Got bit by this last week.
 

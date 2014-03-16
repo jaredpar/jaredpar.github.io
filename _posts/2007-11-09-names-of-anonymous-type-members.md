@@ -21,7 +21,7 @@ Dim q = From it In "astring" Select a = it, b = it & "b"
 GetAnonymousTypeMemberNames(q.First())
 {% endhighlight %}
 
-However you can't guarantee that a query will always have data in it.  Another route is to consider the contract of the From ... Select statement.  This will produce a query which implements [IEnumerable(Of T).](http://msdn2.microsoft.com/en-us/library/9eekhta0.aspx)  For a query T will be the anonymous type that is generated[1].  We can query the metadata of the returned type to get the System.Type for the anonymous type regardless of the type actually implementing [IEnumerable(Of T).](http://msdn2.microsoft.com/en-us/library/9eekhta0.aspx)
+However you can't guarantee that a query will always have data in it.  Another route is to consider the contract of the From ... Select statement.  This will produce a query which implements [IEnumerable(Of T).](http://msdn2.microsoft.com/en-us/library/9eekhta0.aspx)  For a query T will be the anonymous type that is generated[^1].  We can query the metadata of the returned type to get the System.Type for the anonymous type regardless of the type actually implementing [IEnumerable(Of T).](http://msdn2.microsoft.com/en-us/library/9eekhta0.aspx)
 
 {% highlight vbnet %}
 Dim q = From it In "astring" Select a = it, b = it & "b"
@@ -30,5 +30,5 @@ Dim enumerableType = q.GetType().GetInterface(enumerableInterface.FullName)
 Dim anonymousTypeType = enumerableType.GetGenericArguments(0)
 {% endhighlight %}
 
-[1] This is assuming that you didn't write a query which returns a field directly and avoids creating the anonymous type.
+[^1]: This is assuming that you didn't write a query which returns a field directly and avoids creating the anonymous type.
 

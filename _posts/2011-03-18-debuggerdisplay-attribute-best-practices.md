@@ -14,7 +14,7 @@ public sealed class Student {
 
 The DebuggerDisplay attribute can customize the name, value and type columns in the debugger window. Each one can be customized using a string which can contain constant text or expressions to be be evaluated by the expression evaluator. The latter is designated by putting the expression inside {}'s (this greatly resembles String.Format)
 
-This feature while very powerful and useful can also easily contribute negatively to the debugging experience when used improperly (mostly in the area of performance). After several years of working in this area and helping customers out with bugs I've come up with a few recommendations to help prevent this from happening [1]
+This feature while very powerful and useful can also easily contribute negatively to the debugging experience when used improperly (mostly in the area of performance). After several years of working in this area and helping customers out with bugs I've come up with a few recommendations to help prevent this from happening [^1]
 
 ## Don't use multiple functions or properties in the display string
 
@@ -24,7 +24,7 @@ Every time I see a DebuggerDisplay attribute like the following I cringe a littl
 [DebuggerDisplay("Student: {FirstName} {LastName} {Age} {Birthday} {Address}")]
 {% endhighlight %}
 
-Hands down the most expensive operation the expression evaluator does is evaluate a function. It dwarfs every other performance metric and can have a visible effect on stepping performance [2].'? This is true for both functions and properties (as far as the debugger is concerned there is almost no difference between the two).
+Hands down the most expensive operation the expression evaluator does is evaluate a function. It dwarfs every other performance metric and can have a visible effect on stepping performance [^2].'? This is true for both functions and properties (as far as the debugger is concerned there is almost no difference between the two).
 
 Every one of the expression holes above results in a property being evaluated.  Each property must be evaluated individually and done so once for every instance of this type in every debugger display window. This set of evaluations is repeated on every single step. This can get very expensive if collections of this type end up getting displayed (imagine stepping with a couple thousand of these in the window!).
 
@@ -69,7 +69,7 @@ The ',nq' suffix here just asks the expression evaluator to remove the quotes wh
 
 I prefer this pattern because it's only requires a single function to be evaluated, I can still have language specific expressions (which are nicely type checked by the compiler) and it doesn't contribute to the public API of my type.
 
-[1] Note the word 'I'. These are not any kind of official recommendations, just several I advocate to people using this feature.
+[^1]: Note the word 'I'. These are not any kind of official recommendations, just several I advocate to people using this feature.
 
-[2] In one performance critical scenario for Visual Studio 2010 over 95% of it was spent evaluating the function!
+[^2]: In one performance critical scenario for Visual Studio 2010 over 95% of it was spent evaluating the function!
 

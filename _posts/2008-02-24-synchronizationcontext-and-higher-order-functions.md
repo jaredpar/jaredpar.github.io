@@ -31,7 +31,7 @@ It would be easier if we could bind a delegate to a particular thread in such wa
 var del = SynchronizationContext.Current.BindDelegateAsPost(new FileSystemEventHandler(OnFileChanged));
 {% endhighlight %}
 
-Instead of ISynchronizedInvoke we'll use [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx). IMHO this is a better approach for this type of work. It has the same functionality as ISynchronizedInvoke and helps with a few of the quirks. The Windows Forms Application Model (and if memory serves WPF) insert a [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx) for every thread running a WinForm application. It greatly reduces the chance your code will run into problem #1 above because the timespan for when it can be used to Marshal between threads is not dependent upon the internal workings of a particular Control. Instead it's tied to the lifetime of the Thread[1].
+Instead of ISynchronizedInvoke we'll use [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx). IMHO this is a better approach for this type of work. It has the same functionality as ISynchronizedInvoke and helps with a few of the quirks. The Windows Forms Application Model (and if memory serves WPF) insert a [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx) for every thread running a WinForm application. It greatly reduces the chance your code will run into problem #1 above because the timespan for when it can be used to Marshal between threads is not dependent upon the internal workings of a particular Control. Instead it's tied to the lifetime of the Thread[^1].
 
 The basic strategy we'll take is to create a new delegate which wraps the original delegate. This will Marshal the call onto the appropriate thread and then call the original delegate.  [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx) has two methods to Marshal calls between threads; Post and Send.
 
@@ -133,5 +133,5 @@ internal static T CreateAsPost<T>(SynchronizationContext context, T target)
 
 The resulting delegate is now of the same type as the original delegate and invocations will occur on the targeted thread.
 
-[1] Granted if you try to use a [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx) to Marshal between threads after the target thread has finished you will still get an error.
+[^1]: Granted if you try to use a [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx) to Marshal between threads after the target thread has finished you will still get an error.
 

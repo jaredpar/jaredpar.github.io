@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-While updating my VsVim editor extensions for Beta2 [1] I got hit by a change in the way F# exposed discriminated unions in metadata. My extension consists of a core F# component with a corresponding set of unit tests written in C#.  It's mostly API level testing and as such I use a lot of F# generated types in my C# test assembly.
+While updating my VsVim editor extensions for Beta2 [^1] I got hit by a change in the way F# exposed discriminated unions in metadata. My extension consists of a core F# component with a corresponding set of unit tests written in C#.  It's mostly API level testing and as such I use a lot of F# generated types in my C# test assembly.
 
 In Beta1 all information which could be extracted from a discriminated type union was immediately available on the value. The underlying type presentation was less than desirable but these details were hidden by type inference and the very accessible API.'? The type wasn't perfect because given a particular instance only the subset of the properties relevant to the union value type were valid. All others threw exceptions. But the code use of these methods and properties flowed very well.
 
@@ -33,7 +33,7 @@ public void TestActionBeta1(){
 
 Notice how no type information is necessary and the code flows quite naturally. C# type inference works great here and allows me to do what I need to do without fussing around with little stuff. The type in this case is a detail I don't need to know about. It simply adds no value.
 
-Discriminated Unions in Beta2 changed substantially in this area. Instead of generating the set of all values on the exposed type, there is now an inner type generated for every discriminated union value and the properties relevant to that union value are stored on the inner type. The outer type now contains only properties to determine which type of value it is (certainly an upgrade from methods!) [2]
+Discriminated Unions in Beta2 changed substantially in this area. Instead of generating the set of all values on the exposed type, there is now an inner type generated for every discriminated union value and the properties relevant to that union value are stored on the inner type. The outer type now contains only properties to determine which type of value it is (certainly an upgrade from methods!) [^2]
 
 For instance in the case of ActionResult there are 3 generated inner classes: Complete, Error and NeedMore. Each one contains a single property Item which contains the associated value(s). This means to get to the value portion a cast to the inner type must be inserted!
 
@@ -80,7 +80,7 @@ public void TestActionBeta2() {
 
 With these methods and a quick series of Find / Replace calls, I was back in business.
 
-[1] It's coming I promise!
+[^1]: It's coming I promise!
 
-[2] It also contains a handy set of factory methods for generating values but it's not relevant to this discussion.
+[^2]: It also contains a handy set of factory methods for generating values but it's not relevant to this discussion.
 

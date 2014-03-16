@@ -5,7 +5,7 @@ Just as native pointer types are moved around with pointer arithmetic in native 
 
 For the most part this is a straight forward operation if the underlying native memory is understood. Say there is an array of Dog instances with length 10 and the Dog structure has a size of 8. The total amount of memory will be 80 bytes and with a valid dog instance being available at every 8 bytes. So if the start address is 1000 then 1000,1008,1016 and so on will point to a valid instance.
 
-The native size of any data structure can be calculated via Marshal.SizeOf(tyepof(Dog)) [1]. With a pointer to the start of the array, the Nth Dog instance can be accessed with a pointer of address = (N*sizeof(Dog))+startAddress
+The native size of any data structure can be calculated via Marshal.SizeOf(tyepof(Dog)) [^1]. With a pointer to the start of the array, the Nth Dog instance can be accessed with a pointer of address = (N*sizeof(Dog))+startAddress
 
 The address of a pointer can be accessed by 1 of 2 functions
 
@@ -14,7 +14,7 @@ The address of a pointer can be accessed by 1 of 2 functions
 
 Unless you are writing an application that will every only run on a 32 bit system, **don't use method #1** (even then still don't). Native pointer addresses vary in size depending on version of the OS a program is running on.  64 bit systems have a much larger address size (long vs int). Consequently calling .ToInt32 on a 64bit system will truncate the actual address to a valid that is no longer valid. This will eventually lead to a random error PInvoke'ing a function that is difficult to track down.
 
-Instead use .ToInt64(). This method is safe on both 32 and 64 bit systems.  Additionally constructing an IntPtr instance with either value is safe. The class knows what version of windows it's executing on and will adjust the size in a safe way [2].
+Instead use .ToInt64(). This method is safe on both 32 and 64 bit systems.  Additionally constructing an IntPtr instance with either value is safe. The class knows what version of windows it's executing on and will adjust the size in a safe way [^2].
 
 In many of my projects I define a class similar to the following to take care of this automatically.
 
@@ -40,8 +40,8 @@ public static class IntPtrExtensions
 }
 {% endhighlight %}
 
-[1] It's highly advisable to not calculate this value yourself.
+[^1]: It's highly advisable to not calculate this value yourself.
 
-[2] See the post '[Is IntPtr(long)
+[^2]: See the post '[Is IntPtr(long)
 truncating?](http://blogs.msdn.com/jaredpar/archive/2008/10/28/is-intptr-long-truncating.aspx)' for more details
 

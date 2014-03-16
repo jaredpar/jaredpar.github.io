@@ -3,7 +3,7 @@ layout: post
 ---
 After my recent postings on the [rules of Equality](http://blogs.msdn.com/jaredpar/archive/2008/04/28/properly-implementing-equality-in-vb.aspx), I thought it would be a good idea to post a simple example of equality.  The class in question, Example, has only one field of type Integer name m_field1.  Two instances of Example are equal if m_field1 has the same value.  So the real equality check is just a single Integer comparison.
 
-Unfortunately, as my posts alluded to, even though the check is simple getting it right is not necessarily so.  The equality portion of example takes roughly 20 lines of code while the actual equality check represents only 1 of those lines [1].  Not a good ratio.  The good and bad news about the other 19 lines is they are boiler plate so once you know them you don't have to think about them.  For my own purposes I've converted those 19 lines into a snippet which automates the process but doesn't make it any easier on the eye.
+Unfortunately, as my posts alluded to, even though the check is simple getting it right is not necessarily so.  The equality portion of example takes roughly 20 lines of code while the actual equality check represents only 1 of those lines [^1].  Not a good ratio.  The good and bad news about the other 19 lines is they are boiler plate so once you know them you don't have to think about them.  For my own purposes I've converted those 19 lines into a snippet which automates the process but doesn't make it any easier on the eye.
 
 {% highlight vbnet %}
 Class Example
@@ -71,5 +71,5 @@ Module Module1
 End Module
 {% endhighlight %}
 
-[1] Before VB criticism enters, C# has roughly the same ratio for the same sample.
+[^1]: Before VB criticism enters, C# has roughly the same ratio for the same sample.
 

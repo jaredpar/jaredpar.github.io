@@ -3,7 +3,7 @@ layout: post
 ---
 One source of confusion I find myself clearing up a lot is the use of evaluating extension methods in the debugger windows. Users report evaluation as working sometimes but not others for the exact same piece of code. Such flaky behavior can only be the result of a poorly implemented feature or subtle user error. Right'
 
-Unfortunately no. In this case the behavior described is very possible and 'By Design'[1]. It's an unfortunate fallout from how the way the debugger works.
+Unfortunately no. In this case the behavior described is very possible and 'By Design'[^1]. It's an unfortunate fallout from how the way the debugger works.
 
 Quick review. Expression evaluators strive to have evaluation parity with the compiler. So if expression _expr _is valid at the place the debugger is stopped, _expr_ should also be a valid expression in the immediate, watch, etc ... windows. This holds true for extension methods. For example
 
@@ -46,6 +46,6 @@ What complicates this discussion even further is a side effect of the hosting pr
 This further adds to the perception of extension methods in the debugger are flaky since LINQ works but user defined extension methods fail. It creates additional confusion because the hosting process does not work for all project types (devices, certain types of web projects, etc ') and does not come into play in an attach scenarios.
 
   
-[1] I do hate using the 'By Design' tag to describe a feature as successfully
+[^1]: I do hate using the 'By Design' tag to describe a feature as successfully
 failing but such is life.
 

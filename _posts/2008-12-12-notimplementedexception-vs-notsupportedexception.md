@@ -13,9 +13,9 @@ After doing a bit of research I agree with Jeremy and draw the following distinc
     * Stream.Write -> CanWrite 
 * [NotImplementedException](http://msdn.microsoft.com/en-us/library/system.notimplementedexception.aspx): Throw this exception when a type does not implement a method for any other reason. 
 
-For Example: ICollection.Count, ICloneable.Clone, etc ... [1]
+For Example: ICollection.Count, ICloneable.Clone, etc ... [^1]
 
 The method in question on my previous blog post was ICollection<T>.Add(). I was dealing with an immutable collection for which Add is not possible. Since there is a property, IsReadOnly, which serves as an indicator that Add() is not allowed, [NotSupportedException](http://msdn.microsoft.com/en- us/library/system.notsupportedexception.aspx) is the better choice.
 
-[1] Not implementing these methods is likely a bad idea.
+[^1]: Not implementing these methods is likely a bad idea.
 

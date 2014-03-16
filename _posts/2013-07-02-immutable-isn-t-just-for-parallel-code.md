@@ -24,7 +24,7 @@ It can't do something as simple as using a List<Module> with a similarly typed b
     ((List<Module>)assembly.Modules).Clear(); 
 {% endhighlight %}
 
-Instead it chooses to be robust by returning a freshly allocated array on every single call to Modules [1].  This works but is a very wasteful process and results in many unnecessary allocations.
+Instead it chooses to be robust by returning a freshly allocated array on every single call to Modules [^1].  This works but is a very wasteful process and results in many unnecessary allocations.
 
 If this API were being designed today this would be a perfect candidate for using ImmutableArray<T>.  This value can be safely stored and returned with no fear of the caller deviously mutating the result.  There is simply no way of doing so.
 
@@ -69,7 +69,7 @@ This is just a small sample of cases where immutable collections are useful in d
 
 Generally speaking the answer to this is no.  And this is why you should be using immutable types.
 
-[1] If you dig deep into the implementation you'll find it's actually a fresh
+[^1]: If you dig deep into the implementation you'll find it's actually a fresh
 array of RuntimeModule[].  So even though they allocate a new array on every
 call you can't safely write Module instances into it unless they happen to be
 instances of RuntimeModule.  So wasteful!

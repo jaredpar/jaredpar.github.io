@@ -15,7 +15,7 @@ else {
 
 This works great right up until have a Dictionary of anonymous types. The TryGetValue pattern functions on out parameters which do not work well with type inference in C# and hence anonymous types. Type inference requires that the value be declared with a corresponding initialization expression. But any out call forces the declaration of the type and the initialization expression to be different statements breaking any chance of type inference.  
 
-For example take the following code which builds up a Dictionary object where the value is typed to be an anonymous type [1]
+For example take the following code which builds up a Dictionary object where the value is typed to be an anonymous type [^1]
 
     
 {% highlight csharp %}
@@ -72,4 +72,4 @@ if (tuple.Item1) {
 
 This pattern is not limited strictly to TryGetValue. It's fairly applicable anytime you need to combine a return value and one or more out parameters into a single value for reasons of type inference.
 
-[1] Believe it or not, having a Dictionary where the value type is an anonymous type is not a wholly uncommon act. I've run into a bit of customer code which follows this general pattern 
+[^1]: Believe it or not, having a Dictionary where the value type is an anonymous type is not a wholly uncommon act. I've run into a bit of customer code which follows this general pattern 

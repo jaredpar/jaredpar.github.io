@@ -7,7 +7,7 @@ I've had a couple people ask me this question about my blog. The simple answer i
 I realize from a readers perspective my topics may appear somewhat random.  After all I post in C#,VB,C++ and Powershell with varying degrees of frequency. I jump from patterns to specialized templates to threading to random gotchas to API Design. The reason for the jumping is I post topics close to the projects I'm working on and I work on a lot of projects :). At any given time I'm working on one of the following items.
 
   * My job as developer on the VB Debugger and IDE
-  * My personal managed utility libraries (non-UI and UI) [1]
+  * My personal managed utility libraries (non-UI and UI) [^1]
   * The [PInvoke Interop Assistant](http://blogs.msdn.com/jaredpar/archive/2008/03/14/making-pinvoke-easy.aspx)
   * Several internal tools 
   * My scripting environment
@@ -22,5 +22,5 @@ Whenever I discover anything interesting, find a bug or see yet another pattern/
 
 In short, I love to write and talk about code and this is a great forum.
 
-[1] Hopefully on it's way to <http://code.msdn.com> so I don't have to keep posting little snippets and making users paste snippets from various blog entries to get a simple working example.
+[^1]: Hopefully on it's way to <http://code.msdn.com> so I don't have to keep posting little snippets and making users paste snippets from various blog entries to get a simple working example.
 

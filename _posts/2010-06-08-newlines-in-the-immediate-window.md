@@ -18,7 +18,7 @@ This behavior is not limited to ToString calls but will occur for any place an e
 
 The current level of fidelity in the debugger APIs prevent the expression evaluator from knowing which window it is providing data for. It is simply asked to evaluate expressions and provide data with very little in the way of context. In some ways this is a good thing because it trims down the number of scenarios to test because it limits the number of ways it is produced. The downside of course is that data provided must be able to work in every window and hence a bit more generic. Often times this leads to trade offs in how data is formatted.
 
-Newlines are one of the places where a trade off was made. The immediate window is unique in that it's the only window in the debugger where the default display contains multiple lines. Every other window (watch, locals, autos, etc ') contains a single line for display. Attempting to display a multiline string in a single line results in either having only the first or last line be visible. Hence the expression evaluators chose to escape the newlines to make more of the string visible in the majority scenario [1]
+Newlines are one of the places where a trade off was made. The immediate window is unique in that it's the only window in the debugger where the default display contains multiple lines. Every other window (watch, locals, autos, etc ') contains a single line for display. Attempting to display a multiline string in a single line results in either having only the first or last line be visible. Hence the expression evaluators chose to escape the newlines to make more of the string visible in the majority scenario [^1]
 
 In the case this happens there is a built-in debugger visualizer which allows for the string to be displayed without any escaping. Simple click on the magnifying glass and select the Text Visualizer option. This pops up a modal dialog displaying the string in an unaltered form 
 
@@ -26,5 +26,5 @@ In the case this happens there is a built-in debugger visualizer which allows fo
 
 ![image](http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/4747.image_5F00_thumb_5F00_210C77A3.png) 
 
-[1] This escaping does not always happen. Essentially only when the data is specifically typed to a System.String
+[^1]: This escaping does not always happen. Essentially only when the data is specifically typed to a System.String
 

@@ -3,7 +3,7 @@ layout: post
 ---
 Thread local storage is another method of synchronization between threads.  It is different that most synchronization cases because instead of sharing state between threads it enables developers to have independent, thread specific pieces of data which have a similar or common purpose.
 
-The uses of thread local storage (TLS) vary greatly but is a very powerful and lightweight method for storing data.  TLS can easily be envisioned as a giant void* array for every thread.  The entry point, TlsAlloc, provides an index into this array and allows the storage of arbitrary data [1].  
+The uses of thread local storage (TLS) vary greatly but is a very powerful and lightweight method for storing data.  TLS can easily be envisioned as a giant void* array for every thread.  The entry point, TlsAlloc, provides an index into this array and allows the storage of arbitrary data [^1].  
 
 TLS is particularly useful for storing state information.  For example, one of my components lives in a highly multi-threaded environment.  Each thread serves essentially the same purpose and has the same states and state transition semantics.  Like any good paranoid programmer I wanted to add contracts to check my state transitions and semantics.
 
@@ -66,5 +66,5 @@ private:
 
 In addition to this blog post, I added a working sample to <http://code.msdn.microsoft.com/TlsValue>.  This is my first attempt at posting a sample on <http://code.msdn.com> so please provide any and all feedback on the data.
 
-[1] This is similar to data marked with the [ThreadStatic attribute](http://msdn2.microsoft.com/en-us/library/system.threadstaticattribute\(VS.71\).aspx) in managed code without all of the slot messiness and with the added benefit of strong typing.
+[^1]: This is similar to data marked with the [ThreadStatic attribute](http://msdn2.microsoft.com/en-us/library/system.threadstaticattribute\(VS.71\).aspx) in managed code without all of the slot messiness and with the added benefit of strong typing.
 

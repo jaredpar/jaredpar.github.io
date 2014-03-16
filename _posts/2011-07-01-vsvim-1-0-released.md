@@ -2,7 +2,7 @@
 layout: post
 title: VsVim 1.0 Released
 ---
-I just released an update to VsVim for Visual Studio 2010. This is available on the extension manager in Visual Studio or can be downloaded directly at the following link. [1]
+I just released an update to VsVim for Visual Studio 2010. This is available on the extension manager in Visual Studio or can be downloaded directly at the following link. [^1]
 
 Link: <http://visualstudiogallery.msdn.microsoft.com/en-us/59ca71b3-a4a3-46ca-8fe1-0e90e3f79329>
 
@@ -26,5 +26,5 @@ This extension is being released by me, not by Microsoft. As such the support le
 
 Source for this release is available on the [GitHub project site](http://github.com/jaredpar/VsVim). It and the associated binaries are released under the [MS-PL](http://msdn.microsoft.com/en-us/library/cc707818.aspx).
 
-[1] The update was actually released a few weeks ago but in my excitement I forgot to blog about it.
+[^1]: The update was actually released a few weeks ago but in my excitement I forgot to blog about it.
 

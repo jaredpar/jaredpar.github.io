@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-One of the overlooked or simply misunderstood features of the VB language is calling a function which has a ByRef parameter. Most languages support only a single method of passing parameters by reference [1], that is the scenarios directly supported by the CLR. The CLR has a lot of restrictions on the type of values it supports for ByRef parameters and these restrictions get in the way of VB's goal to be a flexible language that strives to get out of the way of the user. Hence the compiler goes to great lengths to be flexible and support multiple avenues of ByRef passing, much beyond what the CLR natively allows.
+One of the overlooked or simply misunderstood features of the VB language is calling a function which has a ByRef parameter. Most languages support only a single method of passing parameters by reference [^1], that is the scenarios directly supported by the CLR. The CLR has a lot of restrictions on the type of values it supports for ByRef parameters and these restrictions get in the way of VB's goal to be a flexible language that strives to get out of the way of the user. Hence the compiler goes to great lengths to be flexible and support multiple avenues of ByRef passing, much beyond what the CLR natively allows.
 
 This article will explore these different mechanisms. In order to reduce the code samples, I will be using the following 2 methods to explain the different mechanisms of ByRef Passing
 
@@ -132,5 +132,5 @@ Sub MaybeCopyBackByRef_Explained()
 End Sub
 {% endhighlight %}
 
-[1] Starting with version 4.0, C# now supports two versions of reference passing. In addition to the one available since 1.0 the ref modifier is now optional when making an interop call to a COM object: <http://mutelight.org/articles/new-features-in-c-sharp-4.html>
+[^1]: Starting with version 4.0, C# now supports two versions of reference passing. In addition to the one available since 1.0 the ref modifier is now optional when making an interop call to a COM object: <http://mutelight.org/articles/new-features-in-c-sharp-4.html>
 

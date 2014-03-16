@@ -7,7 +7,7 @@ In the previous version, locks were used to synchronize access to an underlying 
 
 Immutable collections are safe in the presence of multiple threads and don't require any synchronization mechanisms.  However they're immutable and we're trying to build a mutable data structure?  No matter.  Even though each instance is immutable they can be used to create new instances which represent a somewhat mutated state.
 
-For this exercise we will be using a slight variant of Eric Lippert's [Immutable Stack](http://blogs.msdn.com/ericlippert/archive/2007/12/04/immutability-in-c-part-two-a-simple-immutable-stack.aspx) implementation [1].  The pipe will have two stacks; 1) for capturing input and 2) for storing output.  Named m_writeStack and m_readStack respectively.
+For this exercise we will be using a slight variant of Eric Lippert's [Immutable Stack](http://blogs.msdn.com/ericlippert/archive/2007/12/04/immutability-in-c-part-two-a-simple-immutable-stack.aspx) implementation [^1].  The pipe will have two stacks; 1) for capturing input and 2) for storing output.  Named m_writeStack and m_readStack respectively.
 
 This makes the implementation of reading input straight forward.  While m_readStack is not empty the reader thread can systematically pop off the values.  This doesn't require any contention with writer threads and since their is only one reader thread and the stack is immutable the code is straight forward.  Once the m_readStack is empty the reader thread will swap out the current state of m_writeStack with an empty stack.  The original value will be reversed so we can maintain the FIFO ordering and set as the new m_readStack.
 
@@ -132,5 +132,5 @@ public class PipeSingleReaderNoLock<T> : IDisposable {
     }
 {% endhighlight %}
 
-[1] If you haven't read this series you really should.
+[^1]: If you haven't read this series you really should.
 

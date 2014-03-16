@@ -9,7 +9,7 @@ As usual, the primary issue is cost and the cost for LINQ in the debugger window
 
 Languages in Visual Studio typically provide the following major components to support the debugging experience.
 
-  * Expression Evaluator (EE): This is the language specific component which provides all of the data used in the watch, locals and immediate window, data tips, conditional breakpoints and several other components.  It's primary input is an expression in string form which is converted to a value (typically an ICorDebugValue instance) and outputs a COM object capable of inspecting that value to the core debugger [1].   Everything typed into the debugger windows goes through the EE.
+  * Expression Evaluator (EE): This is the language specific component which provides all of the data used in the watch, locals and immediate window, data tips, conditional breakpoints and several other components.  It's primary input is an expression in string form which is converted to a value (typically an ICorDebugValue instance) and outputs a COM object capable of inspecting that value to the core debugger [^1].   Everything typed into the debugger windows goes through the EE.
 
 This component lives in the MTA of Visual Studio and has almost no interaction with the UI / STA thread.
 
@@ -30,7 +30,7 @@ Currently the EE's have no capacity for generating metadata, only interpreting i
 Without getting into too much detail, lets enumerate the** new** major features necessary to evaluate a LINQ expression in the EE with true fidelity to the running program.  To simplify things, we'll start by assuming there is no other LINQ expression used in the current method and the method is only being executed at most once at any given time in the process.  
 
   1. A metadata generation service to support the backing for closures and lambda expressions 
-  2. Convert expressions typed in the EE into IL [2] 
+  2. Convert expressions typed in the EE into IL [^2] 
   3. ENC support for metadata to push the new metadata for closures and lambdas into the currently executing assembly 
   4. ENC support for method body IL to remove lifted variables from the current method and redirect the references inside the closure
 
@@ -69,7 +69,7 @@ None of the issues are an unsolvable problem but they do represent a significant
 
 Does this mean that LINQ, or any future metadata requiring expression, will never be added to the debugger window?  Absolutely not.  We've just hit the difficult stage of making compromises on the level of fidelity in the feature.  If you back off of true fidelity in a few small ways the resulting feature, while still very expensive, is significantly cheaper and removes many of the limitations imposed by ENC.   This **hypothetical** feature will be discussed in my next article.
 
-[1] For those interested the returned interface is [IDebugProperty2](http://msdn.microsoft.com/en-us/library/bb161287\(VS.80\).aspx)
+[^1]: For those interested the returned interface is [IDebugProperty2](http://msdn.microsoft.com/en-us/library/bb161287\(VS.80\).aspx)
 
-[2] Right now expressions are converted to a tree form slightly above IL and they are interpreted using the ICorDebug APIs.  Converting all the way down to IL requires a lot more work
+[^2]: Right now expressions are converted to a tree form slightly above IL and they are interpreted using the ICorDebug APIs.  Converting all the way down to IL requires a lot more work
 
