@@ -2,7 +2,7 @@
 layout: post
 title: Making F# Type Inference Friendly for C#
 ---
-One of my current hobby projects, [VsVim](http://blogs.msdn.com/jaredpar/archive/2009/12/14/vsvim-update-released-version-0-5-4.aspx), requires me to make a lot of calls between F# and C# projects. The core Vim engine is a pure F# solution based on Visual Studio's new editor. It additionally has a small hosting layer and a large test bed both written in C#.
+One of my current hobby projects, [VsVim]({% post_url 2009-12-14-vsvim-update-released-version-0-5-4 %}), requires me to make a lot of calls between F# and C# projects. The core Vim engine is a pure F# solution based on Visual Studio's new editor. It additionally has a small hosting layer and a large test bed both written in C#.
 
 When working with the exposed core Vim engine API, I've found a number of generated F# constructs which are not easily accessible from C#. The problem stems from the manner in which native F# types are exposed. Many of them are generic and?? lack type inference friendly helper methods that force awkward usage patterns in C#. Most painful is the FSharpOption<T> type because it's a type I frequently expose in APIs.
 
@@ -70,7 +70,7 @@ static int OptionExample() {
 }
 {% endhighlight %}
 
-Notice we still haven't fixed the None case. Fixing this is a beyond the scope of what I want to write here but it is possible in certain scenarios.  You can take a look at how in one of my previous blog articles: [Function C# Providing an Option](http://blogs.msdn.com/jaredpar/archive/2008/10/06/functional-c-providing-an-option.aspx).
+Notice we still haven't fixed the None case. Fixing this is a beyond the scope of what I want to write here but it is possible in certain scenarios.  You can take a look at how in one of my previous blog articles: [Function C# Providing an Option]({% post_url 2008-10-06-functional-c-providing-an-option %}).
 
 This pattern is not just limited to the FSharpOption class but can be applied to many of the generic constructs F# exports to wrap their native types. In particular FSharpFunc<T,Result> and the various FSharpChoice<> types can be made a bit friendlier with a few wrappers.
 

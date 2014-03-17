@@ -2,7 +2,7 @@
 layout: post
 title: Functional C#&58; Providing an Option Part 2
 ---
-In my [previous post](http://blogs.msdn.com/jaredpar/archive/2008/10/06/functional-c-providing-an-option.aspx) I discussed creating an Option style construct for C#/.Net. This post is a followup with the complete code snippet. It's been updated in response to several bits of feedback I received. Namely
+In my [previous post]({% post_url 2008-10-06-functional-c-providing-an-option %}) I discussed creating an Option style construct for C#/.Net. This post is a followup with the complete code snippet. It's been updated in response to several bits of feedback I received. Namely
 
   1. Option is now a struct vs. class 
   2. Added equality metrics 

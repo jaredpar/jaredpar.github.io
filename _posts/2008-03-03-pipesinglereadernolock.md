@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-Previously we discussed a multi-thread safe [queue like data structure](http://blogs.msdn.com/jaredpar/archive/2008/03/02/pipesinglereader.aspx) using locks as an internal synchronization mechanism.  This time we'll look at a version requiring no locks.
+Previously we discussed a multi-thread safe [queue like data structure]({% post_url 2008-03-02-pipesinglereader %}) using locks as an internal synchronization mechanism.  This time we'll look at a version requiring no locks.
 
 In the previous version, locks were used to synchronize access to an underlying queue which stored the data.  Removing the locks necessitates us moving away from Queue<T> to store the data and forces us onto another structure which is safe in the presence of multiple threads.  
 

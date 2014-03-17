@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This is part 4 of a series.  You can find **[part one here**](http://blogs.msdn.com/jaredpar/archive/2005/07/11/437584.aspx).  Please refer to that article for all of the Native definitions of the structures that I use here.
+This is part 4 of a series.  You can find [part one here]({% post_url 2005-07-11-marshaling-nested-data-structures-part-1 %}).  Please refer to that article for all of the Native definitions of the structures that I use here.
 
 In the previous article we were left with a solution where using the code was very clean but the actualy implementation had extra allocation and perf overhead.  We'll conquer both of those in this installment by implementing a custom marshaler for our Course object.  This is accomplished by implementing ICustomMarshaler and call the class CourseMarshaler.  [(ICustomMarshaler docs)](http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/ html/frlrfsystemruntimeinteropservicesicustommarshalermemberstopic.asp)
 

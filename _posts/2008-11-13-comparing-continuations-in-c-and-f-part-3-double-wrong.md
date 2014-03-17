@@ -70,6 +70,6 @@ public static TAcc FoldRight<TSource, TAcc>(
 
 **Previous Entries**
 
-  * [Part 1](http://blogs.msdn.com/jaredpar/archive/2008/11/10/comparing-continuations-in-f-and-c.aspx)
-  * [Part 2](http://blogs.msdn.com/jaredpar/archive/2008/11/11/comparing-continuations-in-c-and-f-part-2.aspx)
+  * [Part 1]({% post_url 2008-11-10-comparing-continuations-in-f-and-c %})
+  * [Part 2]({% post_url 2008-11-11-comparing-continuations-in-c-and-f-part-2 %})
 

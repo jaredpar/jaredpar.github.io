@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-Recently I've done a bit of posting about the difficulties of [properly implementing equality](http://blogs.msdn.com/jaredpar/archive/2008/05/12 /equality-isn-t-easy.aspx) [in VB](http://blogs.msdn.com/jaredpar/archive/2008/04/28/properly-implementing-equality-in-vb.aspx) (and DotNet in general).  While most of the problems can be fixed with a standard snippet the one really hard to implement issue is GetHashCode().  The rules for GetHashCode() are both simple and seemingly contradictory
+Recently I've done a bit of posting about the difficulties of [properly implementing equality]({% post_url 2008-05-12-equality-isn-t-easy %}) [in VB]({% post_url 2008-04-28-properly-implementing-equality-in-vb %}) (and DotNet in general).  While most of the problems can be fixed with a standard snippet the one really hard to implement issue is GetHashCode().  The rules for GetHashCode() are both simple and seemingly contradictory
 
   1. If two objects are equal (via Equals) their GetHashCode() should be equal
   2. GetHashCode() shouldn't ever change 

@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-Some readers may remember an [article](http://blogs.msdn.com/jaredpar/archive/2009/08/26/why-no-linq-in-debugger-windows.aspx) I published almost half a year ago about LINQ being absent from the debugger windows. That post explored the initial design of the feature, it's limitations and ultimately why it was absent but promised a future article on a slightly different approach. It's quite late but I've finally had some time to write the second part of this article [^1]
+Some readers may remember an [article]({% post_url 2009-08-26-why-no-linq-in-debugger-windows %}) I published almost half a year ago about LINQ being absent from the debugger windows. That post explored the initial design of the feature, it's limitations and ultimately why it was absent but promised a future article on a slightly different approach. It's quite late but I've finally had some time to write the second part of this article [^1]
 
 No, I didn't forget about the article or really get too lazy. The pace of Dev10 really picked up shortly after publishing that article and the follow up was put on the back burner. This week I finally find myself with a bit of free time and decided to follow up on my promise.
 

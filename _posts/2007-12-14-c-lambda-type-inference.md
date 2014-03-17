@@ -19,7 +19,7 @@ However, this can be annoying at times.  Once you start defining complex lambda 
 Func<'> f = () => new { Name = "foo" };
 {% endhighlight %}
 
-This is fixable though by using type inference.  The method is very similar to [other anonymous type type tricks](http://blogs.msdn.com/jaredpar/archive/2007/10/01/casting-to-an-anonymous-type.aspx).  While lambda type inference is not supported for variable declaration it is supported for parameters.  C# supports return type inference so that can be used to type the variable.
+This is fixable though by using type inference.  The method is very similar to [other anonymous type type tricks]({% post_url 2007-10-01-casting-to-an-anonymous-type %}).  While lambda type inference is not supported for variable declaration it is supported for parameters.  C# supports return type inference so that can be used to type the variable.
 
 {% highlight csharp %}
 static Func<T> Lambda<T>(Func<T> del)

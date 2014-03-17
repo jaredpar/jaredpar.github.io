@@ -1,9 +1,9 @@
 ---
 layout: post
 ---
-I've been busy lately and neglected my series on [Active Objects](http://blogs.msdn.com/jaredpar/archive/2008/01/28/active-objects-and-futures.aspx). It's been a fairly busy time for me both in and out of work.  Enough excuses, back to the fun.
+I've been busy lately and neglected my series on [Active Objects]({% post_url 2008-01-28-active-objects-and-futures %}). It's been a fairly busy time for me both in and out of work.  Enough excuses, back to the fun.
 
-With the basic [PipeSingleReader](http://blogs.msdn.com/jaredpar/archive/2008/03/02/pipesinglereader.aspx) class, we now have the last piece necessary to create an ActiveObject. This article will focus on building the base ActiveObject which will take care of scheduling, construction, destruction and error handling. The goal is to make implementing an ActiveObject that actually does work easy.
+With the basic [PipeSingleReader]({% post_url 2008-03-02-pipesinglereader %}) class, we now have the last piece necessary to create an ActiveObject. This article will focus on building the base ActiveObject which will take care of scheduling, construction, destruction and error handling. The goal is to make implementing an ActiveObject that actually does work easy.
 
 Lets break down the implementation of an ActiveObject into the three phases of any object; construction, destruction and running behavior.
 

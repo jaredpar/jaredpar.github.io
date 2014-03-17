@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-Another day, another PowerShell feature discovered. Unfortunately this time it was a feature that made me think I had a bug in my script. The script read through some directories, did some file parsing and created a data object for every directory in the form of a [Tuple](http://blogs.msdn.com/jaredpar/archive/2007/11/29/tuples-in-powershell.aspx).  
+Another day, another PowerShell feature discovered. Unfortunately this time it was a feature that made me think I had a bug in my script. The script read through some directories, did some file parsing and created a data object for every directory in the form of a [Tuple]({% post_url 2007-11-29-tuples-in-powershell %}).  
 
 One of the files was People.txt and contained a list of relevant people for the data (one per line). Unfortunately the parameter kept showing up like so
 ...

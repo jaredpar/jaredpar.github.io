@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This discussion is building upon a previous post on how to acquire an [anonymous type ... type](http://blogs.msdn.com/jaredpar/archive/2007/08/01/coding-quiz-anonymous-type-types.aspx).
+This discussion is building upon a previous post on how to acquire an [anonymous type ... type]({% post_url 2007-08-01-coding-quiz-anonymous-type-types %}).
 
 The next question is, how can you cast an arbitrary object into an anonymous type?  At a glance this doesn't seem possible as you cannot directly express the type of an anonymous type in code.  For instance the following code is not legal.
 

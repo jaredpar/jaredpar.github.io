@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-As part of my [transition](http://blogs.msdn.com/jaredpar/archive/2008/10/16/powershell-and-64-bit-windows-helper-functions.aspx) into using 64 bit windows I keep running into a problem with some scripts.  
+As part of my [transition]({% post_url 2008-10-16-powershell-and-64-bit-windows-helper-functions %}) into using 64 bit windows I keep running into a problem with some scripts.  
 
 I have a whole set of Powershell scripts that are dedicated to ensuring certain programs are installed on all of my dev machines. Or that certain customizations are needed. A lot of these do file existence checks inside of Program Files.
 

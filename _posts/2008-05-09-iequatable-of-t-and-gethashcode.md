@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This is a bit of a follow up to a [previous post](http://blogs.msdn.com/jaredpar/archive/2008/04/28/properly-implementing-equality-in-vb.aspx) we discussed how to properly implement equality in VB.  Several users commented/asked that [IEquatable(Of T)](http://msdn.microsoft.com/en-us/library/ms131187\(VS.80\).aspx) could be used in place of overriding Equals().  Since [IEquatable(Of T)](http://msdn.microsoft.com/en-us/library/ms131187\(VS.80\).aspx)  doesn't define a GetHashCode() method the user didn't need to define it and hence run into all of the problems associated with GetHashCode() usage.
+This is a bit of a follow up to a [previous post]({% post_url 2008-04-28-properly-implementing-equality-in-vb %}) we discussed how to properly implement equality in VB.  Several users commented/asked that [IEquatable(Of T)](http://msdn.microsoft.com/en-us/library/ms131187\(VS.80\).aspx) could be used in place of overriding Equals().  Since [IEquatable(Of T)](http://msdn.microsoft.com/en-us/library/ms131187\(VS.80\).aspx)  doesn't define a GetHashCode() method the user didn't need to define it and hence run into all of the problems associated with GetHashCode() usage.
 
 Unfortunately this is not the case.  Several parts of the framework link IEquatable(Of T).Equals and Object.GetHashCode() in the same way that Object.Equals() and Object.GetHashCode() are linked.  
 

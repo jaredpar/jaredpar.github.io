@@ -3,8 +3,8 @@ layout: post
 ---
 See my previous two posts on an introduction to placement new if you are unfamiliar with the subject.
 
-  * <http://blogs.msdn.com/jaredpar/archive/2007/10/16/c-new-operator-and-placement-new.aspx>
-  * <http://blogs.msdn.com/jaredpar/archive/2007/10/17/c-placement-new-and-allocators.aspx>
+  * {% post_url 2007-10-16-c-new-operator-and-placement-new %}
+  * {% post_url 2007-10-17-c-placement-new-and-allocators %}
 
 Recently I did a bit of work on the heap management story for our code base.  Mainly it was a change to unify the different ways we accessed our internal heap.  In the process I unified our operator new story.  Part if this involved unifying our placement new allocation overloads.  We have several allocators in our code base and I noticed we had several overloads which essentially did the same operation
 

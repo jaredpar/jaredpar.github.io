@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-[Part 4](http://blogs.msdn.com/jaredpar/archive/2008/01/10/tuples-part-4-interface.aspx) left us with a reusable, abstract and inference friendly Tuple class. The next step is to be able to test for Tuple equality.  
+[Part 4]({% post_url 2008-01-10-tuples-part-4-interface %}) left us with a reusable, abstract and inference friendly Tuple class. The next step is to be able to test for Tuple equality.  
 
 For the Tuple implementation, two tuples will be defined as equal if all of their members are equal. Seems fairly straight forward. The trick is in the implementation. In addition to doing the typical override of Equals/GetHashCode the Tuple implementation will be implementing [IEquatable<T>](http://msdn2.microsoft.com/en-us/library/ms131187.aspx) and overloading the standard equality operators.  Tuple members are all unconstrained generic classes which leaves us with a non-great starting point.
 

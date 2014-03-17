@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This is essentially the same release as the [original](http://blogs.msdn.com/jaredpar/archive/2009/09/08/vim-emulator-editor-extension-released.aspx) but updated for some changes that occurred in the APIs between Beta1 and Beta2.
+This is essentially the same release as the [original]({% post_url 2009-09-08-vim-emulator-editor-extension-released %}) but updated for some changes that occurred in the APIs between Beta1 and Beta2.
 
 Link: <http://visualstudiogallery.msdn.microsoft.com/en-us/59ca71b3-a4a3-46ca-8fe1-0e90e3f79329>
 

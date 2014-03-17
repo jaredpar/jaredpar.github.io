@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-When learning a [new language](http://blogs.msdn.com/jaredpar/archive/2008/08/14/learning-a-new-language-f.aspx) I find it very instructive to re-code certain structures from my well used libraries into the new language. It gives a great basis for comparison in terms of ease of implementation, expressiveness of the language and sheer ease of implementation. So on that note I set out today to build an ImmutableStack implementation in F#. This is based off of my C# implementation in [RantPack](http://code.msdn.com/rantpack).  
+When learning a [new language]({% post_url 2008-08-14-learning-a-new-language-f %}) I find it very instructive to re-code certain structures from my well used libraries into the new language. It gives a great basis for comparison in terms of ease of implementation, expressiveness of the language and sheer ease of implementation. So on that note I set out today to build an ImmutableStack implementation in F#. This is based off of my C# implementation in [RantPack](http://code.msdn.com/rantpack).  
 
 Below is the initial implementation. This is my first non "hello world" data structure in F#. I found it surprisingly easy to implement and I'm really enjoying the language. The biggest stumbling block was getting the type union correct and dealing with my compulsion to use "null" for end of stack instead of a value.
 

@@ -5,9 +5,9 @@ A frequent question that pops up on newsgroups such as microsoft.dotnet.framewor
 
 Index
 
-* [Part Two](http://blogs.msdn.com/jaredpar/archive/2005/07/12/437686.aspx)
-* [Part Three](http://blogs.msdn.com/jaredpar/archive/2005/07/14/439024.aspx)
-* [Part Four](http://blogs.msdn.com/jaredpar/archive/2005/07/18/439457.aspx)
+* [Part Two]({% post_url 2005-07-12-marshaling-nested-data-structures-part-2 %})
+* [Part Three]({% post_url 2005-07-14-marshaling-nested-data-structures-part-3 %})
+* [Part Four]({% post_url 2005-07-18-marshaling-nested-data-structures-part-4 %})
 
 The first installment is just going to be laying out our Native data structures that will be used throughout this series.  I'm going to use a generic(and quite contrived) university classroom examle.  Here are the C struct definitions and a couple of functions that I will be using.
 

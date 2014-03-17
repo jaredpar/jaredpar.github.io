@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This is somewhat of a follow up on a previous [post](http://blogs.msdn.com/jaredpar/archive/2007/10/04/ienumerable-and-ienumerable-of-t.aspx) I did on the difference between [IEnumerable(Of T)](http://msdn2.microsoft.com/en-us/library/9eekhta0.aspx) and the [IEnumerable](http://msdn2.microsoft.com/en-us/library/9eekhta0.aspx) interfaces.
+This is somewhat of a follow up on a previous [post]({% post_url 2007-10-04-ienumerable-and-ienumerable-of-t %}) I did on the difference between [IEnumerable(Of T)](http://msdn2.microsoft.com/en-us/library/9eekhta0.aspx) and the [IEnumerable](http://msdn2.microsoft.com/en-us/library/9eekhta0.aspx) interfaces.
 
 I've seen several people type in the following code and wonder if there was a fundamental bug in the type inference code.
 
@@ -20,5 +20,5 @@ Much of the original .Net Framework was written before the CLR implemented suppo
 There are 2 ways to fix this problem.
 
 1. Explicitly type the For Each variable to be the actual type of objects in the collection
-2. Use a Shim to change the type of the collection. (see <http://blogs.msdn.com/jaredpar/archive/2007/10/04/ienumerable-and-ienumerable-of-t.aspx>)
+2. Use a Shim to change the type of the [collection]({% post_url 2007-10-04-ienumerable-and-ienumerable-of-t %})
 

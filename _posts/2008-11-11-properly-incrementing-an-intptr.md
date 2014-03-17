@@ -42,6 +42,5 @@ public static class IntPtrExtensions
 
 [^1]: It's highly advisable to not calculate this value yourself.
 
-[^2]: See the post '[Is IntPtr(long)
-truncating?](http://blogs.msdn.com/jaredpar/archive/2008/10/28/is-intptr-long-truncating.aspx)' for more details
+[^2]: See the post '[Is IntPtr(long) truncating?]({% post_url 2008-10-28-is-intptr-long-truncating %})' for more details
 

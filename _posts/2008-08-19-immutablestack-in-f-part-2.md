@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-I'm a bit busier than I thought I would be after returning from vacation. But I had a little bit of time to play around with the implementation again today.  Thanks to all the suggestions in the comments from the [previous post](http://blogs.msdn.com/jaredpar/archive/2008/08/15/immutablestack-in-f.aspx).
+I'm a bit busier than I thought I would be after returning from vacation. But I had a little bit of time to play around with the implementation again today.  Thanks to all the suggestions in the comments from the [previous post]({% post_url 2008-08-15-immutablestack-in-f %}).
 
 This version has a couple of improvements including
 

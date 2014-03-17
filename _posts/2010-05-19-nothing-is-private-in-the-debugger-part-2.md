@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-In a [previous post](http://blogs.msdn.com/jaredpar/archive/2010/05/17/the-debugger-is-different.aspx) I discussed how accessibility is ignored when evaluating expressions in the debugger and the unexpected scenarios that it creates. One case I neglected to mention in that article is how this behavior works with the VB late binding engine.
+In a [previous post]({% post_url 2010-05-17-the-debugger-is-different %}) I discussed how accessibility is ignored when evaluating expressions in the debugger and the unexpected scenarios that it creates. One case I neglected to mention in that article is how this behavior works with the VB late binding engine.
 
 The expression evaluator only relaxes accessibility rules when binding an expression. This is possible because the expression evaluator effectively hosts the compiler and can override items like accessibility checks.  
 

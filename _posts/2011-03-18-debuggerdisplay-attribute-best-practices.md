@@ -52,7 +52,7 @@ Usually this goes without saying but I've seen enough examples of this to warran
 
 ## Preferred Pattern
 
-My personal preferred pattern for DebuggerDisplay attributes is to have the entire item be an expression: DebuggerDisplay. I then add a private instance property to my type named DebuggerDisplay and do all of my custom formatting in this property. Having the property be private is fine because [nothing is private in the debugger.](http://blogs.msdn.com/b/jaredpar/archive/2010/05/17/the-debugger-is-different.aspx)
+My personal preferred pattern for DebuggerDisplay attributes is to have the entire item be an expression: DebuggerDisplay. I then add a private instance property to my type named DebuggerDisplay and do all of my custom formatting in this property. Having the property be private is fine because [nothing is private in the debugger]({% post_url 2010-05-17-the-debugger-is-different %}).
     
 {% highlight csharp %}
 [DebuggerDisplay("{DebuggerDisplay,nq}")]

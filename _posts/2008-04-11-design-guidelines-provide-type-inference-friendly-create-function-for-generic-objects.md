@@ -3,7 +3,7 @@ layout: post
 ---
 Really this guideline is a bit longer but putting it all in a blog title seemed a bit too much. The full guideline should read: "If a generic class constructor arguments contain types of all generic parameters, provide a static method named Create on a static class of the same class name as the generic class which takes the same arguments and calls the constructor." Quite a mouth full.
 
-Lets look at a specific example with [Tuples](http://blogs.msdn.com/jaredpar/archive/2008/01/27/tuples-part-8-finishing-up.aspx). Tuples are generic with respect to the values they are representing. Without any type inference help we would have to write the following code to create a simple tuple.
+Lets look at a specific example with [Tuples]({% post_url 2008-01-27-tuples-part-8-finishing-up %}). Tuples are generic with respect to the values they are representing. Without any type inference help we would have to write the following code to create a simple tuple.
 
 {% highlight csharp %}
 var tuple = new Tuple<int, string>(5, "astring");

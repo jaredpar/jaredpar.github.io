@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-Previously I blogged about a [recursive select-string function.](http://blogs.msdn.com/jaredpar/archive/2007/10/08/select-stringrecurse.aspx)  Recently I've extended it a bit.  I found the function to be very useful but when I encountered problems searching large directories that contained binary files.  Namely searching them usually returned a result of sorts and printing out the contents of a binary file caused my console to beep in a rather annoying fashion.  To fix this I added a new parameter that will perform a slightly smarter search by filtering out binary files.
+Previously I blogged about a [recursive select-string function.]({% post_url 2007-10-08-select-stringrecurse %})  Recently I've extended it a bit.  I found the function to be very useful but when I encountered problems searching large directories that contained binary files.  Namely searching them usually returned a result of sorts and printing out the contents of a binary file caused my console to beep in a rather annoying fashion.  To fix this I added a new parameter that will perform a slightly smarter search by filtering out binary files.
 
     function Select-StringRecurse()  
     {  

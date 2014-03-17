@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-The [last post](http://blogs.msdn.com/jaredpar/archive/2008/02/12/building-the-base-future.aspx) dealt with building the base Future class. Now we'll build the child class used to run [Func<TResult>](http://msdn2.microsoft.com /en-us/library/bb534960.aspx)'s.
+The [last post]({% post_url 2008-02-12-building-the-base-future %}) dealt with building the base Future class. Now we'll build the child class used to run [Func<TResult>](http://msdn2.microsoft.com /en-us/library/bb534960.aspx)'s.
 
 The basic implementation is straight forward. The class will run a delegate typed to [Func<TResult>](http://msdn2.microsoft.com/en-us/library/bb534960.aspx) in the override of RunCore. The trickiest part is how to store the value. The value is set on one thread and read off of another.
 

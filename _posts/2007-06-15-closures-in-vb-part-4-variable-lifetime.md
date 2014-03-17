@@ -3,9 +3,9 @@ layout: post
 ---
 For previous articles in this series please see
 
-  * [Part 1: Introduction](http://blogs.msdn.com/jaredpar/archive/2007/04/27/closures-in-vb-part-1.aspx)
-  * [Part 2: Method Calls](http://blogs.msdn.com/jaredpar/archive/2007/05/03/closures-in-vb-part-2-method-calls.aspx)
-  * [Part 3: Scope](http://blogs.msdn.com/jaredpar/archive/2007/05/25/closures-in-vb-part-3-scope.aspx)
+  * [Part 1: Introduction]({% post_url 2007-04-27-closures-in-vb-part-1 %})
+  * [Part 2: Method Calls]({% post_url 2007-05-03-closures-in-vb-part-2-method-calls %})
+  * [Part 3: Scope]({% post_url 2007-05-25-closures-in-vb-part-3-scope %})
 
 Sorry for the long delay between posts here.  We're getting Orcas out the door and getting this series completed takes a back door to shipping.
 

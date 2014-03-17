@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This is another recount of an experience I had refactoring some C++ code recently.  In some ways this is also a follow up of my previous post about why you shouldn't use [boolean parameters](http://blogs.msdn.com/jaredpar/archive/2007/01/23/boolean-parameters.aspx) (especially default value ones).
+This is another recount of an experience I had refactoring some C++ code recently.  In some ways this is also a follow up of my previous post about why you shouldn't use [boolean parameters]({% post_url 2007-01-23-boolean-parameters %}) (especially default value ones).
 
 I recently refactored a large set of API's in our code base to remove a common parameter.  It was a member variable that was constantly being passed as an argument.  For many reasons we decide that this was unacceptable and it was better to use the member variable for instance methods and if needed define static methods which took the parameter as a value.
 

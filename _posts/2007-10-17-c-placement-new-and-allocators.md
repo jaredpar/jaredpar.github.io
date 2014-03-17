@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This is a follow up for my [previous post](http://blogs.msdn.com/jaredpar/archive/2007/10/16/c-new-operator-and-placement-new.aspx) about operator new and placement new.  This post will discuss the role of adding a custom allocator and using it with new.
+This is a follow up for my [previous post]({% post_url 2007-10-16-c-new-operator-and-placement-new %}) about operator new and placement new.  This post will discuss the role of adding a custom allocator and using it with new.
 
 It's handy to use custom allocators in C++.  Certain operations can be done more efficiently on a different type of allocator than the rest of your program.  It also allows you to add custom heap tracking, debugging, etc ...  C++ also makes it very easy to use.
 

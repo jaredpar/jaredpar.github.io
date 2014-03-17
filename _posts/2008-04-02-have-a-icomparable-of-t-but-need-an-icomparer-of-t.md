@@ -7,7 +7,7 @@ Doing the opposite is limiting in a few ways. The first is it locks developers i
 
 Now back to the original problem, we have a type which implements IComparable(Of T) but don't have an IComparer(Of T) wrapper class. Luckily the .Net Framework provides a solution. Comparer(Of T).Default. It provides a quick IComparer(Of T) wrapper that automatically delegates to IComparable(Of T) if the type defines it.
 
-Example usage:?? [Previously](http://blogs.msdn.com/jaredpar/archive/2008/03/31/missing-api-list-of-t-binaryinsert.aspx) we defined a BinaryInsert method for List(Of T). It required an explicit IComparer(Of T) be passed even for simple types like Int32. We can fix this by using the Comparer(Of T) class.
+Example usage: [Previously]({% post_url 2008-03-31-missing-api-list-of-t-binaryinsert %}) we defined a BinaryInsert method for List(Of T). It required an explicit IComparer(Of T) be passed even for simple types like Int32. We can fix this by using the Comparer(Of T) class.
 
     
 {% highlight vbnet %}

@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This is part 2 of a series.  You can find [part one here](http://blogs.msdn.com/jaredpar/archive/2005/07/11/437584.aspx).  Please refer to that article for all of the Native definitions of the structures that I use here.
+This is part 2 of a series.  You can find [part one here]({% post_url 2005-07-11-marshaling-nested-data-structures-part-1 %}).  Please refer to that article for all of the Native definitions of the structures that I use here.
 
 The most important thing to remember when Marshalling data is that the .Net Runtime really only cares about byte layout and how many bytes you are trying to move.  If you mangle your managed structure to match the byte size and layout of your unmanaged structure, the runtime will Marshal it sucessfully almost all of the time.  Note by successfully I mean that the method will complete without causing the dreaded AccessViolationException but the data might not be quite what you were expecting.
 

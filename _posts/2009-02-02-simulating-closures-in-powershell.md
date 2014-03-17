@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-[Previously](http://blogs.msdn.com/jaredpar/archive/2009/01/08/script-blocks-and-closures-or-lack-there-of.aspx) I blogged about PowerShell's lack of closure support within a script block. This presents a significant hurdle in developing a LINQ like DSL for powershell which I've been working on. Imagine the following syntax
+[Previously]({% post_url 2009-01-08-script-blocks-and-closures-or-lack-there-of %}) I blogged about PowerShell's lack of closure support within a script block. This presents a significant hurdle in developing a LINQ like DSL for powershell which I've been working on. Imagine the following syntax
     
     $a = from it in $source where {$it -gt 5 }
 

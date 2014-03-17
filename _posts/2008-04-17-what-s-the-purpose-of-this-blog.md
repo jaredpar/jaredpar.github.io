@@ -8,7 +8,7 @@ I realize from a readers perspective my topics may appear somewhat random.  Afte
 
   * My job as developer on the VB Debugger and IDE
   * My personal managed utility libraries (non-UI and UI) [^1]
-  * The [PInvoke Interop Assistant](http://blogs.msdn.com/jaredpar/archive/2008/03/14/making-pinvoke-easy.aspx)
+  * The [PInvoke Interop Assistant]({% post_url 2008-03-14-making-pinvoke-easy %})
   * Several internal tools 
   * My scripting environment
   * Customer reported issues in forums

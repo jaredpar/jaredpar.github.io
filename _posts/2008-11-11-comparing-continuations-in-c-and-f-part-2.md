@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-In my last post I went over the differences between using a [continuation in F# and C#](http://blogs.msdn.com/jaredpar/archive/2008/11/10/comparing-continuations-in-f-and-c.aspx).  As it turns out I was right about the limits and symptoms but wrong about the reason.
+In my last post I went over the differences between using a [continuation in F# and C#]({% post_url 2008-11-10-comparing-continuations-in-f-and-c %}).  As it turns out I was right about the limits and symptoms but wrong about the reason.
 
 The F# code does indeed generate tail calls for part of the continuation.  However this is only a very small portion of the actual code and is in fact only generated for the call in the empty case.  I misread this function to be the call for the overall continuation.  Instead it is the function for the entire 'inner' lambda.
 

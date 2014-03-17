@@ -3,7 +3,7 @@ layout: post
 ---
 This came up on an internal alias.  A customer wanted to know how to determine if there were running as an admin in a tool.  Below is a sample program that will print out whether or not you are the machine admin or a member of the machine administrators group.
 
-This is essentially the same as the code in a previous post of mine but ported to VB.  <http://blogs.msdn.com/jaredpar/archive/2005/11/07/489942.aspx>
+This is essentially the same as the code in a previous post of mine but ported to [VB]({% post_url 2005-11-07-489942 %}).
 
 {% highlight vbnet %}
 Imports System.Security.Principal

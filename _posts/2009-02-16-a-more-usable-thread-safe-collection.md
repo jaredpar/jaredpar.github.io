@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-In my last [post](http://blogs.msdn.com/jaredpar/archive/2009/02/11/why-are-thread-safe-collections-so-hard.aspx) we discussed the problems with designing a safer API for mutable thread safe collections that employ only an internal locking system.  The result was an API that was more difficult to mess up, yet pretty much unusable.  Lets take a look at this problem and see if we can come up with a usable API that still helps to eliminate mistakes.
+In my last [post]({% post_url 2009-02-11-why-are-thread-safe-collections-so-hard %}) we discussed the problems with designing a safer API for mutable thread safe collections that employ only an internal locking system.  The result was an API that was more difficult to mess up, yet pretty much unusable.  Lets take a look at this problem and see if we can come up with a usable API that still helps to eliminate mistakes.
 
 One of the main issues I have with mutable thread safe collections is the use of decision procedures such as Count and Contains.  Procedures such these only return information that pertains to the collection as it existed at a previous point in time.  It can provide no relevant information to the collection in it's current state and only encourages the user to write bad code.  For example.
 

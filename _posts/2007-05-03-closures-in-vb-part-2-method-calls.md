@@ -3,7 +3,7 @@ layout: post
 ---
 For previous articles in this series, please see
 
-  * [Part 1 - The basics](http://blogs.msdn.com/jaredpar/archive/2007/04/27/closures-in-vb-part-1.aspx)
+  * [Part 1: Introduction]({% post_url 2007-04-27-closures-in-vb-part-1 %})
 
 This part of the series will focus on how method calls are handled in closures.  As stated in the previous article, the purpose of closures is to allow all operations inside a lambda or query expression that would normally be available inside the function or sub.  To do this closures often need to capture (or lift) relevant variables from the function into the generated class.
 

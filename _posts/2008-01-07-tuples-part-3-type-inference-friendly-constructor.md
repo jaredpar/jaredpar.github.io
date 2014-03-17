@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-[Last time](http://blogs.msdn.com/jaredpar/archive/2008/01/04/tuples-part-2 -basic-structure.aspx) we were left with a constructor that required us to explicitly specify generic parameters.  This is not always easy or possible.  We'll now alter the script to generate a constructor which utilizes type inference to create a Tuple.  In addition, all tuples will use the same overloaded method making the creation uniform.
+[Last time]({% post_url 2008-01-04-tuples-part-2-basic-structure %}) we were left with a constructor that required us to explicitly specify generic parameters.  This is not always easy or possible.  We'll now alter the script to generate a constructor which utilizes type inference to create a Tuple.  In addition, all tuples will use the same overloaded method making the creation uniform.
 
 The best way to use type inference to create a generic argument is through static methods.  In C# and VB it's legal to define a non-generic class with the same name as a generic class.  I tend to create a non-generic class with a static Create method that takes advantage of type inference.  For tuples the method will look like the following.
 

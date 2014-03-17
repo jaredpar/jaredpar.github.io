@@ -6,11 +6,11 @@ In the end there are two basic types of Future implementations you can use.
   1. Futures which return no values 
   2. Futures which return a value 
 
-The rest of the behavior and shape of the Future is the same and screams for a pattern of sorts. I've found the best way to implement this behavior is through an inheritance pattern. The base class is name of course Future.  It's purpose is to provide a common way in which to schedule the invocation of a delegate, [handle exceptions](http://blogs.msdn.com/jaredpar/archive/2008/02/11/dealing-with-exceptions-in-a-future.aspx), wait for the completion of such delegate and enforce certain contracts such as not running the future more than once.
+The rest of the behavior and shape of the Future is the same and screams for a pattern of sorts. I've found the best way to implement this behavior is through an inheritance pattern. The base class is name of course Future.  It's purpose is to provide a common way in which to schedule the invocation of a delegate, [handle exceptions]({% post_url 2008-02-11-dealing-with-exceptions-in-a-future %}), wait for the completion of such delegate and enforce certain contracts such as not running the future more than once.
 
 At the core it only needs a few members.
 
-  1. [ActiveOperation](http://blogs.msdn.com/jaredpar/archive/2008/02/04/the-first-part-of-building-a-future-is-waiting.aspx) m_operation which is used to implement the waiting portion 
+  1. [ActiveOperation]({% post_url 2008-02-04-the-first-part-of-building-a-future-is-waiting %}) m_operation which is used to implement the waiting portion 
   2. int m_run used to ensure a future is not run twice 
   3. Exception m_error to record any exceptions thrown by running the delegate 
     

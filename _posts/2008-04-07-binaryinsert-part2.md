@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-[Previously](http://blogs.msdn.com/jaredpar/archive/2008/03/31/missing-api-list-of-t-binaryinsert.aspx) I discussed a potential missing API in List(Of T).BinaryInsert.  One of the items I mentioned was it had better performance because it was O(Log N) vs Insert and Sort which is O(NLogN).  Several users correctly pointed out this was incorrect and that Insert() had the additional overhead of an Array.Copy() which is O(N)ish.  But most agreed O(N) + O(LogN) was better than O(NLogN).
+[Previously]({% post_url 2008-03-31-missing-api-list-of-t-binaryinsert %}) I discussed a potential missing API in List(Of T).BinaryInsert.  One of the items I mentioned was it had better performance because it was O(Log N) vs Insert and Sort which is O(NLogN).  Several users correctly pointed out this was incorrect and that Insert() had the additional overhead of an Array.Copy() which is O(N)ish.  But most agreed O(N) + O(LogN) was better than O(NLogN).
 
 Given that I already missed a key portion, I decided to write a test program to try out the various methods.  Caveat: I'm not a performance guy.  While I find performance intriguing and interesting it is by no means my specialty.  Any single performance test is unlikely to capture all real world scenarios.  However I did find the results a bit surprising.  At the bottom of the post is the test code I wrote.
 

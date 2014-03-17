@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-Quite awhile back I posted about how to create a re-usable singleton pattern in .Net.  Link is [here](http://blogs.msdn.com/jaredpar/archive/2004/11/24/269133.aspx).  A bit of time has passed and I've altered the pattern a bit.  The reasons for the change are some new type inference patterns and FxCop cleanliness.  
+Quite awhile back I posted about how to create a re-usable singleton pattern in .Net.  Link is [here]({% post_url 2004-11-24-singleton-pattern %}).  A bit of time has passed and I've altered the pattern a bit.  The reasons for the change are some new type inference patterns and FxCop cleanliness.  
 
 The first pattern I introduced had a couple of FxCop violations.  Namely Microsoft.Design CA1000 - Do not declare static members on generic types.  The logic here being that static methods don't have any type inference benefits as you must explicitly add the type into the name of the type you were using (in this case Singleton).
 

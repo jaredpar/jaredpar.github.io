@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-[Previously](http://blogs.msdn.com/jaredpar/archive/2008/04/02/have-a-icomparable-of-t-but-need-an-icomparer-of-t.aspx) we discussed the opposite problem. This is a lesser but often more frustrating problem because there is no, AFAIK, built in solution for the BCL. However it's problem that can be solved once and reused with a generic solution. IComparable<T> has all of the methods necessary implement IComparer<T>.
+[Previously]({% post_url 2008-04-02-have-a-icomparable-of-t-but-need-an-icomparer-of-t %}) we discussed the opposite problem. This is a lesser but often more frustrating problem because there is no, AFAIK, built in solution for the BCL. However it's problem that can be solved once and reused with a generic solution. IComparable<T> has all of the methods necessary implement IComparer<T>.
 
 To work around this we'll create a new class that can wrap both a value and an instance of IComparable(Of T). Lets call it ComparerNode<T>. This class can be used wherever an IComparable<T> is needed.
 

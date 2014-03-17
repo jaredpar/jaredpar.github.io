@@ -3,11 +3,11 @@ layout: post
 ---
 For previous articles in this series please see ...
 
-  * [Part 1: Introduction](http://blogs.msdn.com/jaredpar/archive/2007/04/27/closures-in-vb-part-1.aspx)
-  * [Part 2: Method Calls](http://blogs.msdn.com/jaredpar/archive/2007/05/03/closures-in-vb-part-2-method-calls.aspx)
-  * [Part 3: Scope](http://blogs.msdn.com/jaredpar/archive/2007/05/25/closures-in-vb-part-3-scope.aspx)
-  * [Part 4: Variable Lifetime](http://blogs.msdn.com/jaredpar/archive/2007/06/15/closures-in-vb-part-4-variable-lifetime.aspx)
-  * [Part 5: Looping](http://blogs.msdn.com/jaredpar/archive/2007/07/26/closures-in-vb-part-5-looping.aspx)
+  * [Part 1: Introduction]({% post_url 2007-04-27-closures-in-vb-part-1 %})
+  * [Part 2: Method Calls]({% post_url 2007-05-03-closures-in-vb-part-2-method-calls %})
+  * [Part 3: Scope]({% post_url 2007-05-25-closures-in-vb-part-3-scope %})
+  * [Part 4: Variable Lifetime]({% post_url 2007-06-15-closures-in-vb-part-4-variable-lifetime %})
+  * [Part 5: Looping]({% post_url 2007-07-26-closures-in-vb-part-5-looping %})
 
 As powerful as closures are in the language they do have a few limitations.  We worked hard in Orcas to put as few limitations in Orcas as possible.  Below are the current limitations and some insight into why they exist this way.
 

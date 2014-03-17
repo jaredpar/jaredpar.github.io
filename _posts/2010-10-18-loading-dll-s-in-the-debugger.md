@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-In a [recent post](http://blogs.msdn.com/b/jaredpar/archive/2010/07/22/extension-methods-and-the-debugger.aspx) I discussed the apparent flakiness of extension methods and the debugger being a result of whether or not the DLL containing the extension methods were loaded into the debugee process.  Several users asked in the comment section why we didn't _fix_ the issue by just loading those DLL's when an extension method was executed.
+In a [recent post]({% post_url 2010-07-22-extension-methods-and-the-debugger %}) I discussed the apparent flakiness of extension methods and the debugger being a result of whether or not the DLL containing the extension methods were loaded into the debugee process.  Several users asked in the comment section why we didn't _fix_ the issue by just loading those DLL's when an extension method was executed.
 
 On the surface this seems like a reasonable request. After all the compiler knows what DLLs were involved in the compilation process and hence which extension methods were available from those DLLs. This information could be added to the PDB and used by the debugger to load the DLL when the extension method was requested. Right?
 

@@ -3,8 +3,8 @@ layout: post
 ---
 For previous articles in this series please see
 
-  * [Part 1: Introduction](http://blogs.msdn.com/jaredpar/archive/2007/04/27/closures-in-vb-part-1.aspx)
-  * [Part 2: Method Calls](http://blogs.msdn.com/jaredpar/archive/2007/05/03/closures-in-vb-part-2-method-calls.aspx)
+  * [Part 1: Introduction]({% post_url 2007-04-27-closures-in-vb-part-1 %})
+  * [Part 2: Method Calls]({% post_url 2007-05-03-closures-in-vb-part-2-method-calls %})
 
 Thus far in the series we've only lifted variables that are declared in the same block/scope. What happens if we lift variables in different scope?  The answer is that one closure class will be created for every unique scope where a lifted variable is declared and all of the variables in that scope that are lifted will be placed in that closure.  Once again, examples speak best
 

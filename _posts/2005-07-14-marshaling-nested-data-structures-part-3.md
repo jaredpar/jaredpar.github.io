@@ -1,7 +1,7 @@
 ---
 layout: post
 ---
-This is part 3 of a series.  You can find **[part one here**](http://blogs.msdn.com/jaredpar/archive/2005/07/11/437584.aspx).  Please refer to that article for all of the Native definitions of the structures that I use here.
+This is part 3 of a series.  You can find [part one here]({% post_url 2005-07-11-marshaling-nested-data-structures-part-1 %}).  Please refer to that article for all of the Native definitions of the structures that I use here.
 
 In part 2 of this series I demonstrated how you can Marshal nested data structures by flattening an array of structures into it's individual elements.  Using this is very awkward and is only practical when the size of your array is small.  This installment will get around these limitations with a bit of Marshalling help.  We'll get back indexing and remove the awkward flattening.
 
