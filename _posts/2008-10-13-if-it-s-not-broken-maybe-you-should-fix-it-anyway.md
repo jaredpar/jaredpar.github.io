@@ -1,5 +1,6 @@
 ---
 layout: post
+title: If it's not broken maybe you should fix it anyway
 ---
 I know this is goes against conventional wisdom but it's something I believe in. Every sufficiently large project has that section of code nobody wants to go near. The mere mention of it causes people to leave the room. It usually has a couple of properties
 
