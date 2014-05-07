@@ -1,0 +1,27 @@
+---
+layout: post
+title: Round Trippable VSIX Templates
+---
+A short time ago I [wrote a post]({% post_url 2013-12-04-round-tripping-a-vsix-project %}) about how to turn a standard VSIX project into one which could be round tripped into any version of Visual Studio.  This set of changes also fixed other issues like debugging + SCC, assembly binding, etc ...  I got a lot of positive feedback and nice links to projects that developers upgraded as a result of my post. 
+
+This is working great for developers with existing projects but still amounts to extra boring work for developers creating new VSIX projects.  They either have to 
+
+1. Copy the [RoundTripVSIX Source](https://github.com/jaredpar/RoundTripVSIX) locally and do a bunch of renaming 
+2. Create a new VSIX project and mirror the exact edits listed in the post 
+
+A much better solution would be for me to publish new VSIX project templates that are round trippable out of the box.  With that developers can just do the normal File -> New Project -> Round Trip VSIX and be up and running immediately.  
+
+The [Side Waffle](http://sidewaffle.com/) project has the 
+
+
+
+While this was working great for developers with existing projects I realized I could do more for developers creating new VSIX projects.  I  
+
+
+I realized there was a better way to help developers creating new VSIX projects from scratch: publish the completed project as a tepmalet 
+
+http://visualstudiogallery.msdn.microsoft.com/8bdcdbea-5d10-4a77-adaa-7d8ac6fcd9f8?SRC=Home
+
+
+
+[](https://www.youtube.com/watch?v=z33jOo75CH4&list=HL1399060248)
