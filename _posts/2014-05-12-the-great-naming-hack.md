@@ -6,7 +6,7 @@ Inheritting a legacy code base is a right of passage for developers.  This is th
 
 My first experience with this was transitioning to the languages team in Visual Studio back in 2006.  The C++ code base I inheritted was mostly written from 1998 onwards but had significant portions which were much, much older.  There were no enforced standards at the time hence developers checked in whatever style or practice they wished
 
-As you can imagine that kind of environment creates quite a few humorous gems over time.  Even after years of working there we'd still find new ones every few weeks.  The one that will always stick with me though is *the great naming hack*.  It is best exemplified by this sample [^1]
+As you can imagine that kind of environment creates quite a few humorous gems over time.  Even after years of working there we'd still find new ones every few weeks.  The one that will always stick with me though is *the great naming hack*.  It is best exemplified by this sample
 
 {% highlight c++ %}
 struct SymbolNode : ExprNode
@@ -41,4 +41,3 @@ The result is pretty much the chaos you are probably envisioning right naw.  Man
 
 Unlike many legacy code stories though this one has a happy ending.  After learning the history of this *construct* the team quickly decided to abolish it.  We took a vote, decided against hungarian notation and spent the time necessary to delete the unions from the shared data structures.  
 
-[^1] Slightly modified to make it easier to spot
