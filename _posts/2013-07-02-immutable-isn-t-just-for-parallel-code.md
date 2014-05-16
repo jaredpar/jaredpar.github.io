@@ -69,8 +69,4 @@ This is just a small sample of cases where immutable collections are useful in d
 
 Generally speaking the answer to this is no.  And this is why you should be using immutable types.
 
-[^1]: If you dig deep into the implementation you'll find it's actually a fresh
-array of RuntimeModule[].  So even though they allocate a new array on every
-call you can't safely write Module instances into it unless they happen to be
-instances of RuntimeModule.  So wasteful!
-
+[^1]: If you dig deep into the implementation you'll find it's actually a fresh array of RuntimeModule[].  So even though they allocate a new array on every call you can't safely write Module instances into it unless they happen to be instances of RuntimeModule.  So wasteful!  

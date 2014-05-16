@@ -2,7 +2,7 @@
 layout: post
 title: The Great Naming Hack
 ---
-Inheritting a legacy code base is a right of passage for developers.  This is the event which takes you from the mentality of clean, documented, tested code you wrote during university into the ugly real world of compromises.  It is very much a ["how the sausage is made"](http://quoteinvestigator.com/2010/07/08/laws-sausages/#more-905) moment
+Inheritting a legacy code base is a rite of passage for developers.  This is the event which takes you from the mentality of clean, documented, tested code you wrote during university into the ugly real world of compromises.  It is very much a ["how the sausage is made"](http://quoteinvestigator.com/2010/07/08/laws-sausages/#more-905) moment
 
 My first experience with this was transitioning to the languages team in Visual Studio back in 2006.  The C++ code base I inheritted was mostly written from 1998 onwards but had significant portions which were much, much older.  There were no enforced standards at the time hence developers checked in whatever style or practice they wished
 
