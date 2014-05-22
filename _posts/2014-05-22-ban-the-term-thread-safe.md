@@ -1,7 +1,6 @@
 ---
 layout: post
-title: We should ban the phrase
-published: true
+title: We should ban the phrase "thread safe"
 ---
 
 There few are phrases in programming that make me shudder more than 
