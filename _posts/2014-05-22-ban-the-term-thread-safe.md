@@ -71,7 +71,7 @@ Not Even Read Safe
 ===
 The ability to safely read from a type on multiple threads depends on the read operations either a) being non-mutating or b) having internal, and potentially costly, synchronization around the mutations.  Types which do neither of these simply can't be accessed in this manner.  
 
-This may seem rather strange but it's actually something the majority of C# users consume every day: LINQ queries.  An IEnumerable<T> produced from a LINQ query aren't actually evualuated until they are read from.  Queries like [Distinct](http://msdn.microsoft.com/en-us/library/vstudio/bb348436(v=vs.100).aspx) must use a table in order to filter out previously returned values.  Hence every read operation is reading from and potentially writing to the table.  This mutation disqualifies it from being succesful queried from multiple threads 
+This may seem rather strange but it's actually something the majority of C# users consume every day: LINQ queries.  An IEnumerable<T> produced from a LINQ query aren't actually evualuated until they are read from.  Queries like Distinct must use a table in order to filter out previously returned values.  Hence every read operation is reading from and potentially writing to the table.  This mutation disqualifies it from being succesful queried from multiple threads 
 
 Less well known but particularily interesing are types like [Splay Trees](http://en.wikipedia.org/wiki/Splay_tree).  This binary search tree which optimizes lookups for recently accessed nodes.  It does this by mutating the tree to push recently accessed nodes closer to the root on read operations (mutation on read).  
 
@@ -85,4 +85,4 @@ This wide variety of scenarios is why the term *thread safe* simply needs to be 
 
 Don't ever let another program get away with saying *thread safe*.  Call out this ambiguous description of a type and ask them to enumerate the specific threading scenarios for the type.  And most importantly, once they enumerate the details make sure it is documented in the type itself and not just an email.
 
-[1^]: For the curious I already covered this problem in detail in a [previous post]({% post_url 2009-02-11-why-are-thread-safe-collections-so-hard %}) 
+[^1]: For the curious I already covered this problem in detail in a [previous post]({% post_url 2009-02-11-why-are-thread-safe-collections-so-hard %}) 
