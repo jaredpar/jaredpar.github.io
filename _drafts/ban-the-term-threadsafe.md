@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "We should ban the phrase "
+title: We should ban the phrase
 published: true
 ---
 
@@ -8,11 +8,13 @@ There few are phrases in programming that make me shudder more than
 
 > This type is thread safe
 
-Reading this phrase is like hearing nails on a chalk board.  I often physically cringe as a result. 
+Reading this phrase is like hearing nails on a chalk board.  It often makes me physically cringe. 
 
 The phrase *thread safe* makes it sound like thread safety is on / off property of a type.  Nothing could be further from the truth.  There is a wide variety of multi-threaded usage scenarios for types that simply cannot be decribed in a binary fashion.  
 
-A much better way to describe the thread safety of a type is to enumerate the scenarios in which the type can and can't be used.  Giving users concrete information on how the type will behave in specific circumstances gives them a much better chance of correctly using the type in their own programs.  Once the scenarios are enumerated you'll often find these types fall into exitsing well known patterns which the user is more likely to have experience with.  
+A much better way to describe the thread safety of a type is to enumerate the scenarios in which the type can or can't be used.  Giving users concrete information on how the type will behave in specific circumstances gives them a much better chance of correctly using the type in their own programs.  
+
+Even better once the scenarios are enumerated you'll often find these types fall into exitsing well known patterns which the user is more likely to have experience with.  This gives them a much better chance of succesfully using the type    
 
 Here is a non-exhausting sampling of the most common multithreaded patterns I  encounter.  
 
@@ -68,13 +70,11 @@ Lucikly Winform types are one of the few types that enforce their thread safety 
 
 Not Even Read Safe 
 ===
+The ability to safely read from a type on multiple threads depends on the read operations either a) being non-mutating or b) having internal, and potentially costly, synchronization around the mutations.  Types which do neither of these simply can't be accessed in this manner.  
 
+This type may seem rather strange but it's actually something the majority of C# users consume every day: LINQ queries.  These aren't actually evualuated until they are read from.  Queries like [Distinct](http://msdn.microsoft.com/en-us/library/vstudio/bb348436(v=vs.100).aspx) must use a table in order to filter out previously returned values.  This means the act of reading such a query is fundamentally mutating the underyling collection and isn't safe from multiple threads. 
 
-Splay Trees
-
-External Synchronization
-===
-Most dangerous form 
+Less well known but particularily interesing are [Splay Trees](http://en.wikipedia.org/wiki/Splay_tree).  This binary search tree which optimizes lookups for recently accessed nodes.  It does this by mutating the tree to push recently accessed nodes closer to the root on read operations (mutation on read).  
 
 Immutable Types
 ===
