@@ -17,9 +17,9 @@ That last dependency is usually a killer.  Who can really afford [^1] to put a f
 
 Fortunately this is a problem that AppVeyor had already [run across](http://help.appveyor.com/discussions/questions/193-visual-studio-sdk).  Their solution was simple: forgot the SDK installer, just xcopy deploy the necessary SDK bits to get VSIX builds working.  It's simple, brute force and most importantly, it works!  Well almost, there is one small change that needs to be made to the projects: deployment on build must be disabled.  The AppVeyor setup simply doesn't support this.  Turning this off requires only a one line change to the csproj.
 
-```
+{% highlight xml %}
 <DeployExtension Condition=" '$(AppVeyor)' != '' ">False</DeployExtension>
-```
+{% endhighlight %}
 
 Once I made that small change my builds were up and running.  Literally nothing else had to change.  Pretty sweet.  
 
@@ -28,12 +28,12 @@ Visual Studio is still a 32 bit application.  This dependency extends even into 
 
 All of my tests are written in xunit and right now AppVeyor only has support for running the 64 bit version.  This was causing all of my unit tests to fail out of the box.  Working around this is easy enough though.  Just check in a copy of the x86 xunit runner to your repository and change the [appveyor.xml](https://github.com/jaredpar/VsVim/blob/master/appveyor.yml) file to manually invoke the tests.  
 
-```
+{% highlight yaml %}
 test_script:
   - Tools\xunit.console.clr4.x86.exe Test\VimCoreTest\bin\Debug\Vim.Core.UnitTest.dll /silent
   - Tools\xunit.console.clr4.x86.exe Test\VimWpfTest\bin\Debug\Vim.UI.Wpf.UnitTest.dll /silent
   - Tools\xunit.console.clr4.x86.exe Test\VsVimSharedTest\bin\Debug\VsVim.Shared.UnitTest.dll /silent
-```
+{% endhighlight %}
 
 I alerted AppVeyor to this problem and are [looking into it](http://help.appveyor.com/discussions/questions/311-x86-version-of-xunit).
 
