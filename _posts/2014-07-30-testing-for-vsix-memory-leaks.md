@@ -26,18 +26,18 @@ Testing for a memory leak is actually rather straight forward:
 
 To apply this pattern to a VSIX project it means creating instances of `ITextView`.  The only realistic way to do this is to create a MEF container which has both the Visual Studio WPF editor and the necessary parts of your extension.  Doing this by hand is [rather tricky](https://github.com/jaredpar/EditorUtils/blob/master/Src/EditorUtils/EditorHostFactory.cs).  A much easier way is to leverage the [EditorUtils](https://github.com/jaredpar/EditorUtils) project.  It is available on NuGet and has APIs for doing exactly this.  
 
-```csharp
+{% highlight csharp %}
 using EditorUtils;
 ...
 var editorFactory = new EditorHostFactory();
 editorFactory.Add(new AssemblyCatalog(typeof(MyExtension).Assembly));
 var editorHost = editorFactory.CreateEditorHost();
 var textView = editorHost.TextEditorFactory.CreateTextView();
-```
+{% endhighlight %}
 
 The `EditorHostFactory` type is responsible for creating the MEF container.  The `editorFactory.Add` line is simply inserting the assembly of VSIX extension being tested into the container.  The resulting `EditorHost` instance wraps a MEF container with both the VS editor and the targetted extension.  Now extension elements will be created exactly as they are when running in Visual Studio.  This makes writing tests extremely easy.  
 
-``` csharp
+{% highlight csharp %}
 [Fact]
 public void Scenario()
 {
@@ -45,7 +45,7 @@ public void Scenario()
   textView.TextBuffer.Insert(0, "hello world");
   textView.Close();
 }
-```
+{% endhighlight %}
 
 The `Insert` line naturally needs to be replaced with some code which excercises your extension.  Also this is relying on the test being within the larger test template outlined below.  The first reaction you may have when looking at this template is:
 
@@ -58,7 +58,7 @@ Overall this may seem like an onerous process to go through.  But let me assure 
 The test template 
 
 
-``` csharp
+{% highlight csharp %}
 public class MemoryLeakTest : IDisposable
 {
     readonly EditorHost m_editorHost;
@@ -118,4 +118,4 @@ public class MemoryLeakTest : IDisposable
     }
 }
 
-```
+{% endhighlight %}
