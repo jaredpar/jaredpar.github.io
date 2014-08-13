@@ -6,12 +6,11 @@ title: Rethinking IEnumerable<T>
 The .Net enumeration story based on `IEnumerable<T>` is a very succesful pattern.  It's the backbone of many different language and framework features including `foreach`, LINQ, iterators, etc ...  And yet when switching between C++ and C# and I'm often frustrated by its inefficiencs and quirks: 
 
 1. Accessing a single value requires 2 interface invocations: MoveNext and Current.  Why isn't this just a single method call in the form of TryGetNext? 
-2. It forces the allocation of a `IEnumerable<T>` even when the enumerator could be implemented as a `struct`.  Allocations in .Net are cheap not free and it's frustrating to have one on such a core path. 
-3. The legacy of pre-generics .Net forces type safe collections to still implement the non-generic `IEnumerable`, `IEnumerator` and `IDisposable`.  I can't remember the last time I actually used one of these. 
+2. It forces the allocation of a `IEnumerable<T>` value on the heap even when the enumerator could be implemented as a `struct`.  Allocations in .Net are cheap not free and it's frustrating to have one on such a core path. 
+3. The legacy of pre-generics .Net forces type safe collections to eventually implement the non-generic `IEnumerable`, `IEnumerator` and even `IDisposable`.  I can't remember the last time I actually used one of these.  
 4. Many collections, like `List<T>`, implement pattern based enumeration in part to avoid the above inefficiencies [^1]. This is more code to write, test and maintain yet really doesn't add any new features.  At the same time it also complicates the ability of the developers to understand the mechanisms behind a given `foreach` block.  
 
-
-Recently as an experiment I decided to sit down and explore a new design for `IEnumerable<T>` to address these issues and came up with the following: 
+Recently as an experiment I decided to sit down and explore a new design for `IEnumerable<T>` to address these issues: 
 
 ``` csharp
 public interface IEnumerable<TElement, TEnumerator>
@@ -70,6 +69,9 @@ void M<TElement, TEnumerator>(IEnumerable<TElement, TEnumerator> enumerable)
 The enumeration pattern for `MyList<T>` will now be consistent no matter the context in which it is enumerated: through `MyList<T>` or `IEnumerable<T>`.  The enumerator type will now always be an `int` and it will always execute the same code path.  
 
 
+As promised before, this is what the `MyList<T>` implementation of .Net `IEnumerable<T>` would look like.  
+
+``` csharp
 // Old Enumeration Pattern 
 class MyList<T> : IEnumerable<T>
 {
