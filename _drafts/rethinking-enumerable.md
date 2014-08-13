@@ -3,12 +3,12 @@ layout: post
 title: Rethinking IEnumerable<T> 
 ---
 
-The `foreach / IEnumerable<T>` pattern in C# is very succesful.  But when switching between C++ and C# I'm often frustrated by the inefficiencs and quirks of `IEnumerable<T>`: 
+The .Net enumeration story based on `IEnumerable<T>` is a very succesful pattern.  It's the backbone of many different language and framework features including `foreach`, LINQ, iterators, etc ...  And yet when switching between C++ and C# and I'm often frustrated by its inefficiencs and quirks: 
 
-1. Accessing a single value requires 2 interface invocations: MoveNext and Current.  Why isn't this just combined into a single TryGet call?  
+1. Accessing a single value requires 2 interface invocations: MoveNext and Current.  Why isn't this just a single method call in the form of TryGetNext? 
 2. It forces the allocation of a `IEnumerable<T>` even when the enumerator could be implemented as a `struct`.  Allocations in .Net are cheap but not free and it's frustrating to have on on such a core path. 
-3. Many collections, like `List<T>`, implement pattern based enumeration to avoid the inefficiencies of #1 and #2 [^1]. This is yet another code path to test and maintain.  
-4. The legacy of pre-generics .Net forces type safe collections to still implement the non-generic `IEnumerable`, `IEnumerator` and `IDisposable` 
+3. Many collections, like `List<T>`, implement pattern based enumeration in part to avoid the inefficiencies of #1 and #2 [^1]. This is more code to write, test and maintain yet really doesn't add any new features. 
+4. The legacy of pre-generics .Net forces type safe collections to still implement the non-generic `IEnumerable`, `IEnumerator` and `IDisposable`.  I can't remember the last time I actually used one of these. 
 
 
 
