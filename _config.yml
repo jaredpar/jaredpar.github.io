@@ -1,4 +1,4 @@
-markdown: redcarpet
+markdown: kramdown
 pygments: true
 permalink: date
 name: Jared Parsons
@@ -9,3 +9,5 @@ title: Paranoid Coding
 github_username: jaredpar
 gravatar_url: http://www.gravatar.com/avatar/529ba429a58902bef56c2fcb672d5ccb
 
+kramdown:
+    input: GFM
