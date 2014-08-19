@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Return Values vs. Exceptions: They Both Suck 
+title: Return Values vs. Exceptions, They Both Suck 
 ---
 
 Outside of the overall architecture of the program errors are simply the most interesting thing about the code.  Programs can fail in the most s
