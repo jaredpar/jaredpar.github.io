@@ -11,14 +11,17 @@ author:
     email: jaredpparsons@gmail.com
     github: jaredpar
     twitter: jaredpar
+    email_md5: 529ba429a58902bef56c2fcb672d5ccb
 
 title: Paranoid Coding
-rss_path: atom.xml
 
 paginate: 5
 
+rss_path: atom.xml
 categories_path: categories.html
 tags_path: tags.html
 
 redcarpet:
     extensions: [footnotes]
+
+BASE_PATH:
