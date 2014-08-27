@@ -4,10 +4,21 @@ permalink: date
 name: Jared Parsons
 url: http://blog.paranoidcoding.com
 description: Rantings of a Programmer
-twitter: jaredpar
-title: Paranoid Coding
-github_username: jaredpar
 gravatar_url: http://www.gravatar.com/avatar/529ba429a58902bef56c2fcb672d5ccb
+
+author:
+    name: jaredpar
+    email: jaredpparsons@gmail.com
+    github: jaredpar
+    twitter: jaredpar
+
+title: Paranoid Coding
+rss_path: atom.xml
+
+paginate: 5
+
+categories_path: categories.html
+tags_path: tags.html
 
 redcarpet:
     extensions: [footnotes]
