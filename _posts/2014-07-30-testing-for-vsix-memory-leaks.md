@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Testing for VSIX Memory Leaks
-categories: vsix 
+tags: vsix 
 ---
 
 A common bug in VSIX projects is to hold onto an `ITextView` instance long after it has been [closed](http://msdn.microsoft.com/en-us/library/microsoft.visualstudio.text.editor.itextview.close.aspx).  This is problematic because it ends up preventing a large number of resources from being collected including the `ITextBuffer`, language service elements, WPF items, other extension objects, etc ...  In short it is a substantial memory leak.  

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Deploying a VSIX Project to AppVeyor
-published: true
+tags: vsix
 ---
 
 As usual [Scott Hanselman](http://www.hanselman.com/) wrote a [blog post](http://www.hanselman.com/blog/AppVeyorAGoodContinuousIntegrationSystemIsAJoyToBehold.aspx) that got me super excited about a new piece of software: [AppVeyor](www.appveyor.com).  A continuous integration system which had built in integration with github.  I couldn't wait to try it out on a few projects.

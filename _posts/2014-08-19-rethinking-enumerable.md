@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Rethinking IEnumerable<T> 
+tags: framework
 ---
 
 The .Net enumeration story based on `IEnumerable<T>` is a very succesful pattern.  It's the backbone of many different language and framework features including `foreach`, LINQ, iterators, etc ...  And yet when switching between C++ and C# and I'm often frustrated by its inefficiencs and quirks: 

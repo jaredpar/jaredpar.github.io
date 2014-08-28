@@ -1,6 +1,7 @@
 ---
 layout: post
 title: The Great Naming Hack
+tags: fun
 ---
 Inheritting a legacy code base is a rite of passage for developers.  This is the event which takes you from the mentality of clean, documented, tested code you wrote during university into the ugly real world of compromises.  It is very much a ["how the sausage is made"](http://quoteinvestigator.com/2010/07/08/laws-sausages/#more-905) moment
 
