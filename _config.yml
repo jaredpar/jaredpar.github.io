@@ -22,6 +22,7 @@ paginate_path: "page:num"
 rss_path: atom.xml
 categories_path: categories.html
 tags_path: tags.html
+about_path: about.html
 
 redcarpet:
     extensions: [footnotes]
