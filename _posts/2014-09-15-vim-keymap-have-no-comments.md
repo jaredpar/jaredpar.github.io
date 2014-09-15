@@ -14,7 +14,7 @@ Usually I'm a big fan of comments, even in script files, if they add appropriate
 
 > It is not possible to put a comment after these commands, because the '"' character is considered to be part of the {lhs} or {rhs}.
 
-This means "shorter shift command" isn't a comment but in practice it appears to act like one.  It doesn't seem to have any effect on the key mapping.  The `>` key will now behave (virtually) identical to `>>`.  
+This means "shorter shift command" isn't a comment but in practice it appears to act like one.  The `>` key will now behave (virtually) identical to `>>`.  It doesn't seem to have any effect on the key mapping. 
 
 So if this isn't a comment why is it acting like one?  The reason is buried inside the same [help page](http://vimdoc.sourceforge.net/htmldoc/map.html#map_return):
 
@@ -31,4 +31,4 @@ The correct way to add comments to a key mapping is to put them on a separate li
 :nmap > >>
 ```
 
-
+Note: Earlier I mentioned that in the stated key mapping `>` behaved virtually identical to `>>`.  In actuality it behaves like `>><Space>`.  The space following `>>` is mapped and executed as the space motion (one column right)
