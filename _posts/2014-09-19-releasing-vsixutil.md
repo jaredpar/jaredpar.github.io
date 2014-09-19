@@ -22,7 +22,7 @@ This lead me to develop a simple command line application: [VsixUtil](https://gi
 - Uninstall: `vsixutil [/rootSuffix name] /uninstall identifier`
 - List installed: `vsixutil [/rootSuffix name] /list [filter]`
 
-A version of this tool has been the heart of my [https://github.com/jaredpa/VsVim](VsVim) dogfooding scripts for some time now.  Recently I decided to make it more general use to support my increased dogfooding habbits and now it is ready to be shared with others.  
+A version of this tool has been the heart of my [VsVim](https://github.com/jaredpa/VsVim) dogfooding scripts for some time now.  Recently I decided to make it more general use to support my increased dogfooding habbits and now it is ready to be shared with others.  
 
 Happy Dogfooding! 
 
