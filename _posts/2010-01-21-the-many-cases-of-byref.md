@@ -6,7 +6,7 @@ One of the overlooked or simply misunderstood features of the VB language is cal
 This article will explore these different mechanisms. In order to reduce the code samples, I will be using the following 2 methods to explain the different mechanisms of ByRef Passing
 
     
-{% highlight vbnet %}
+``` vb.net
 Sub FunctionWithInt(ByRef p1 As Integer)
     p1 = 42
 End Sub
@@ -15,7 +15,7 @@ End Sub
 Sub FunctionWithObject(ByRef p1 As Object, ByVal p2 As Object)
     p1 = p2
 End Sub
-{% endhighlight %}
+```
 
 **CLR ByRef**
 
@@ -39,7 +39,7 @@ VB removes this inconsistency and allows properties to be passed by reference.  
 
 For example, take the following code sample
 
-{% highlight vbnet %}
+``` vb.net
 Class C1
     Public Property P1 As Integer
     Public P2 As Integer
@@ -48,18 +48,18 @@ Sub CopyBackByRef()
     Dim v1 = New C1
     FunctionWithInt(v1.P1)
 End Sub
-{% endhighlight %}
+```
 
 This will result in essentially the following code being generated
 
-{% highlight vbnet %}
+``` vb.net
 Sub CopyBackByRef_Explained()
     Dim v1 = New C1
     Dim vbTemp = v1.P1
     FunctionWithInt(vbTemp)
     v1.P1 = vbTemp
 End Sub
-{% endhighlight %}
+```
 
 This type of ByRef passing is used in the following 2 scenarios
 
@@ -72,22 +72,20 @@ The first can be done with even the strictest Option settings. However #2 can on
 
 So far we've only looked at scenarios where the user wants to actually see the value returned from the ByRef parameter. There are many scenarios where the language can infer the user does not care about the return value of the function. For example, what if I just want to pass a constant value?  
     
-{% highlight vbnet %}
-        Sub DontCopyBackByRef()
-            FunctionWithInt(42)
-        End Sub
-{% endhighlight %}
-
+``` vb.net
+Sub DontCopyBackByRef()
+    FunctionWithInt(42)
+End Sub
+```
 
 This code is legal in VB and represents another method of passing by ref.  This is very similar to the copy back method of passing by reference. The only difference is that it never copies the value back. It essentially generates the following code
-
     
-{% highlight vbnet %}
+``` vb.net
 Sub DontCopyBackByRef_Explained()
     Dim vbTemp = 42
     FunctionWithInt(vbTemp)
 End Sub
-{% endhighlight %}
+```
 
 This type of ByRef is used in any scenario where the value being passed cannot
 be assigned to. For example
@@ -104,13 +102,13 @@ determination about what direction the data needs to move in. What about late
 binding?
 
     
-{% highlight vbnet %}
+``` vb.net
 Sub MaybeCopyBackByRef()
     Dim v1 As Object = Me
     Dim v2 = 13
     v1.FunctionWithInt(v2)
 End Sub
-{% endhighlight %}
+```
 
 Here v1 is typed to object and hence FunctionWithInt is being accessed via late binding. In this case the compiler doesn't know the actual method being invoked runtime. Hence it cannot know up front if the parameters are ByRef or ByVal and cannot make an up front decision on the variable passing mechanism.
 
@@ -119,7 +117,7 @@ In order to make late binding invokes flow as smoothly as normal method invokes,
 The resulting code looks a bit like this. You can ignore all of the Nothing values as they are not important for this discussion.
 
     
-{% highlight vbnet %}
+``` vb.net
 Sub MaybeCopyBackByRef_Explained()
     Dim v1 As Object = Me
     Dim v2 = 13
@@ -130,7 +128,7 @@ Sub MaybeCopyBackByRef_Explained()
         v2 = CInt(parameters(0))
     End If
 End Sub
-{% endhighlight %}
+```
 
-[^1]: Starting with version 4.0, C# now supports two versions of reference passing. In addition to the one available since 1.0 the ref modifier is now optional when making an interop call to a COM object: <http://mutelight.org/articles/new-features-in-c-sharp-4.html>
+[^1]: Starting with version 4.0, C# now supports two versions of reference passing. In addition to the one available since 1.0 the ref modifier is now optional when making an interop call to a COM object: <http://blogs.msdn.com/b/samng/archive/2009/06/16/com-interop-in-c-4-0.aspx>
 
