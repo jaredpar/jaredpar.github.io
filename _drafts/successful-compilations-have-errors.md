@@ -3,8 +3,6 @@ layout: post
 title: Successful Compilations Can Have Errors
 ---
 
-The last few years I've been working on a research language used by a lot of high quality developers
-
 Errors are the way compilers attempt to communicate proper language syntax and semantics to users.  Languages are complex and getting an error message that perfectly conveys the problem is tricky, especially when guessing problems like overload resolution come into play.  
 
 Bad errors ocassionally lead to exchanges like following 
