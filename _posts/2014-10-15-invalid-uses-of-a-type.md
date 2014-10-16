@@ -12,7 +12,7 @@ Typically this is a really good justification for adding an API.  Centralizing s
 2. Unverifiable Code
 3. Private Reflection
 
-Code samples of this nature are intentionally violating the type system and should not be considered a valid use of the type.  
+This is an argument I've heard before but it's not one that adds any weight for me.  Code samples of this nature are intentionally violating the type system and should not be considered a valid use of the type.  
 
 If samples of this nature were considered valid then they could be used to justify practically any API on a type.  For example this argument could be applied to adding a setter on the indexer of [string](http://msdn.microsoft.com/en-us/library/system.string(v=vs.110).aspx).  After all with `unsafe` code I can already mutate its contents so by this reasoning mutations are valid:
 
