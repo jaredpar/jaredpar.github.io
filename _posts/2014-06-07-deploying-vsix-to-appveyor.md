@@ -26,7 +26,7 @@ Once I made that small change my builds were up and running.  Literally nothing 
 ### Getting Tests Working
 Visual Studio is still a 32 bit application.  This dependency extends even into a set of the managed DLLs that VSIX projects depend on.  As such my unit tests only properly function when run in 32 bit mode.  
 
-All of my tests are written in xunit and right now AppVeyor only has support for running the 64 bit version.  This was causing all of my unit tests to fail out of the box.  Working around this is easy enough though.  Just check in a copy of the x86 xunit runner to your repository and change the [appveyor.xml](https://github.com/jaredpar/VsVim/blob/master/appveyor.yml) file to manually invoke the tests.  
+All of my tests are written in xunit and right now AppVeyor only has support for running the 64 bit version.  This was causing all of my unit tests to fail out of the box.  Working around this is easy enough though.  Just check in a copy of the x86 xunit runner to your repository and change the [appveyor.yml](https://github.com/jaredpar/VsVim/blob/master/appveyor.yml) file to manually invoke the tests.  
 
 {% highlight yaml %}
 test_script:
