@@ -1,13 +1,19 @@
 ---
 layout: post
-title: Why did I write VsVim in F#? 
+title: Experiences using F# in VsVim 
 tags: [fsharp, vsix]
 ---
 
 I'm often asked why I chose to write VsVim in F#.  Or particularly why did I write it in a mix of F# and C# instead of just picking one language and going with it
 
+# Why did I chose F# 
 
-This was not a decision that I was universally happy with
+This is probably the question I get the most.  Why did I choose F# for VsVim?  In particular why did I only use it for the core vim implementation but do the rest in C#? 
+
+This has to do a lot with my motivations for VsVim overall.  I was extremely busy working on the 2010 release of Visual Studio.  I Felt like I was spending so much of my time editing the guts of Visual Studio and the editor that I had lost track of how extensions were going to be developed.  I really wanted to see it "from the outside". 
+
+
+# Open source c
 
 Overall I was really happy with the decision to use F#.  Before VsVim I didn't have significant experience with functional programming.  Using functional programmnig at this scale long term affected the way I think about programming.  It has simply changed the way that I code C# 
 
@@ -25,8 +31,11 @@ But then the tide started turning doing so relatively fast.  As the community ar
 
 The really interesting part is that most of the developers still hadn't written F#.  But suddenly they were willing to take the plunge and learn enough of the language to get their fixes submitted.  I can only presume this is because the language simply appeared more mainstream and developers felt like it was a valuable use of their time to learn the language.  
 
+# Deploying the runtime
 
+The 
 
+VS is strange 
 
 
 
