@@ -36,7 +36,7 @@ This break down let me to focus on doing algorithms in F# and all the WPF / inte
 
 Even with the reduced scope progress was still slow.  The syntax was strange, well known types had funny names and were in the wrong place, signature files were odd and the heavy use of type inference and _ values made the few samples that did exist difficult to follow.  My reliable guide through this process was the F# spec and [Brian McNamara's blog](http://lorgonblog.wordpress.com/) whose samples I tried to emulate in style and approach.  Overall though it was very rough sledding. 
 
-It took a couple weeks before I could code for a solid 10 minutes without jumping back to the F# spec or email for help.  After 1 month it started getting better and I was spending less time fighting the syntax and more time working on algorithms.  The progress was slow but steeady.
+It took a couple weeks before I could code for a solid ten minutes without jumping back to the F# spec or email for help.  After one month it started getting better and I was spending less time fighting the syntax and more time working on algorithms.  The progress was slow but steeady.
 
 The real change came about 3 months in when F# finally clicked for me.  Suddenly I wasn't translating F# anymore I was thinking in it.  That's when my productivity started to soar and I really began to leverage F# to make my code better:
 
@@ -50,7 +50,7 @@ The real change came about 3 months in when F# finally clicked for me.  Suddenly
 
 Discriminated unions in particular were a mental revolution for me.  Enums with type safe state is a feature I'd long craved in other languages but never had a name to attach to it.  I've since found countless uses for them in F# and miss them terribly when I'm in any other language.  If I could add one and only one feature from F# back to C# this would be it.  
 
-Once I started thinking in F# there was really no turning back.  It was still about 6 months in before my F# productivity matched that of C# but the flexbilitiy and expressiveness of F# more than made up for the gap.  
+Once I started thinking in F# there was really no turning back.  It was still about six months in before my F# productivity matched that of C# but the flexbilitiy and expressiveness of F# more than made up for the gap.  
 
 # Open source contributions
 
