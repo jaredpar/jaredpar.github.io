@@ -36,7 +36,7 @@ This break down let me to focus on doing algorithms in F# and all the WPF / inte
 
 Even with the reduced scope progress was still slow.  The syntax was strange, well known types had funny names and were in the wrong place, signature files were odd and the heavy use of type inference and _ values made the few samples that did exist difficult to follow.  My reliable guide through this process was the F# spec and [Brian McNamara's blog](http://lorgonblog.wordpress.com/) whose samples I tried to emulate in style and approach.  Overall though it was very rough sledding. 
 
-It took a couple weeks before I could code for a solid ten minutes without jumping back to the F# spec or email for help.  After one month it started getting better and I was spending less time fighting the syntax and more time working on algorithms.  The progress was slow but steeady.
+It took a couple weeks before I could code for a solid ten minutes without jumping back to the F# spec or email for help.  After one month it started getting better and I was spending less time fighting the syntax and more time working on algorithms.  The progress was slow but steady.
 
 The real change came about 3 months in when F# finally clicked for me.  Suddenly I wasn't translating F# anymore I was thinking in it.  That's when my productivity started to soar and I really began to leverage F# to make my code better:
 
@@ -66,7 +66,7 @@ But then the tide started turning doing so relatively fast.  As the community ar
 
 The really interesting part is that most of the developers still hadn't written F#.  But now they were willing to take the plunge and learn enough of the language to get their fixes submitted.  I can only presume this is because the language simply appeared more mainstream and developers felt like it was a valuable use of their time to learn the language.  Whatever the reason though I couldn't be happier.  
 
-I think F# is still attaches a higher bar to contribution than C# does, but that bar is now significantly lower now and getting lower every day.  
+I think F# is still attaches a higher bar to contribution than C# does, but that bar is significantly lower now and getting lower every day.  
 
 # Looking back
 
