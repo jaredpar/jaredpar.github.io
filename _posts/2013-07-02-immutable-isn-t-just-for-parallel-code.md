@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Immutable isn't just for parallel code
+tags: [immutable]
 ---
 For the last 6 months the BCL team has been hard at work shipping an out of band release of immutable collections for .Net.  Most recently delivering an efficient implementation of ImmutableArray<T>
 
@@ -18,11 +19,11 @@ Consider the case of an object which provides a collection to callers where the 
 
 It can't do something as simple as using a List<Module> with a similarly typed backing field.  Returning such a value would allow a devious caller to clear the list and spoil the results for everyone else.   It cannot even store a List<T> internally and return an IEnumerable<T> as anyone could just come along and down cast to List<T> and clear the collection.
 
-{% highlight csharp %}
-    Assembly assembly = ...;
-    // Evil laugh
-    ((List<Module>)assembly.Modules).Clear(); 
-{% endhighlight %}
+``` csharp
+Assembly assembly = ...;
+// Evil laugh
+((List<Module>)assembly.Modules).Clear(); 
+```
 
 Instead it chooses to be robust by returning a freshly allocated array on every single call to Modules [^1].  This works but is a very wasteful process and results in many unnecessary allocations.
 
@@ -32,16 +33,16 @@ If this API were being designed today this would be a perfect candidate for usin
 
 Now consider the case of the consumer who wants to store a collection of Modules instances and do multiple lazy independent calculations on them.  In order for the different calculations to be correct they need to ensure the collection of Module instances don't change from operation to operation.  Hence they have to make a decision when storing the collection in the constructor
 
-{% highlight csharp %}
-    class Container {
-       IEnumerable<Module> m_modules;
+``` csharp
+class Container {
+   IEnumerable<Module> m_modules;
 
-       public Container(IEnumerable<Module> modules) { 
-         // Do I trust my caller' 
-         m_modules = modules;
-       }
-    }
-{% endhighlight %}
+   public Container(IEnumerable<Module> modules) { 
+     // Do I trust my caller' 
+     m_modules = modules;
+   }
+}
+```
 
 The constructor can choose to do one of the following
 
@@ -50,16 +51,16 @@ The constructor can choose to do one of the following
 
 The first option is wasteful and the second is just a bug waiting to happen a year from now when someone decides to reuse a List<Module> for another purpose.  With immutable types the container has a much better third option: demand a collection that never changes
 
-{% highlight csharp %}
-    class Container {
-       ImmutableArray<Module> m_modules;
-    
-       public Container(ImmutableArray<Module> modules) { 
-         // Trust no one 
-         m_modules = modules;
-       }
-    }
-{% endhighlight %}
+``` csharp
+class Container {
+   ImmutableArray<Module> m_modules;
+
+   public Container(ImmutableArray<Module> modules) { 
+     // Trust no one 
+     m_modules = modules;
+   }
+}
+```
 
 The callee has now forcefully stated to the caller exactly what type of data it expects.  It no longer has to make a wasteful copy or hope for good behavior.  True this may force the caller to create an immutable copy of the value it holds.  It's also just as likely that the caller will be in a position to provide the collection without any copies.  If it takes the collection as input it can simply pass along the requirement in its parameter list.  Or if it is the original creator of the collection it can do so as an ImmutableArray<Module> from the start and avoid the extra copy altogether.  Over time, code bases which are assertive about using immutable collections will see a decrease in allocations because they will feel more comfortable with sharing data between independent components.
 

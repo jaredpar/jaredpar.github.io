@@ -1,5 +1,7 @@
 ---
 layout: post
+title: Authoring a Utility Library for Visual Studio
+tags: [vsix]
 ---
 As I've developed [VsVim](https://github.com/jaredpar/VsVim/) over the years I've authored quite a few reusable Visual Studio components.  For the last 6 months I've had many of these factored out to a separate utility library and this last week I decided to publish them as a separate [NuGet](http://nuget.org/) package.  Even if no one else every uses the library I want to reuse the utilities in other projects I'm working on and NuGet is the perfect distribution mechanism.  For those interested I'll be blogging about these components and why I authored them in the coming weeks (hint: perf, perf and more perf).  I wanted to blog about my the rules I learned from this exercise because even as a seasoned extension author I hit a couple of very surprising problems along the way.  Hopefully the lessons I learned will help out the next person to attempt this 
 
@@ -17,12 +19,12 @@ MEF gives the appearance of being a model that deals in terms of types.  Contrac
 
 Every export and import have a contract name and type name associated with them.  Only when both the contract name and type name match does MEF consider an Import and Export to match.  Consider:
 
-{% highlight csharp %}
-    [Export(typeof(IObjectCache))]
-    internal sealed class ObjectCache : IObjectCache {
-    
-    }
-{% endhighlight %}
+``` csharp
+[Export(typeof(IObjectCache))]
+internal sealed class ObjectCache : IObjectCache {
+
+}
+```
 
 The above code did not create an export of the .Net type IObjectCache or even it's assembly qualified name.  Instead it created an export with
 
@@ -35,23 +37,23 @@ Notice that no assembly information is captured in this export.  It's just a typ
 
 In order to have version same MEF components the export and import contracts need to be different for different versions of your library.  The easiest way to achieve this is to embed the assembly version into the contract name portion of an Export and Import.  In my projects I achieve this by means of a constant which I reuse in my AssemblyVersion attribute and Exports
 
-{% highlight csharp %}
-    public static class Constants {
-        public const string AssemblyVersion = "1.0.0.0";
-        public const string ContractName = "MyUtility " + AssemblyVersion;
-    }
+``` csharp
+public static class Constants {
+    public const string AssemblyVersion = "1.0.0.0";
+    public const string ContractName = "MyUtility " + AssemblyVersion;
+}
 
-    [Export(Constants.ContractName, typeof(IObjectCache))]
-    internal sealed class ObjectCache : IObjectCache {
+[Export(Constants.ContractName, typeof(IObjectCache))]
+internal sealed class ObjectCache : IObjectCache {
 
-    }
+}
 
-    [assembly: AssemblyVersion(Constants.ContractName)]
-{% endhighlight %}
+[assembly: AssemblyVersion(Constants.ContractName)]
+```
 
 Unfortunately this messiness isn't something that can be self contained within your library.  It's a price you must push down to your consumers as well.  Their [Import] attributes must have the same contract name else MEF won't consider them a match and will reject the composition.  Hence consumers of your library must use a similar pattern.
     
-{% highlight csharp %}
+``` csharp
 public class MyService {
     [ImportingConstructor]
     public MyService([Import(Constants.ContractName)] IObjectCache objectCache)
@@ -59,7 +61,7 @@ public class MyService {
 
     }
 }
-{% endhighlight %}
+```
 
 
 This applies to all ImportingConstructor, Import and ImportMany usage of your types.
@@ -68,10 +70,7 @@ Both of these lessons set me back quite a bit.  But eventually I was able to pro
 
 [^1]: Except for Silverlight
 
-[^2]: Unless there is an explicit entry in the manifest file declaring a
-dependency. Won't ever happen for unrelated extensions.
+[^2]: Unless there is an explicit entry in the manifest file declaring a dependency. Won't ever happen for unrelated extensions.
 
-[^3]: If this surprises you then you're not alone. I frankly disbelieved the
-first person who told me this and had to create a sample app to prove it to
-myself
+[^3]: If this surprises you then you're not alone. I frankly disbelieved the first person who told me this and had to create a sample app to prove it to myself
 
