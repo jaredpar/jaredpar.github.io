@@ -1,5 +1,7 @@
 ---
 layout: post
+title: Avoiding Automation Bugs When Implementing IOleCommandTarget
+tags: [vsix]
 ---
 Shortly after Visual Studio 2010 shipped I wanted to experiment with the new VSIX format for traditional Package extensions. I fired up my copy of Visual Studio, ran through the new package project wizard. But instead of a nice shiny new project I was greeted with a project load error dialog. After a bit of investigation I found the generated project file was corrupt. The majority of the template code was not replaced.
 

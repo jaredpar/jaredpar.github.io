@@ -1,16 +1,16 @@
 ---
 layout: post
+title: The Many Cases of ByRef
+tags: [vb]
 ---
 One of the overlooked or simply misunderstood features of the VB language is calling a function which has a ByRef parameter. Most languages support only a single method of passing parameters by reference [^1], that is the scenarios directly supported by the CLR. The CLR has a lot of restrictions on the type of values it supports for ByRef parameters and these restrictions get in the way of VB's goal to be a flexible language that strives to get out of the way of the user. Hence the compiler goes to great lengths to be flexible and support multiple avenues of ByRef passing, much beyond what the CLR natively allows.
 
 This article will explore these different mechanisms. In order to reduce the code samples, I will be using the following 2 methods to explain the different mechanisms of ByRef Passing
 
-    
 ``` vb.net
 Sub FunctionWithInt(ByRef p1 As Integer)
     p1 = 42
 End Sub
-
 
 Sub FunctionWithObject(ByRef p1 As Object, ByVal p2 As Object)
     p1 = p2
@@ -44,6 +44,7 @@ Class C1
     Public Property P1 As Integer
     Public P2 As Integer
 End Class
+
 Sub CopyBackByRef()
     Dim v1 = New C1
     FunctionWithInt(v1.P1)

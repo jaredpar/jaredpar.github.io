@@ -21,19 +21,19 @@ Recently as an experiment I decided to sit down and explore a new design for `IE
 
 After some tinkering I settled on the following design: 
 
-{% highlight csharp %}
+``` charp
 public interface IEnumerable<TElement, TEnumerator>
 {
   TEnumerator Start { get; } 
   bool TryGetNext(ref TEnumerator enumerator, out TElement value);
 }
-{% endhighlight %}
+```
 
 The most visible change here is the elimination of `IEnumerator<T>` in favor of an enumerator type parameter.  This eliminates the forced allocation of enumerators and allows types like `List<T>` to use a more natural enumerator type like `int`.  
 
 The real advantage in this pattern is that it greatly simplifies the code necessary to implement enumerable:
 
-{% highlight csharp %}
+``` csharp
 class MyList<T> : IEnumerable<T, int>
 {
   T[] _array;
@@ -54,13 +54,13 @@ class MyList<T> : IEnumerable<T, int>
     return true;
   }
 }
-{% endhighlight %}
+```
 
 This implementation is free from all of the boiler plate code necessary to implement .Net `IEnumerable<T>`.  Instead it focuses on the actual code necessary to enumerate values.  The full example of .Net enumeration is included at the bottom of this post.  The code difference is staggering.  
 
 The code generation for a `foreach` over the new pattern is the following:
 
-{% highlight csharp %}
+``` csharp
 void M<TElement, TEnumerator>(IEnumerable<TElement, TEnumerator> enumerable)
 {
   // Developer types 
@@ -75,7 +75,7 @@ void M<TElement, TEnumerator>(IEnumerable<TElement, TEnumerator> enumerable)
     // Loop body 
   }
 }
-{% endhighlight %}
+```
 
 This enumeration pattern for `MyList<T>` will now be consistent no matter the context in which it is enumerated: through `MyList<T>` or `IEnumerable<T>`.  The enumerator type will now always be an `int`, it will always execute the same code path and this is the only enumeration code path to test.  
 
@@ -87,7 +87,7 @@ Overall I'm pretty happy with this design though. Maybe I'll take a stab at prot
 
 As promised before, this is what the `MyList<T>` implementation of .Net `IEnumerable<T>` would look like (55 lines of code vs. 19 for the new pattern).  
 
-{% highlight csharp %}
+```csharp
 // Old Enumeration Pattern 
 class MyList<T> : IEnumerable<T>
 {
@@ -146,7 +146,7 @@ class MyList<T> : IEnumerable<T>
     return new Enumerator();
   }
 }
-{% endhighlight %}
+```
 
 
 [^1]: In the pre-generics world of .Net pattern based enumeration also had the added benefit of type safe enumeration 
