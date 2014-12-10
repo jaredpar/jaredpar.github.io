@@ -9,7 +9,7 @@ The project was amazing to work on but like all good things eventually it must c
 
 For the moment I'm heads down with the rest of the team trying to get Roslyn and Visual Studio 2015 out the door.  In the near future the design for C# 7.0 will begin.  When that happens I will be hard at work trying to integrate the goodness that came out of my research team back into the language.  
 
-I do want to emphasize *trying* above.  Certainly not everything, or even most of it, will make it into the language.  There were plenty of successful features that just don't make sense in the general context of C#.  Even the features I want to bring back will inevitably need to change a bit to be ship ready.  
+I do want to emphasize *trying* above.  Certainly not everything, or even most of it, will make it into the language.  There were plenty of successful features that just don't make sense in the general context of C#.  Even the features I hope to bring back will inevitably need to change a bit to be ship ready.  
 
 That does raise the question though: what features were we working on?
 
