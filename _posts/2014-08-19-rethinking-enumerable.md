@@ -21,7 +21,7 @@ Recently as an experiment I decided to sit down and explore a new design for `IE
 
 After some tinkering I settled on the following design: 
 
-``` charp
+``` csharp
 public interface IEnumerable<TElement, TEnumerator>
 {
   TEnumerator Start { get; } 
@@ -87,7 +87,7 @@ Overall I'm pretty happy with this design though. Maybe I'll take a stab at prot
 
 As promised before, this is what the `MyList<T>` implementation of .Net `IEnumerable<T>` would look like (55 lines of code vs. 19 for the new pattern).  
 
-```csharp
+``` csharp
 // Old Enumeration Pattern 
 class MyList<T> : IEnumerable<T>
 {
