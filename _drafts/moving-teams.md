@@ -5,18 +5,17 @@ tags: [misc]
 ---
 For the last four years I've been a part of a research team exploring extensions to the C# language.  The effort focussed on adding features that improved the reliability, performance and overall correctness of the language.  Like any good research project we had some features that were incredibly successful, some which were so-so and others that ... well ... they failed spectacularly!  
 
-The project was amazing to work on but like all good things eventually it must come to an end.  Research is great fun but a large part of me missed engaging with customers and the joys (and horrors) of shipping code.  As such I've recently accepted a position on C# Language team.  
+The project was amazing to work on but like all good things eventually it must come to an end.  Research is great fun but a part of me missed engaging with customers and the joys (and horrors) of shipping code.  As such I've recently decided to accept a position on C# Language team.  
 
-For the moment I'm heads down with the rest of the team trying to get Roslyn and Visual Studio 2015 out the door.  In the near future the design for C# 7.0 will begin.  When that happens I will be hard at work trying to integrate all of the goodness that came out of my research team back into the main language.  
+For the moment I'm heads down with the rest of the team trying to get Roslyn and Visual Studio 2015 out the door.  In the near future the design for C# 7.0 will begin.  When that happens I will be hard at work trying to integrate the goodness that came out of my research team back into the language.  
 
-I do want to emphasize *trying*  above.  Certainly not everything, or even most of it, will make it into the language.  There were plenty of successful features that just don't make sense in the general context of C#.  Even the features I want to bring back will inevitably need to change a bit to be ship ready.  
+I do want to emphasize *trying* above.  Certainly not everything, or even most of it, will make it into the language.  There were plenty of successful features that just don't make sense in the general context of C#.  Even the features I want to bring back will inevitably need to change a bit to be ship ready.  
 
 That does raise the question though: what features were we working on?
 
-With the exception of the [OOPSLA paper](http://research.microsoft.com/pubs/170528/msr-tr-2012-79.pdf) I've been mostly silent since I joined the team.  The need to be quiet about your work is the big downside to a research team (especially for chatty people like me).  But now the research is concluded and I'll be able to once again blog about all of the fun we had for the last few years.  
+With the exception of the [OOPSLA paper](http://research.microsoft.com/pubs/170528/msr-tr-2012-79.pdf) I've been mostly silent since I joined the research team.  The need to be quiet about your work is the big downside to research (especially for chatty people like me).  But now the research is concluded and I'll be able to once again blog about my work including most of what I worked on the last four years. 
 
 Even though I'm incredibly excited to be rejoining the Managed Languages team I will sorely miss my old team.  My language team was a part of a larger operating system research effort that had shared goals around reliability and performance.  The overall team had a level of rigour, dedication and drive that I've never experienced before (but desparately hope to experience again).  I will definitely miss the work and the people involved in it.  
-
 
 ===
 
