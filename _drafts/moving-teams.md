@@ -15,7 +15,10 @@ That does raise the question though: what features were we working on?
 
 With the exception of the [OOPSLA paper](http://research.microsoft.com/pubs/170528/msr-tr-2012-79.pdf) I've been mostly silent since I joined the team.  The need to be quiet about your work is the big downside to a research team (especially for chatty people like me).  But now the research is concluded and I'll be able to once again blog about all of the fun we had for the last few years.  
 
-Even though I'm incredibly excited to be rejoining the Managed Languages team I will sorely miss my old project.  My language team was a part of a larger operating system research effort that had shared goals around reliability and performance.  The overall team had a level of rigour, dedication and drive that I've never experienced before (but desparately hope to experience again).  I will definitely miss the work and the people involved in it.  
+Even though I'm incredibly excited to be rejoining the Managed Languages team I will sorely miss my old team.  My language team was a part of a larger operating system research effort that had shared goals around reliability and performance.  The overall team had a level of rigour, dedication and drive that I've never experienced before (but desparately hope to experience again).  I will definitely miss the work and the people involved in it.  
+
+
+===
 
 spectacularly The downside of a research project is not being able to talk freely about it.  This is especially painful for a chatty person like me.  
 But now the research is concluded and I'm free to chat about it 
@@ -29,7 +32,6 @@ The project was amazing but like all good things it must come to an end.  As suc
 
 Like any good research project we made features that were wildly succesful, midly successful and some that just failed spectacularly.  One of my goals in my new position is to try and bring back those features which were successful to the shipping languages.  
 
-
 The project was amazing, but like all good things it must come to an end.  As such I've 
 
 I've spent the last four years working on a technical incubation project.  The team was focused on reliability, performance and correctness in a way I've never experienced before (but desperately hope to again).  The people were amazing and the experiences humbling at times but it was an amazing adventure. 
@@ -41,16 +43,6 @@ I've recently accepted a new position at Microsoft working on the C# Language te
 This is a new and old role for me.  
 
 They also had a good deal of tolerance for experimentation.  
-
-I will miss both the project and people involved in it.  
-
-
-My group was a part of a larger team that 
-
-I spent four years working on the Managed Languages team in DevDiv before 
-
-After four years working on an amazing research project I recently accepted a position working on the C# Language team.  
-
 
 
 That raises the question: what have I been working on these last four years? 
