@@ -5,7 +5,6 @@ One piece of feedback I heard in the MVP sessions this week is that debugging de
 
 Take for instance the following class hierarchy 
     
-    
 ``` csharp
 class Animal {
     public string name;
@@ -33,7 +32,7 @@ class Mutt : Dog {
 
 When you are working with an instance of Mutt in the debugger, it takes 3 rounds of clicking to see what it's name is.
 
-![image](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/FlatteningclasshierarchieswhendebuggingC_A418/image_thumb.png)
+![image](/images/posts/flat-debug1.png)
 
 The bigger hierarchy the more clicks that are needed to get the the value that is desired. This can lead to a bit of frustration when you have significantly deep object hierarchies.
 
@@ -129,5 +128,5 @@ class Animal {
 
 Now when when debugging instances which derive from Animal developers will see a flattened hierarchy of values.
 
-![image](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/FlatteningclasshierarchieswhendebuggingC_A418/image_thumb_1.png)
+![image](/images/posts/flat-debug2.png)
 

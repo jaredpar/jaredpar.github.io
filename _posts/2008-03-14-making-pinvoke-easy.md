@@ -40,7 +40,7 @@ float CalculateData(S1* p);
 
 Start up the tool and switch to the "SigImp Translate Snippet" tab.  Then paste the code in and then hit the Generate button.
 
-![PInvoke1](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/MakingPInvokeEasy_E069/PInvoke1_thumb_1.png)
+![pinvoke1](/images/posts/pinvoke-easy1.png)
 
 You can also set click the "Auto Generate" box and watch the code update as you type.
 
@@ -52,7 +52,7 @@ Often developers want to use C functions familiar to them in managed code.  This
 
 The tool also provides a database of many commonly used functions, structs, constants, etc ... It is essentially anything that is included from windows.h.  Switch to the SigImp search tab, type the name of what you are looking for and hit generate.  For example if I want to see the value for WM_PAINT just type it in.
 
-![Pinvoke2](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/MakingPInvokeEasy_E069/Pinvoke2_thumb.png)
+![pinvoke 2](/images/posts/pinvoke-easy2.png)
 
 In addition this part of the tool will also do dependency calculation.  For instance if choose a method which has a parameter that is a C structure it will automatically generate the structure with the function.  For instance if you choose the function [FindFirstFile](http://msdn2.microsoft.com/en-us/library/aa364418.aspx) it will determine that the function depends on the WIN32_FIND_DATA structure.  Furthermore it will notice that WIN32_FIND_DATA depends on FILETIME and generate both in addition to the method.
 

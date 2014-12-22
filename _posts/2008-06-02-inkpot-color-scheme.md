@@ -5,5 +5,5 @@ I was reading Charlie's [post](http://blogs.msdn.com/charlie/archive/2008/05/26/
 
 You can download it [here](http://rantpack.org/documents/inkpot.vssettings)
 
-![Inkpot](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/InkpotColorScheme_12121/Inkpot_thumb.png)
+![Inkpot](/images/posts/inkpot.png)
 

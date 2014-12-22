@@ -29,11 +29,11 @@ End Module
 
 When the following code is run, all members are accessible from the v1 local.  It is statically typed to C1 and hence the expression evaluator can ignore accessibility and access the values.
 
-[image](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/Nothingisprivateinthedebuggerpart2_10EBA/image_thumb.png)
+[image](/images/posts/nothing-private1.png)
 
 The local v2 references the same object instance so it's reasonable to assume it can access the same values. However because it's statically typed as object, calls like v1.Field1 actually turn into late bound calls and hence are subject to the rules of the late binder.
 
-[image](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/Nothingisprivateinthedebuggerpart2_10EBA/image_thumb_1.png)
+[image](/images/posts/nothing-private2.png)
 
 Evaluation of Field1 fails here because the late binder does not allow access to private fields. Property1 evaluates just fine though because it's public.
 

@@ -1,5 +1,7 @@
 ---
+title: Debugging F# lists
 layout: post
+tags: [f#]
 ---
 One of the lacking's of the latest F# CTP is debugger visualization support for the built-in list types. Viewing a list in the debugger is decidedly tedious compared to the mscorlib collection classes. Take the following quick code sample
 
@@ -15,7 +17,7 @@ module Main =
 
 Hit F5 in a F# console application and you'll get the following display.
 
-![image](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/DebuggingFlists_129AA/image_thumb.png)
+![fsharp list1](/images/posts/fsharp-list1.png)
 
 Notice how the elements of the mscorlib List<> are immediately visible.  Getting to the data in a F# list is possible but it takes a lot more clicks than the mscorlib version. This doesn't appear to be an oversight on the F# team either. The expansion of mscorlib List<T> is controlled by the DebuggerTypeProxy attribute on the class definition. If you fire up Reflector and dig into Fsharp.Core.dll and navigate to List<T> you'll notice it indeed has a DebuggerTypeProxy entry which is well formed and points to ListDebugView<T>.
 
@@ -53,5 +55,5 @@ Don't be alarmed at the typeof<List<int>>. The visualizer will work for any gene
 
 In either case, once you build this and place in the appropriate folder, you should find the visualizations for List<> much more accessible.
 
-![image](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/DebuggingFlists_129AA/image_thumb_1.png)
+![list 2](/images/posts/fsharp-list2.png)
 

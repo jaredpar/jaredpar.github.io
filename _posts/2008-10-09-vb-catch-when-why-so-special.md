@@ -12,7 +12,6 @@ Sub Sub1()
     End Try
 End Sub
 ```
-    
 
 Newsgroups often ask, "Why's this so special? I could effectively get the same behavior out of C# by doing the following."
 
@@ -40,11 +39,11 @@ In VB the When statement is actually implemented as an IL exception filter.  Whe
 
 For example, in the code above if DoSomeAction() threw and the stack was examined in the Filter expression, the following stack would show up.
 
-![image](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/VBCatch.WhenWhysospecial_1299E/image_thumb.png)
+![image](/images/posts/vb-catch1.png)
 
 Notice how the DoSomeAction method is clearly visible?  This is incredibly powerful for features like error reporting and investigation.  It also allows you to set powerful breakpoints where the exact state of the error can be examined and not just the post mortem.
 
 Alternatively, code executed in the C# block will occur after the stack is unwound.  This gets rid of the culprit.  As long as your not in optimized code you can usually use the stack trace properties to get the source of the exception but you won't be able to examine the live state of the error.
 
-![image](http://blogs.msdn.com/blogfiles/jaredpar/WindowsLiveWriter/VBCatch.WhenWhysospecial_1299E/image_thumb_1.png)
+![image](/images/posts/vb-catch2.png)
 

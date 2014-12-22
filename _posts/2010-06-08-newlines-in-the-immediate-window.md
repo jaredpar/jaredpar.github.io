@@ -12,7 +12,7 @@ public override string ToString() {
 
 The immediate window would display the following. Noticed how the newline was printed as the actual escape sequence instead of a physical newline.
 
-![image](http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/1754.image5_5F00_thumb_5F00_3FF3114E.png)
+![image](/images/posts/newline-debug1.png)
 
 This behavior is not limited to ToString calls but will occur for any place an expression evaluates to a raw string.'? This behavior in the immediate window case is a fallout from the architecture of the debugger components.  
 
@@ -22,9 +22,9 @@ Newlines are one of the places where a trade off was made. The immediate window 
 
 In the case this happens there is a built-in debugger visualizer which allows for the string to be displayed without any escaping. Simple click on the magnifying glass and select the Text Visualizer option. This pops up a modal dialog displaying the string in an unaltered form 
 
-![image](http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/4745.image_5F00_thumb_5F00_25B2A82A.png)
+![image](/images/posts/newline-debug2.png)
 
-![image](http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/4747.image_5F00_thumb_5F00_210C77A3.png) 
+![image](/images/posts/newline-debug3.png)
 
 [^1]: This escaping does not always happen. Essentially only when the data is specifically typed to a System.String
 

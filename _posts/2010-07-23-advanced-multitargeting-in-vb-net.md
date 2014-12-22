@@ -26,5 +26,5 @@ The 10.0 version of vbc.exe introduced a new switch named [langversion](http://m
 
 Once the project is reloaded errors will start appearing for new language constructs. Notice how our earlier sample now produces the errors for the usages of the new implicit line continuation construct.  
 
-![image](http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/3173.image_5F00_thumb_5F00_1.png)
+![image](/images/posts/multitarget.png)
 

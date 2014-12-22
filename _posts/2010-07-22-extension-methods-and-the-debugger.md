@@ -27,7 +27,7 @@ namespace ConsoleApplication1 {
 
 At the Debugger.Break line expressions like `col.First()` are valid and legal (assuming System.Core is referenced). Hence they should also be available in the debugger windows. But with extension methods developers will occasionally see the following.
 
-![image](http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/0820.image_5F00_thumb_5F00_0D0EA6DF.png)
+![image](/images/posts/extension-method-debug1.png)
 
 Clearly it failed to evaluate but is legal in code so users often interpret this as a bug (and I can't blame them, the behavior is odd).
 
@@ -41,11 +41,10 @@ This is what makes the behavior appear to be flaky. The ability to call an exten
 
 What complicates this discussion even further is a side effect of the hosting process in Visual Studio is that it hides this problem for certain DLLs (primarily System.Core). One of the features of the hosting process is that it preloads a set of DLL's into the debugee process including System.Core.dll.  As a result LINQ extension methods are readily available in most projects.  For a normal console application the above won't ever fail with F5 unless you specifically disable the hosting process in the debug tab of the project properties page.
 
-![image](http://blogs.msdn.com/cfs-file.ashx/__key/CommunityServer-Blogs-Components-WeblogFiles/00-00-00-39-97-metablogapi/0523.image_5F00_thumb_5F00_6810E665.png)
+![image](/images/posts/extension-method-debug2.png)
 
 This further adds to the perception of extension methods in the debugger are flaky since LINQ works but user defined extension methods fail. It creates additional confusion because the hosting process does not work for all project types (devices, certain types of web projects, etc ') and does not come into play in an attach scenarios.
 
-  
 [^1]: I do hate using the 'By Design' tag to describe a feature as successfully
 failing but such is life.
 
