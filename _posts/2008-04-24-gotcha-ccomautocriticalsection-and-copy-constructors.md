@@ -9,7 +9,7 @@ I walked the hierarchy and discovered that none of the base classes redefined th
 
 To ensure I didn't miss any other cases of this, I added the following definition to my code base and moved all instances of CComAutoCriticalSection to point to this version.
 
-{% highlight c++ %}
+``` c++
 class SafeCriticalSection : public CComAutoCriticalSection
 {
 public:
@@ -18,7 +18,7 @@ private:
     SafeCriticalSection(const SafeCriticalSection&);
     SafeCriticalSection& operator=(const SafeCriticalSection&);
 };
-{% endhighlight %}
+```
 
 It should be standard practice to define all 3 of the above methods on any class which has RAII semantics.  This is not necessary if all of the members are copy safe (CComPtr<> for example).
 

@@ -76,7 +76,7 @@ No single benchmark is definitive and this one won't change that. This benchmark
 
 **The Code**
     
-{% highlight csharp %}
+``` csharp
 public class Program {
     public static void ImmutableCollectionAddToEnd(List<string> list) {
         var col = ImmutableCollection<string>.Empty;
@@ -173,4 +173,4 @@ public class Program {
         list.ForEach(RunRemoveFromFront);
     }
 }
-{% endhighlight %}
+```

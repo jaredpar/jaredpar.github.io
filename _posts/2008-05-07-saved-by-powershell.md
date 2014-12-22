@@ -3,14 +3,14 @@ layout: post
 ---
 Recently I made a very large update to our code base. Our code base lacked a standard way of guarding entry and exit points into the various components.  Having said guards is useful for error handling, tracing, reducing redundancy, etc ... The edit standardized our entry points by adding start/end macros to our entry point functions. In addition to other house keeping, the macros also created an HRESULT variable named "hr". Example below.
 
-{% highlight c++ %}
+``` c++
     #define MY_ENTRY_GUARD() HRESULT hr
     #define MY_ENTRY_EXIT() return hr
-{% endhighlight %}
+```
 
 Ran suites, everything passed, checked in. Then I got an email from another dev who spent some time tracking down a bug related to this check-in (sorry [Calvin](http://blogs.msdn.com/calvin_hsia/)). He discovered one scenario my fix did not take into account.
 
-{% highlight c++ %}
+``` c++
 SomeMethod
 {
   MY_ENTRY_GUARD();
@@ -19,7 +19,7 @@ SomeMethod
   }
   MY_ENTRY_EXIT(); // returns unmodified hr
 }
-{% endhighlight %}
+```
 
 The double declaration of the variable "hr" is not an error or even a warning in C++. Instead the inner "hr" shadows the outer and hence the rest of the method doesn't update the "hr" which is actually returned. So now I had to find every place in this change where a nested hr was declared. Did I mention this edit was huge' Going through by hand would not only be time consuming, it would also be very error prone.
 

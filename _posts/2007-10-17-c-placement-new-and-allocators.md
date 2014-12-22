@@ -9,7 +9,7 @@ The placement new operator already makes it fairly easy to use a custom allocato
 base.
 
     
-{% highlight c++ %}
+``` c++
     static inline
     void * _cdecl operator new(size_t cbSize, void* pv)
     {
@@ -22,13 +22,13 @@ base.
         void *memory = allocator.Alloc(sizeof(Student));
         Student *p = new (memory) Student();
     }
-{% endhighlight %}
+```
 
 However this code is a bit clunky.  It requires an extra local variable and an extra sizeof every time you want to use this pattern.  You could eliminate the local by placing the allocation call directly within the new () arguments but for longer type names this would make your lines very long.  
 
 A more elegant solution is to further overload operator new.  Don't forget it's just a normal function (with a few restrictions).  That being said you can add an overload that takes in a reference to your allocation engine and perform the allocation inline.
 
-{% highlight c++ %}
+``` c++
 static inline
 void * _cdecl operator new(size_t cbSize, MyCustomAllocator &allocator)
 {
@@ -41,7 +41,7 @@ void SomeOtherProcedure()
     // ...
     Student *p = new (allocator) Student();
 }
-{% endhighlight %}
+```
 
 This is much more elegant, removes the need for a local variable and only adds the length of the allocator name to your normal line length.
 

@@ -8,7 +8,7 @@ There are lots of articles detailing how to pass data between pages that have a 
 The approach I take is interface based.  The PreviousPage property is available whether or not the PreviousPageType directive is present in the page.  All the PreviousPageType directive does is make the property strongly typed.  Without it the directive it's just typed as Page.  To make it strongly typed, I create an interface that the calling page must implement and then attempt to cast the source page into the specific interface.
 
     
-{% highlight vbnet %}
+``` vbnet
 Partial Public Class _Default
   Inherits System.Web.UI.Page
 
@@ -26,7 +26,7 @@ End Class
 Public Interface ITextSource
   ReadOnly Property Text() As String
 End Interface
-{% endhighlight %}
+```
     
     
 This gives us all of the benefits of using the PreviousPageType directive with just a few lines of overhead.  It makes passing data between pages trivial.

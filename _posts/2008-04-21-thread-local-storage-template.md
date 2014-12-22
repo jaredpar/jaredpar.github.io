@@ -19,7 +19,7 @@ The next question is how to manage the lifetime?  TLS provides a void* and the c
 
 The solution is to use the stack.  The initial return for TlsGetValue is NULL.  If this situation is detected then the current stack frame is set to own the memory for the slot.  Further accesses to the value do not own the memory and simply access it.  The semantics are straight forward but annoying to constantly rewrite, so naturally write a template :)
 
-{% highlight c++ %}
+``` c++
 template <typename T>
 class TlsValue
 {
@@ -61,7 +61,7 @@ private:
     DWORD m_index;
     bool m_owns;
 };
-{% endhighlight %}
+```
     
 
 In addition to this blog post, I added a working sample to <http://code.msdn.microsoft.com/TlsValue>.  This is my first attempt at posting a sample on <http://code.msdn.com> so please provide any and all feedback on the data.

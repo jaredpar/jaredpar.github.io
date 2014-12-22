@@ -14,24 +14,24 @@ At the core it only needs a few members.
   2. int m_run used to ensure a future is not run twice 
   3. Exception m_error to record any exceptions thrown by running the delegate 
     
-{% highlight csharp %}
+``` csharp
 private ActiveOperation m_operation = new ActiveOperation();
 private int m_run;
 private Exception m_error;
-{% endhighlight %}
+```
 
 It has one public property to determine whether or not a Future has completed.  It's a proxy into m_operation
 
-{% highlight csharp %}
+``` csharp
 public bool HasCompleted
 {
     get { return m_operation.HasCompleted; }
 }
-{% endhighlight %}
+```
 
 By using m_operation to deal with Waiting, the majority of WaitEmpty can be proxied to m_operation as well. The only additional work needed is to deal with Exceptions.
 
-{% highlight csharp %}
+``` csharp
 public void WaitEmpty()
 {
     m_operation.Wait();
@@ -40,17 +40,17 @@ public void WaitEmpty()
         throw new FutureException("Error occurred running future", m_error);
     }
 }
-{% endhighlight %}
+```
 
 The only behavior a child class needs is a place to invoke the delegate. A single abstract method is provided to allow implement this behavior.
 
-{% highlight csharp %}
+``` csharp
 protected abstract void RunCore();
-{% endhighlight %}
+```
 
 Before calling this method the base Future class must make sure that all of the contracts are met. This is implemented through a wrapper method around RunCore. It is the only method that calls RunCore directly.
 
-{% highlight csharp %}
+``` csharp
 private void RunWrapper()
 {
     if (0 != Interlocked.CompareExchange(ref m_run, 1, 0))
@@ -71,7 +71,7 @@ private void RunWrapper()
         m_operation.Completed();
     }
 }
-{% endhighlight %}
+```
 
 It's very important that m_operation is signalled as completed after exception handling occurs. The setting or not setting of m_error is the only way we know if an exception occurred when waiting. If we do this in the opposite order it's possible for WaitEmpty() to complete before the exception is set and hence miss the error.
 
@@ -81,7 +81,7 @@ Lastly is the code to actually run the Future. There are two ways to run the Fut
   2. Synchronously on the same thread. This will mainly be used to implement such operations as methods in Active Objects. 
     
     
-{% highlight csharp %}
+``` csharp
 public void Run()
 {
     RunWrapper();
@@ -91,7 +91,7 @@ public void RunInThreadPool()
 {
     ThreadPool.QueueUserWorkItem((x) => RunWrapper());
 }
-{% endhighlight %}
+```
 
 This leaves us with a base class implementation for Future's. Next we'll implement Future which return values.
 

@@ -5,7 +5,7 @@ One of the seldom used, and often unknown, features of VB extension methods is t
 
 Obviously this can produce unexpected but often amusing behavior. The following sample prints 'False'.
     
-{% highlight vbnet %}
+``` vbnet
 <Extension()> _
 Public Sub EnsureNotNull(ByRef str As String)
     If str Is Nothing Then
@@ -21,13 +21,13 @@ End Sub
 Sub Main()
     Example(Nothing)
 End Sub
-{% endhighlight %}
+```
 
 I think people will look at this example and either cringe, call it terrible code or get excited. Personally I'm somewhere between cringing and getting excited (in fact I'm doing both). But before people think I've gone off the deep end I don't plan on checking this in any time soon (and yes I think it's a bad idea).
 
 Why' The feature is fun to play with and can create some interesting samples but it can also just as easily lead to very bad and unanticipated behavior.  For instance what if instead of making sure something wasn't Nothing, the code made the argument Nothing?
 
-{% highlight vbnet %}
+``` vbnet
 <Extension()> _
 Sub EvilMethod(ByRef p1 As Object)
     p1 = Nothing
@@ -39,7 +39,7 @@ Sub Example2()
     s.EvilMethod()
     s.PrintName()   ' Causes a NullReferenceException
 End Sub
-{% endhighlight %}
+```
 
 The code runs and throws an exception. A developer attaches a debugger, looks at the exception but immediately notes there are 2 other method calls just above. How could they succeed but the last throw a NullReferenceException' Certainly this may be a fun joke but in production code a fellow developer would not be amused.
 

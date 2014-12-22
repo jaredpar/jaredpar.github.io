@@ -21,11 +21,11 @@ Astute readers may be wondering at this point why this doesn't work for F# out o
 Developers can get this experience in F# by forcing System.Core.dll into the debugee process. My favorite trick is to add the following line at the start of my F# applications.
 
     
-{% highlight fsharp %}
+``` fsharp
 #if DEBUG
 System.Linq.Enumerable.Count([]) |> ignore
 #endif
-{% endhighlight %}
+```
 
 This forces System.Core.dll into the process in debug builds which results in a much nicer display for any seq<T> expressions I have.
 

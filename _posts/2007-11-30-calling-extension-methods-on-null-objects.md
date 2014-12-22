@@ -8,7 +8,7 @@ The two items that are a little bit different between calling an Instance vs Ext
   1. The exception (if thrown) will be at the method site instead of the call site.  Not really an issue because you can just jump down the stack frame. 
   2. There may not be an exception thrown.  As long as you don't actually use the extension method target, the code will not necessary throw[^2].  For instance consider the following code
     
-{% highlight vbnet %}
+``` vbnet
 <Extension()> _
 Public Function IsNothing(ByVal o As Object) As Boolean
     Return o Is Nothing
@@ -19,7 +19,7 @@ Sub Test()
     Dim x As String = Nothing
     Dim b = x.IsNothing()   ' b = True
 End Sub
-{% endhighlight %}
+```
 
 This is legal and will not throw.  However I don't recomend that you write it.
 

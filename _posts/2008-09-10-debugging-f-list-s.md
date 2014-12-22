@@ -3,7 +3,7 @@ layout: post
 ---
 One of the lacking's of the latest F# CTP is debugger visualization support for the built-in list types. Viewing a list in the debugger is decidedly tedious compared to the mscorlib collection classes. Take the following quick code sample
 
-{% highlight fsharp %}
+``` fsharp
 module Main =
     do
         let l1 = [0..4]
@@ -11,7 +11,7 @@ module Main =
         let l3 = new System.Collections.Generic.List<int>()
         List.iter (fun i -> l3.Add(i)) l1
         MainModuleTemp.Main()   // Breakpoint here
-{% endhighlight %}
+```
 
 Hit F5 in a F# console application and you'll get the following display.
 
@@ -32,7 +32,7 @@ If you navigate to either of these directories you will find both the default au
 
 Since autoexp.dll has predecence all we need to do is build a new version which has the appropriate debugger attributes for the F# collections. Fire up a new class library project named autoexp and have it output to either of the directories listed above. Below is a sample definition to get you started.
 
-{% highlight fsharp %}
+``` fsharp
 #light
 open System.Diagnostics
 
@@ -46,7 +46,7 @@ module Main =
     [<assembly: DebuggerTypeProxyAttribute(typeof<ListProxy<int>>, Target=typeof<List<int>>)>]
     do 
         ()
-{% endhighlight %}
+```
             
 
 Don't be alarmed at the typeof<List<int>>. The visualizer will work for any generic binding of List<T>. In fact, reflector confirms that this attribute will be emitted with the type pointing at the unbound List<T> instead of List<int>. My lack of F# skills is failing me as to why. I'd love to cry bug but I've found crying bug at a compiler is usually ... wrong.

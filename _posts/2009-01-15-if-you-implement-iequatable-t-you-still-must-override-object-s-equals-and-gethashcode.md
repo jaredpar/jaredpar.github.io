@@ -4,7 +4,7 @@ layout: post
 CLR 2.0 introduced [IEquatable<T>](http://msdn.microsoft.com/en-us/library/ms131187.aspx) which is an interface that allows for type safe equality comparisons. Previously, the best available method for comparing equality was the virtual [Object Equals](http://msdn.microsoft.com/en-us/library/system.object.equals.aspx) method. The method is loosely typed since it takes an object as a parameter. This is easy enough to deal with on the client with a simple cast to the appropriate type.
 
     
-{% highlight csharp %}
+``` csharp
 class Student {
     public override bool Equals(object obj) {
         var other = obj as Student;
@@ -14,7 +14,7 @@ class Student {
         // rest of comparison
     }
 }
-{% endhighlight %}
+```
 
 IEquatable<T> is a significant improvement over this pattern because it provides a strongly typed equals method. This protects both the caller and callee from passing incompatible object types. Additionally it avoids the overhead of boxing for value types.
 
@@ -28,12 +28,12 @@ Strongly typed collections such as Dictionary<TKey,TValue> and HashSet<T> must b
 
 Lets take a look at the definition of IEqualityComparer<T>
 
-{% highlight csharp %}
+``` csharp
 public interface IEqualityComparer<T> {
     bool Equals(T x, T y);
     int GetHashCode(T obj);
 }
-{% endhighlight %}
+```
 
 The default definition is an internal class in the BCL named GenericEqualityComparer<T>. The default implementation of IEqualityComparer<T>
 relies on IEquatable<T> for it's implementation.
@@ -44,7 +44,7 @@ But wait, I don't actually implement IEqualityComparer<T> anywhere so I'm safe r
 
 In fact, the standard pattern for methods which take an IEqualityComparer<T> is to have an overload that doesn't and pass EqualityComparer<T>.Default to the one that does.
 
-{% highlight csharp %}
+``` csharp
 public static class Example {
     public static IEnumerable<T> Distinct<T>(this IEnumerable<T> source) {
         return Distinct(source, EqualityComparer<T>.Default);
@@ -55,7 +55,7 @@ public static class Example {
         // implementation
     }
 }
-{% endhighlight %}
+```
 
 If your object implements IEquatable<T> this will eventually cause it to create an instance of GenericEqualityComparer<T> and hence a reliance on GetHashCode.
 
@@ -65,7 +65,7 @@ IEquatable<T> only provides equality comparisons in strongly typed scenarios.  I
 
 Without implementing Object.Equals and Object.GetHashCode your type will not actually do any sort of comparison. This will cause lots of incorrect behavior for programmers who expect the class to understand equality.  
     
-{% highlight csharp %}
+``` csharp
 class Person : IEquatable<Person> {
     public readonly string Name;
     public Person(string name) {
@@ -85,7 +85,7 @@ static void EqualityCheck() {
     Console.WriteLine(list.Contains(p)); // Prints: True
     Console.WriteLine(list.Contains(new Person("Bob")));    // Prints: False
 }
-{% endhighlight %}
+```
 
 This goes against expectation. Both Person instances in this case are equal by definition of Person yet Contains fails. Implementing Object.Equals and Object.GetHashCode will remove this confusion.
 

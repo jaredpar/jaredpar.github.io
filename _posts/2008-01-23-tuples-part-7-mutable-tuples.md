@@ -7,18 +7,18 @@ Now the focus shifts to generating mutable tuples.  Immutability is nice for thr
 
 Mutable tuples behave like a Tuple in every other way except that they're ... mutable.  This includes implementing interfaces as well as inheritance structure. 
 
-{% highlight csharp %}
+``` csharp
 public sealed class MutableTuple<TA, TB> : 
     ITuple<TA, TB>, 
     IEquatable<MutableTuple<TA, TB>>, 
     IComparable<MutableTuple<TA, TB>>, 
     IComparable
 {
-{% endhighlight %}
+```
 
 As such the script already used will be sufficient to generate mutable classes in addition to the ones its already doing.  The majority of the code difference is just in the naming of the classes.  The only functional differences exist in the properties and indexer.  Both of these add a setter method.  Below is the modified code for generating the property and indexer. 
 
-{% highlight powershell %}
+``` powershell
 function script:Gen-TupleAccess 
 { 
     param ( [int] $count = $(throw "Need a count"), [bool]$mutable ) 
@@ -61,11 +61,11 @@ function script:Gen-Property
     } 
 }
 {% endraw %}
-{% endhighlight %}
+```
 
 Now creating a mutable tuple is the same as the immutable tuple with just a name tweak.
 
-{% highlight csharp %}
+``` csharp
 var t1 = MutableTuple.Create("foo", 42);
 t1.A = "again";
-{% endhighlight %}
+```

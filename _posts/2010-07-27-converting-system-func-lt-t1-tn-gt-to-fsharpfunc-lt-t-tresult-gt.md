@@ -12,7 +12,7 @@ This creates a host of problems calling exposed F# delegate / function types
 
 The only step is to introduce a conversion step when calling into F# code. F# does provide a helper method in F# in the [FSharpFunc.FromConverter](http://msdn.microsoft.com/en-us/library/ee353520.aspx) method. But once again it's only useful for delegates of one parameter, anything higher requires a more in depth conversion. For example here is the C# code to convert a 2 parameter delegate into the equivalent F# type.
 
-{% highlight csharp %}
+``` csharp
 public static FSharpFunc<T1, FSharpFunc<T2,TResult>> Create<T1, T2, TResult>(Func<T1,T2,TResult> func)
 {
     Converter<T1, FSharpFunc<T2, TResult>> conv = value1 =>
@@ -21,14 +21,14 @@ public static FSharpFunc<T1, FSharpFunc<T2,TResult>> Create<T1, T2, TResult>(Fun
         };
     return FSharpFunc<T1, FSharpFunc<T2, TResult>>.FromConverter(conv);
 }
-{% endhighlight %}
+```
 
 Not very pretty or intuitive because the code needs to recreate the nested style of F# func's. This gets even more tedious and error prone as it gets past 2 parameters.
 
 The simplest solution, as is true with most F# interop scenarios, is to leverage F# itself to define the interop / conversion layer. It already naturally creates the proper nesting structure so why spend type redoing the logic in C#. The logic can then be exposed as a set of factory and extension methods to make it easily usable from C#.  
     
     
-{% highlight fsharp %}
+``` fsharp
     [<Extension>]
     type public FSharpFuncUtil = 
 
@@ -49,16 +49,16 @@ The simplest solution, as is true with most F# interop scenarios, is to leverage
         static member Create<'a,'b,'c> (func:System.Func<'a,'b,'c>) = FSharpFuncUtil.ToFSharpFunc func
     
         static member Create<'a,'b,'c,'d> (func:System.Func<'a,'b,'c,'d>) = FSharpFuncUtil.ToFSharpFunc func
-{% endhighlight %}
+```
 
 Now I?? can convert instances of System.Func<> to the F# equivalent by simply calling .ToFSharpFunc().
 
-{% highlight csharp %}
+``` csharp
 var cmd = Command.NewSimpleCommand(
     name,
     flagsRaw,
     func.ToFSharpFunc());
-{% endhighlight %}
+```
 
 Much better.
 

@@ -5,12 +5,12 @@ Earlier this week I started writing a function which needed to represent three
 states in the return value, two of which had an associated value.  In my mind
 I immediately came to the following solution
 
-{% highlight fsharp %}
+``` fsharp
 type BuildAction =
     | Reset
     | LinkOneWithNext of Statement
     | LinkManyWithNext of Statement seq
-{% endhighlight %}
+```
 
 A discriminated union is perfectly suited for representing this type of scenario.  Unfortunately for me I was coding in C++ and not F# so I shifted gears and started on a different solution.  But I quickly grew frustrated with new solution and decided to backtrack.  A discriminated union is just too ideal for this scenario so why not spend fifteen minutes and see how far I could get in defining a discriminated union structure in C++.
 
@@ -24,13 +24,13 @@ Of course a full discriminated union in the style of F# is not possible because 
 
 After a bit of tinkering I came up with a solution (full source at end of post) which allows for the following declaration syntax
 
-{% highlight c %}
+``` c
 DECLARE_DISCRIMINATED_UNION(BuildAction)
     DISCRIMINATED_UNION_FLAG(BuildAction, Reset)
     DISCRIMINATED_UNION_VALUE(BuildAction, LinkOneWithNext, Statement)
     DISCRIMINATED_UNION_VALUE(BuildAction, LinkManyWithNext, vector<Statement>)
 END_DISCRIMINATED_UNION()
-{% endhighlight %}
+```
 
 Each declared entry in the union is provided the following methods.
 
@@ -38,12 +38,12 @@ Each declared entry in the union is provided the following methods.
   * A method to test to see if an instance is the value type: IsLinkOneWithNext
   * A method to get the value associated with the associated value: GetLinkOneWithNext
     
-{% highlight c %}
+``` c
     auto action = BuildAction::CreateLinkOneWithNext(statement);
     if (action.IsLinkOneWithNext()) {
         Method(action.GetLinkOneWithNext());
     }
-{% endhighlight %}
+```
 
 It's certainly far from perfect.  But it did give me the tools to implement the solution in the way I inherently thought about it and freed me to spend my thinking time on other problems.
 
@@ -55,7 +55,7 @@ Additionally the spirit of this post and experiment was just having a bit of fun
 
 DiscriminatedUnion.h
 
-{% highlight c %}
+``` c
 //----------------------------------------------------------------------------
 //
 // Discriminated Union in C++.
@@ -136,4 +136,4 @@ DiscriminatedUnion.h
 #define DISCRIMINATED_UNION_GET_KIND() unsigned __int32 GetKind() const { return m_kind; }
 
 #define END_DISCRIMINATED_UNION() };
-{% endhighlight %}
+```

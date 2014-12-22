@@ -10,28 +10,28 @@ Unfortunately a [ManualResetEvent](http://msdn2.microsoft.com/en-us/library/syst
 In addition several cases do not need a handle.  For instance in the below code, if the commented out section takes longer than the future to complete then why do you even need wait handle of any sort?
 
     
-{% highlight csharp %}
+``` csharp
 var d = Future.Create(() => CallASimpleFunction);
 // ...
 d.Wait();
-{% endhighlight %}
+```
 
 Therefore the first step is to define an efficient waiting mechanism.  I call it an ActiveOperation.  It provides 3 basic methods; HasCompleted, Completed and Wait.  It optimizes for trying to not created a WaitEvent unless actually necessary.  It has two member variables.  An int for completion check and a [ManualResetEvent](http://msdn2.microsoft.com/en-us/library/system.threading.manualresetevent.aspx) to be used for shared waiting when necessary.  Notice that m_hasCompleted is not volatile, instead all writes use a Interlocked operation to ensure it is propagated between threads.
 
     
-{% highlight csharp %}
+``` csharp
 private int m_hasCompleted;
 private ManualResetEvent m_waitEvent;
-{% endhighlight %}
+```
 
 HasCompleted is straightforward.
 
-{% highlight csharp %}
+``` csharp
 public bool HasCompleted
 {
     get { return m_hasCompleted == 1; }
 }
-{% endhighlight %}
+```
 
 Completed is a little bit trickier.  It has to deal with a couple of cases.
 
@@ -40,7 +40,7 @@ Completed is a little bit trickier.  It has to deal with a couple of cases.
   3. Completed called while or after another thread calls Wait.  
     
     
-{% highlight csharp %}
+``` csharp
 public void Completed()
 {
     if (0 == Interlocked.CompareExchange(ref m_hasCompleted, 1, 0))
@@ -61,7 +61,7 @@ public void Completed()
         }
     }
 }
-{% endhighlight %}
+```
 
 Wait is the trickiest one.  It has the following cases to deal with
 
@@ -71,7 +71,7 @@ Wait is the trickiest one.  It has the following cases to deal with
   4. Thread successfully creates and owns the shared m_waitEvent variable before Completed() is called. 
   5. During the creation of m_waitEvent, another thread calls Completed() in which case there is no guarantee that m_waitEvent will be signaled. 
     
-{% highlight csharp %}
+``` csharp
 public void Wait()
 {
     // Case 1
@@ -135,7 +135,7 @@ private void WaitOnEvent(ManualResetEvent mre)
 
     }
 }
-{% endhighlight %}
+```
 
 Now you have one of the basic building blocks of Futures.
 

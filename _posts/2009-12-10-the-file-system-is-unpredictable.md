@@ -25,7 +25,7 @@ Many developers, and APIs for that matter, though treat the file system as thoug
 
 These problems are best demonstrated by a quick sample. Lets keep it simple and take a stab at a question I've seen a few times. The challenge is to write a function which returns all of the text from a file if it exists and an empty string if it does not. To simplify this problem lets assume permissions are not an issue, paths are properly formatted, paths point to local drives and people aren't randomly ripping out USB keys. Using the System.IO.File APIs we may construct the following solution.
     
-{% highlight csharp %}
+``` csharp
 static string ReadTextOrEmpty(string path) {
     if (File.Exists(path)) {
         return File.ReadAllText(path); // Bug!!!
@@ -33,7 +33,7 @@ static string ReadTextOrEmpty(string path) {
         return String.Empty;
     }
 }
-{% endhighlight %}
+```
 
 This code reads great and at a glance looks correct but is actually fundamentally flawed. The reason why is the code changes depends on the call to File.Exist to be true for a large portion of the function. It's being used to predict the success of the call to ReadAllText. However there is nothing stopping the file from being deleted in between these two calls. In that case the call to File.ReadAllText would throw a FileNotFoundException which is exactly what the API is trying to prevent!
 
@@ -41,7 +41,7 @@ This code is flawed because it's attempting to use one piece of data to make a p
 
 Knowing this, how could we write ReadTextOrEmpty in a reliable fashion' Even though you can not make predictions on the file system the failures of operations is a finite set. So instead of attempting to predict successful conditions for the method, why not just execute the operation and deal with the consequences of failure?
 
-{% highlight csharp %}
+``` csharp
 static string ReadTextOrEmpty(string path) {
     try {
         return File.ReadAllText(path);
@@ -51,7 +51,7 @@ static string ReadTextOrEmpty(string path) {
         return String.Empty;
     }
 }
-{% endhighlight %}
+```
 
 This implementation provides the original requested behavior. In the case the file exists, for the duration of the operation, it returns the text of the file and if not returns an empty string.
 

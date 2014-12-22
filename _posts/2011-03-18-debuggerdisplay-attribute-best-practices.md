@@ -4,13 +4,13 @@ title: DebuggerDisplay Attribute Best Practices
 ---
 The [DebuggerDisplayAttribute](http://msdn.microsoft.com/en-us/library/system.diagnostics.debuggerdisplayattribute.aspx) is a powerful way to customize the way values are displayed at debug time. Instead of getting a simple type name display, interesting fields, properties or even custom strings can be surfaced to the user in useful combinations
 
-{% highlight csharp %}
+``` csharp
 [DebuggerDisplay("Student: {FirstName} {LastName}")]
 public sealed class Student {
     public string FirstName { get; set; }
     public string LastName { get; set; }
 }
-{% endhighlight %}
+```
 
 The DebuggerDisplay attribute can customize the name, value and type columns in the debugger window. Each one can be customized using a string which can contain constant text or expressions to be be evaluated by the expression evaluator. The latter is designated by putting the expression inside {}'s (this greatly resembles String.Format)
 
@@ -20,9 +20,9 @@ This feature while very powerful and useful can also easily contribute negativel
 
 Every time I see a DebuggerDisplay attribute like the following I cringe a little inside
 
-{% highlight csharp %}
+``` csharp
 [DebuggerDisplay("Student: {FirstName} {LastName} {Age} {Birthday} {Address}")]
-{% endhighlight %}
+```
 
 Hands down the most expensive operation the expression evaluator does is evaluate a function. It dwarfs every other performance metric and can have a visible effect on stepping performance [^2].'? This is true for both functions and properties (as far as the debugger is concerned there is almost no difference between the two).
 
@@ -34,9 +34,9 @@ Please don't read this and remove every property from DebuggerDisplay's in your 
 
 Evaluation holes in the string are not limited to just properties and function calls. They can handle pretty much any legal expression you can dream up. In the past this has lead to developers putting all manner of expressions into DebuggerDisplay attributes. The most common being the use of ternary expressions
 
-{% highlight csharp %}
+``` csharp
 [DebuggerDisplay("Count {IsEmpty ? 0 : Count}")]
-{% endhighlight %}
+```
 
 While this works fine, please don't do this!?? DebuggerDisplay attributes are evaluated not by the language in which they were defined but by the expression evaluator of the language in which they are being used. The above works great but only when viewed in a C# application. It fails miserably when viewed in other languages like VB.Net (and when F# has their own EE it will fail for that as well).
 
@@ -54,7 +54,7 @@ Usually this goes without saying but I've seen enough examples of this to warran
 
 My personal preferred pattern for DebuggerDisplay attributes is to have the entire item be an expression: DebuggerDisplay. I then add a private instance property to my type named DebuggerDisplay and do all of my custom formatting in this property. Having the property be private is fine because [nothing is private in the debugger]({% post_url 2010-05-17-the-debugger-is-different %}).
     
-{% highlight csharp %}
+``` csharp
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 public sealed class Student {
     public string FirstName { get; set; }
@@ -63,7 +63,7 @@ public sealed class Student {
         get { return string.Format("Student: {0} {1}", FirstName, LastName); }
     }
 }
-{% endhighlight %}
+```
 
 The ',nq' suffix here just asks the expression evaluator to remove the quotes when displaying the final value (nq = no quotes).
 

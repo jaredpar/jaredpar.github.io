@@ -9,16 +9,16 @@ Or so I thought
 
 I made my fix, ran our core check-in suites without error, checked in and moved onto the next bug. A couple hours later one of our other devs emailed me and informed me my check-in was breaking our larger, slower, suite bed run because m_spTracking was NULL. After some quick debugging I found myself looking at the following chunk of code which was apparently NULL'ing out m_spTracking in the suite.
 
-{% highlight c++ %}
+``` c++
 CComPtr<IOldTracking> spOldTracking;
 if ( SUCCEEDED(CreateOldSelectionTracking(&spOldTracking)) ) {
 m_spTracking = spOldTracking;
 }
-{% endhighlight %}
+```
 
 Me and the other dev were quite shocked that this compiled at all. How is it possible to assign between CComPtr<ISelectionTracking> and CComPtr<IOldTracking>'?? My first thought was I must have accidentally used a CComQIPtr somewhere (quickly verified that was not the case). After a bit of searching we found the cause was one of the operater=?? instances available on CComPtr<T>. Here is the definition
 
-{% highlight c++ %}
+``` c++
 template <typename Q>
 T* operator=(_In_ const CComPtr<Q>& lp) throw()
 {
@@ -28,19 +28,19 @@ T* operator=(_In_ const CComPtr<Q>& lp) throw()
     }
     return *this;
 }
-{% endhighlight %}
+```
 
 This templated operator allows for assignments between CComPtr instance no matter what the type is for the left and right side. The effect is that instead of doing compile type C++ type conversion rules, it will instead rely on runtime COM polymorphic assignment rules via IUnknown::QueryInterface.  This moves assignment errors from compile time to runtime for unrelated interfaces.
 
 This is further complicated because it only applies to assignment between CComPtr's (and derived instances). If the right hand side of the assignment is a non-smart pointer, compile time C++ conversions will apply. To demonstrate '
 
-{% highlight c++ %}
+``` c++
 CComPtr<ISelectionTracking> spTracking;
 CComPtr<IOldTracking> spOld;
 ...
 spTracking = spOld;  // Fails at runtime
 spTracking = (IOldTracking*)spOld;  // Compilation Error
-{% endhighlight %}
+```
 
 
 What surprised me though was talking to other developers about this issue.  Most agreed with me that this is a bug in CComPtr<T>, or at least very unexpected behavior. A surprising number though did not expect this behavior but still considered it acceptable. The difference comes down whether you view CComPtr<T> as a simple smart pointer responsible for AddRef/Release semantics or as that plus an enabler of QueryInterface style conversions. I personally view CComPtr<T> as a simple smart pointer with know real understanding of QueryInterface style conversions and CComQIPtr<T> as a smart pointer which respects QueryInterface style conversions.' As such this behavior is completely unexpected.

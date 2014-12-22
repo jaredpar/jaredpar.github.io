@@ -10,11 +10,11 @@ These rules imply that GetHashCode() is related to Equality.  At a fundamental l
 
 Unfortunately it is impossible to separate these two from an API perspective because it is ingrained into the BCL.  There is a way to separate this out at a functionality level and still satisfy all of the rules of the GetHashCode() and Equals()
 
-{% highlight vbnet %}
+``` vbnet
 Public Overrides Function GetHashCode() As Integer
     Return 1
 End Function
-{% endhighlight %}
+```
 
 This absolutely maintains both of the rules for GetHashCode().  This allows you to completely separate Equality and GetHashCode() in your implementation while not breaking any BCL rules or assumptions.
 

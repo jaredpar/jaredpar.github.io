@@ -14,18 +14,18 @@ Active Objects are associated with and have an affinity to a particular thread. 
 There are a couple of requirements that need to be met when initializing the object. The first is getting the thread into a known state before returning out of the constructor. It's possible for coders to create and then immediately destroy an object. Part of destructing an object is understanding the state you are destructing. Returning from an ActiveObject constructor before the thread is up and running means that we can be destructed while in an inconsistent state. Normally this isn't much an issue with objects because they are single threaded. We will fix this by doing a simple wait until the thread is finished initializing.
 
     
-{% highlight csharp %}
+``` csharp
 protected ActiveObject() {
     m_thread = new Thread(() => InitializeAndRunBackgroundThread());
     m_thread.Start();
     while (0 == m_backgroundInitialized) { Thread.Sleep(0); }
 }
-{% endhighlight %}
+```
 
 Next is providing implementers with a way to initialize member variables on the new thread. There are many reasons for wanting to initialize members on the ActiveObject thread. Besides general consistency concerns, there is also the issue that objects can have affinity to a particular thread and including forcing initialization to occur on that thread. To make this simple part of the thread initialization code will call a virtual method allowing base classes to initialize variables.
 
     
-{% highlight csharp %}
+``` csharp
 private void InitializeAndRunBackgroundThread() {
     Interlocked.Exchange(ref m_affinity, new ThreadAffinity());
     Interlocked.Exchange(ref m_pipe, new PipeSingleReader<Future>());
@@ -35,7 +35,7 @@ private void InitializeAndRunBackgroundThread() {
 }
 protected virtual void InitializeMembersInBackground() {
 }
-{% endhighlight %}
+```
 
 ### Running Behavior
 
@@ -43,7 +43,7 @@ Active Objects exist for one reason, to run Futures. The main behavior is to loo
 
 One question that comes up is how to handle the case where a Future throws an exception' If we run the Future with no protection it will simple cause an unhandled exception and likely a process crash. We could catch and try to filter them but based on what criteria' IMHO there is no way to properly handle an exception in the Active Object base because we don't know what the purpose of that object is. Only the actual object implementer knows.  Therefore we will make it their problem by passing unhandled exceptions into an abstract method.
 
-{% highlight csharp %}
+``` csharp
 private void RunBackgroundActions() {
     do {
         RunFuture(m_pipe.GetNextOutput());
@@ -62,13 +62,13 @@ private void RunFuture(Future future) {
         OnBackgroundUnhandledException(ex);
     }
 }
-{% endhighlight %}
+```
 
 If the second loop looks a bit out of place, hopefully the destruction section will explain it's purpose.
 
 All that is left is to provide helper methods to let base classes queue up Futures to run.
 
-{% highlight csharp %}
+``` csharp
 protected Future RunInBackground(Action action) {
     var f = Future.CreateNoRun(action);
     m_pipe.AddInput(f);
@@ -79,7 +79,7 @@ protected Future<T> RunInBackground<T>(Func<T> func) {
     m_pipe.AddInput(f);
     return f;
 }
-{% endhighlight %}
+```
 
 ### Destruction
 
@@ -95,7 +95,7 @@ In future posts, we'll explore how to create ActiveObjects with differing dispos
 
 Now how can we signal the background thread that we are done processing' Just add a future to the queue to be running. Because this will run on the only thread reading the int there is no need for an Interlocked operation.  
     
-{% highlight csharp %}
+``` csharp
 private void Dispose(bool disposing) {
     if (disposing) {
         m_pipe.AddInput(Future.CreateNoRun(() => { m_backgroundFinished = 1; }));
@@ -103,7 +103,7 @@ private void Dispose(bool disposing) {
         m_thread.Join();
     }
 }
-{% endhighlight %}
+```
 
 Now that we've gone over the dispose code, hopefully the reason for the second loop in RunBackgroundActions is a little more apparent. Between the two calls to m_pipe in Dispose another thread can post a Future. Without the second loop the user will get no exception and the future will never run. Likely they would hopelessly deadlock.'? The second loop will run all Futures which get caught it this gap.
 
@@ -111,7 +111,7 @@ Now that we've gone over the dispose code, hopefully the reason for the second l
 
 Here is the full version of the code.
 
-{% highlight csharp %}
+``` csharp
 public abstract class ActiveObject :  IDisposable {
     private PipeSingleReader<Future> m_pipe;
     private ThreadAffinity m_affinity;
@@ -179,4 +179,4 @@ public abstract class ActiveObject :  IDisposable {
     }
     protected abstract void OnBackgroundUnhandledException(Exception ex);
 }
-{% endhighlight %}
+```

@@ -10,7 +10,7 @@ In the case of late binding the compiler only participates in building an expres
 Late bound access combined with static access can lead to additional confusing behavior. For example.
 
     
-{% highlight vbnet %}
+``` vbnet
 Class C1
     Private Field1 As Integer
     Public Property Property1 As Integer
@@ -25,7 +25,7 @@ Module Module1
     End Sub
 
 End Module
-{% endhighlight %}
+```
 
 When the following code is run, all members are accessible from the v1 local.  It is statically typed to C1 and hence the expression evaluator can ignore accessibility and access the values.
 

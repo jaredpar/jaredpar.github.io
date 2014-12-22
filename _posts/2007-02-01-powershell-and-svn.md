@@ -5,7 +5,7 @@ I often delete versioned files from Visual Studio without great care for the sou
 
 For a couple of files a quick "svn delete foo.txt" will take care of the problem.  When there are lots of files this is tedious and prone to error.  That is, unless you have powershell.
 
-{% highlight powershell %}
+``` powershell
 # Used to do a "svn delete" on all missing files  
 function SvnRemoveMissing()  
 {  
@@ -18,5 +18,5 @@ function SvnRemoveMissing()
         }  
     }  
 }  
-{% endhighlight %}
+```
 

@@ -9,7 +9,7 @@ During a review of some low level bit manipulation logic a developer raised a qu
 
 A quick test backed up this particular assertion. Any non-zero value is true and 0 is indeed false. We took the test one step further and discovered, to the surprise of about half of us, that just because two bool values are true, doesn't mean they're equal.
 
-{% highlight csharp %}
+``` csharp
 class Program
 {
     [StructLayout(LayoutKind.Explicit)]
@@ -33,7 +33,7 @@ class Program
         Console.WriteLine(u1.BoolField == u2.BoolField); // False
     }
 }
-{% endhighlight %}
+```
 
 I was one of those who was surprised! :) 
 

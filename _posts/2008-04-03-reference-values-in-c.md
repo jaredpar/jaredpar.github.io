@@ -12,7 +12,7 @@ But hey we're talking about C++ here.  Any C++ problem can be fixed with some ma
 The goal of this API is to allow API authors to force developers to be explicit about their ByRef semantics.  It will prevent developers from silently passing a value by ref and hence getting unexpected behavior.  Failure to do so will result in a compile time error.  Also there is a minor bit of indirection overhead for debug mode but in retail this will compile out
 to normal code.
 
-{% highlight c++ %}
+``` c++
 #ifdef DEBUG
 
 template <typename T>
@@ -55,11 +55,11 @@ ByRefType<T> MakeByRefType(T& expr)
 #define ByRefParam(type) type&
 
 #endif
-{% endhighlight %}
+```
 
 All well and good.  Now we can attribute byref paramaters with ByRefParam() and force callers to tag it as a ByRef argument.
 
-{% highlight c++ %}
+``` c++
     void SimpleByRef(ByRefParam(int) i, int newValue)
     {
         i = newValue;
@@ -71,7 +71,7 @@ All well and good.  Now we can attribute byref paramaters with ByRefParam() and 
         SimpleByRef(ByRef(i1), 5);
         SimpleByRef(i1, 6);     // Compiler Error!!!
     }
-{% endhighlight %}
+```
 
 As said before, this is an initial implementation and I expect updates as I use this in code and find bugs.  Please post back with any you find.
 

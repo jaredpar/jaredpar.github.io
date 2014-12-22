@@ -10,7 +10,7 @@ In my [previous post]({% post_url 2008-10-06-functional-c-providing-an-option %}
 
 As usual, this is available in the latest version of RantPack: <http://code.msdn.microsoft.com/RantPack>
 
-{% highlight csharp %}
+``` csharp
 [Immutable]
 [Serializable]
 [SuppressMessage("Microsoft.Naming", "CA1716")]
@@ -146,5 +146,5 @@ public sealed class Option
         get { return s_empty; }
     }
 }
-{% endhighlight %}
+```
 

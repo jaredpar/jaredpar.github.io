@@ -11,18 +11,18 @@ CleanupData() - Use this method to dispose of anything on your managed object wh
 
 CleanupNativeData() \- Use this method to free up any data associated with the Native pointer after the runtime is finished using it.  In our case, we have to allocate memory to Marshal the data structure into, so we need to free up this pointer.
 
-{% highlight csharp %}
+``` csharp
 public void CleanUpNativeData(IntPtr pNativeData)
 {
     Marshal.FreeCoTaskMem(pNativeData);
 }
-{% endhighlight %}
+```
 
 GetNativeDataSize() - Returns the size of the unmanaged data structure.  As previously discussed, this size is 268.
 
 MarshalManagedToNative() - Takes in an object and returns a pointer to the memory that contains the Native structure in memory.  To complete this we need to allocate a block of memory, and then marshal each of the fields in order into that memory block and return the pointer to the front of the block.  The pointer we allocate will be freed later when the runtime passes it into CleanupNativeData().  Some error checking was removed for the sake of brevity.
 
-{% highlight csharp %}
+``` csharp
 public IntPtr MarshalManagedToNative(object managedObj)
 {
     Course course = (Course)managedObj;
@@ -48,11 +48,11 @@ public IntPtr MarshalManagedToNative(object managedObj)
     }
     return ptr;
 }
-{% endhighlight %}
+```
 
 MarshalManagedToNative() - Marshal the Native Struct into a managed version.  This is almost identical to the sample that we did in part 3.  Code reposted below.  
     
-{% highlight csharp %}
+``` csharp
 public object MarshalNativeToManaged(IntPtr ptr)
 {
     int courseId = Marshal.ReadInt32(ptr);
@@ -74,7 +74,7 @@ public object MarshalNativeToManaged(IntPtr ptr)
 
     return course;
 }
-{% endhighlight %}
+```
 
 GetInstance() - This method is not a part of the ICustomMarshal interface but
 it's a **static** method that must be implemented by any custom marashaler.
@@ -89,34 +89,34 @@ The first is that we **must** convert the managed Course from a struct to a clas
 
 Also we can do away with the StructLayout attribute on the Course type.  We are hand Marshaling this now so we don't need to provide any hints to the runtime.  Now we are left with just a vanilla class.
 
-{% highlight csharp %}
+``` csharp
 public class Course
 {
     public int Id;  
     public int Count;  
     public List<Student> Students = new List<Student>(5);
 }
-{% endhighlight %}
+```
 
 Now we just need to inform the runtime about how to link our custom marshaler (called CourseMarshaler in my code) to the Course class.  Every place that we declare a P/Invoke method we need to add custom Marshalling data.  This is done by adding the MarshalAs attribute.  Lets use the GetCourseInfo() method for an example.  Here is our updated definition.
 
-{% highlight csharp %}
+``` csharp
 [DllImport("Enrollment.dll", CharSet = CharSet.Unicode)]
 [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef=typeof(CourseMarshaler))]
 public static extern Course GetCourseInfo(int id);
-{% endhighlight %}
+```
 
 We've made two important changes here as well.  The first is we changed the return type of the method from an IntPtr to a Course.  Remember that this is a class now so the runtime is expecting a pointer value.  We take advantage of that here.  Also we've added the MarshalAs attribute to the return type to tell the runtime to use the Custom marshaler that we created.
 
 This makes the use code even cleaner since we aren't dealing with an IntPtr return type anymore.
 
-{% highlight csharp %}
+``` csharp
 static void Main(string[] args)
 {
     Course course = Enrollment.GetCourseInfo(42);
     Student first = course.Students[0];
 }
-{% endhighlight %}
+```
 
 That essentially concludes this series on Marshalling Nested Data Structures.  I may add an additional chapter on common tips for debugging common marshalling problems if I have some time.  Hope you enjoyed this.
 

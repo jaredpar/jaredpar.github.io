@@ -7,7 +7,7 @@ A common scenario I see on the forums is users wanting to respond to a system sh
 
 The arguments provide two pieces of useful information.  The first being the reason for the session ending (logoff or shutdown).  It also allows you to cancel the event via the Cancel property.  For example the following code will prevent the shutdown of the computer as long as the program is running.
 
-{% highlight vbnet %}
+``` vbnet
 Imports Microsoft.Win32
 
 Sub PreventShutdown()
@@ -19,7 +19,7 @@ Sub PreventShutdownHelper(ByVal sender As Object, ByVal args As SessionEndingEve
     args.Cancel = True
   End If
 End Sub
-{% endhighlight %}
+```
 
 While this will prevent the shutdown from occurring you will see many of the apps on your screen close.  That's because some of them get the shutdown event before your app and most will close as a result.
 

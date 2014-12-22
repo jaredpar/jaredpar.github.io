@@ -9,7 +9,7 @@ So why does F# perform differently than C# in this scenario?
 
 Andrew Kennedy pointed out that F# will actually transform the 'inner' function into a loop.  In affect the code generated looks like the following.
 
-{% highlight csharp %}
+``` csharp
 TypeFunc func = this._self3;
 while (true)
 {
@@ -21,7 +21,7 @@ while (true)
     cont = new Program.clo@9<U V, A ,>(this.combine, cont, cur);
 }
 return cont.Invoke(this.acc);
-{% endhighlight %}
+```
 
 The actual transformation into a loop is what is preventing F# from overflowing the stack here.  Iteration incurs no stack overhead in this case.
 

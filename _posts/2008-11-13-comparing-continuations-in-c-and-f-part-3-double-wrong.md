@@ -5,7 +5,7 @@ Is it better to be wrong once or to be right then think you're wrong but find ou
 
 Here's the original sample:
     
-{% highlight fsharp %}
+``` fsharp
 let FoldRight combine (sequence:seq<'a>) acc = 
     use e = sequence.GetEnumerator()
     let rec inner cont = 
@@ -15,7 +15,7 @@ let FoldRight combine (sequence:seq<'a>) acc =
                 inner (fun racc -> cont (combine cur racc))
             | false -> cont acc
     inner (fun x -> x )
-{% endhighlight %}
+```
 
 [Brian McNamara](http://lorgonblog.spaces.live.com/blog/) pointed out I wasn't considering all of the call sites for this sample. In addition to the recursive call to 'inner' and the initial inner call, there is the actual recursive invocation of the of the continuations. Effectively the 'inner' function is building up a list of list of lambdas which call the combine function. The output of the combine function is simply passed into the next lambda in the list. The last lambda in the list is the identity lambda and returns the final call to combine. This value is the actual value returned from the initial invocation 'cont acc'. Lambdas are methods under the hood.  Without a tail instruction, this chain of lambda calls will just as easily overflow the stack.
 
@@ -40,7 +40,7 @@ Digging deeper into the compiled F# code we can view this call and indeed it is 
 
 The below code more accurately resembles the equivalent C# code that is generated for the above F# sample?? (thanks Brian!).
 
-{% highlight csharp %}
+``` csharp
 public static TAcc Inner<TSource, TAcc>(
     this IEnumerator<TSource> e,
     Func<TAcc, TSource, TAcc> combine,
@@ -66,7 +66,7 @@ public static TAcc FoldRight<TSource, TAcc>(
         return Inner(e, combine, start, (x) => x);
     }
 }
-{% endhighlight %}
+```
 
 **Previous Entries**
 

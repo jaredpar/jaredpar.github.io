@@ -12,7 +12,7 @@ Once again sorry for the long delay between posts.
 
 Looping structures can cause unintended consequences when used with Lambda expressions.  The problem occurs because lambda expressions do not execute when they are constructed but rather when they are invoked.  For example take the following code.
 
-{% highlight vbnet %}
+``` vbnet
 Sub LoopExample1()
     Dim list As New List(Of Func(Of Integer))
     For i = 0 To 3
@@ -23,7 +23,7 @@ Sub LoopExample1()
         Console.Write("{0} ", cur())
     Next
 End Sub
-{% endhighlight %}
+```
 
 Many users are surprised to find out the above will print "4 4 4 4 ".  The reason goes back to my previous 2 posts on variable lifetime and scope.  All "For" and "For Each" blocks in Vb have 2 scopes.
 
@@ -40,7 +40,7 @@ To mitigate against this problem the above code will actually produce a warning 
 
 There are two ways to fix this problem depending on the behavior you want.  If you see this warning and don't know if it affects you, the safest change is to do the following.
 
-{% highlight vbnet %}
+``` vbnet
 Sub LoopExample2()
     Dim list As New List(Of Func(Of Integer))
     For iTemp = 0 To 3
@@ -52,7 +52,7 @@ Sub LoopExample2()
         Console.Write("{0} ", cur())
     Next
 End Sub
-{% endhighlight %}
+```
 
 This will cause "i" to be created in the second scope.  Hence there will be a different value for every loop iteration and the code will print out "0 1 2 3" as expected.
 

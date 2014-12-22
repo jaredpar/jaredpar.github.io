@@ -9,25 +9,25 @@ Asynchronous programming is one of my favorite aspects of computing. What intere
 
 Future's are actions where work can be done now, but the result is not needed until a future time. Work occurs on a separate thread and the results can be easily joined once work is complete.
 
-{% highlight csharp %}
+``` csharp
 var f = Future.Create(() => LongCalculation());
 // ...
 var result = f.Wait();
-{% endhighlight %}
+```
 
 Future's are now exposed via the [Parallel Extension](http://blogs.msdn.com/pfxteam/archive/2007/11/29/6558413.aspx) team's work. You can download the CTP off of their web site and get to work.
 
 ActiveObjects are objects which only expose Asynchronous functions where the return value is exposed as a Future. So instead of
 
-{% highlight csharp %}
+``` csharp
 string GetName()
-{% endhighlight %}
+```
 
 You would have
 
-{% highlight csharp %}
+``` csharp
 Future<string> GetName()
-{% endhighlight %}
+```
 
 An ActiveObject essentially lives on or owns a thread. All operations are queued up and processed one at a time. Since only one action at a time can be executing the object internals don't have to use locks or consider many types of race conditions. In fact if your return types are immutable a great many threading concerns go out the window. Yet all of the calls are inherently asynchronous so callers can get the result only when they are needed. The best of both worlds.
 

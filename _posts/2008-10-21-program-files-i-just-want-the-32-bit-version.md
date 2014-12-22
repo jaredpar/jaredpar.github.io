@@ -9,7 +9,7 @@ Unfortunately in 64 bit windows there are actually two Program Files folders.  O
 
 Getting the 32 bit Program Files directory is simple enough: ${env:ProgramFiles(x86)}. Yet it's not portable back to a 32 bit version of windows. Yet another function to the rescue
 
-{% highlight powershell %}
+``` powershell
 function Get-ProgramFiles32() {
     if (Test-Win64 ) {
         return ${env:ProgramFiles(x86)}
@@ -17,5 +17,5 @@ function Get-ProgramFiles32() {
     
     return $env:ProgramFiles
 }
-{% endhighlight %}
+```
 

@@ -5,13 +5,13 @@ This is somewhat of a follow up on a previous [post]({% post_url 2007-10-04-ienu
 
 I've seen several people type in the following code and wonder if there was a fundamental bug in the type inference code.
 
-{% highlight vbnet %}
+``` vbnet
 Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
     For Each cur In Controls
         cur.Text = "A Value"
     Next
 End Sub
-{% endhighlight %}
+```
 
 This code will produce an error stating that "Text" is not a member of object.  Users expected type inference to type the variable "cur" as Control.  Unfortunately this is "By Design".
 

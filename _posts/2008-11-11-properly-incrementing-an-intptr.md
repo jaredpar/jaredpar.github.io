@@ -18,7 +18,7 @@ Instead use .ToInt64(). This method is safe on both 32 and 64 bit systems.  Addi
 
 In many of my projects I define a class similar to the following to take care of this automatically.
 
-{% highlight csharp %}
+``` csharp
 public static class IntPtrExtensions
 {
     public static IntPtr Increment(this IntPtr ptr, int cbSize)
@@ -38,7 +38,7 @@ public static class IntPtrExtensions
         return (T)Marshal.PtrToStructure(offsetPtr, typeof(T));
     }
 }
-{% endhighlight %}
+```
 
 [^1]: It's highly advisable to not calculate this value yourself.
 

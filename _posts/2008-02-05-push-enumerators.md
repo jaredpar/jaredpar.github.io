@@ -15,7 +15,7 @@ Below is my first attempt at getting it to work.  It has a couple of defects.
   2. It's not Reset-able.  The generated IEnumerator<T> throws a NotSupportedException anyway but we'd have to do a bit of work to make this resetable. 
     
     
-{% highlight csharp %}
+``` csharp
 public class EnumerableDataProducer<T> : IEnumerable<T>
 {
     private object m_lock = new object();
@@ -90,7 +90,7 @@ public class EnumerableDataProducer<T> : IEnumerable<T>
 
     #endregion
 }
-{% endhighlight %}
+```
 
     
 

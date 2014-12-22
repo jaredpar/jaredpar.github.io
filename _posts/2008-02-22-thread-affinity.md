@@ -7,7 +7,7 @@ One type of threading model is for objects or subsets of methods in an object to
 
 Simple, but gets the job done.
 
-{% highlight csharp %}
+``` csharp
 [Immutable]
 public sealed class ThreadAffinity
 {
@@ -30,5 +30,5 @@ public sealed class ThreadAffinity
         }
     }
 }
-{% endhighlight %}
+```
 

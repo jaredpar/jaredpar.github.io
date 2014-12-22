@@ -6,7 +6,7 @@ Sorry for the terrible pun in the title. I wanted to blog about developing an F#
 
 The basics of an Option class are very straight forward. It's a class that either has a value or doesn't. It's almost like nullable but for every type and allows for nulls to be a valid value. Here's a straight forward Option class I coded up.
 
-{% highlight csharp %}
+``` csharp
 public sealed class Option<T> {
     private readonly T m_value;
     private readonly bool m_hasValue;
@@ -39,26 +39,26 @@ public sealed class Option {
         return new Option<T>(value);
     }
 }
-{% endhighlight %}
+```
 
 I modified a bit of terminology to be more consistent with other frameworks I use (Some/None -> Value,HasValue). It's succinct, generic and has type inference friendly create functions. Or does it?
 
 Lets consider a function which has a return type of Option<int>. Case 1 is Option with a value. There is a type inference friendly Option.Create method which makes for a simple return expression. No types needed.
 
     
-{% highlight csharp %}
+``` csharp
 Option<int> SomeMethod() {
     return Option.Create(42);
 }
-{% endhighlight %}
+```
 
 Now lets consider Case #2, None. Here there is no handy inference method because what would we use for inference. There is no variable with a Type to use so we are forced to be explicit about the type.
 
-{% highlight csharp %}
+``` csharp
 Option<int> SomeMethod2() {
     return Option<int>.Empty;
 }
-{% endhighlight %}
+```
 
 In this case we're not so bad off because we're dealing with a simple type.  But what about more complex types' Consider for example a hypothetical Unfold method. The termination expression would be Option<Tuple<int,string>>.Empty.  Anonymous types are even worse since they are unnamable and can not ever be the source of an option with this design. This really pales in the usage category when compared with F#.
 
@@ -71,7 +71,7 @@ This leaves us with using a solution that doesn't involve variables of the neces
 Definition a non-generic empty Option is straight forward.  
 
     
-{% highlight csharp %}
+``` csharp
 public sealed class Option {
     private static Option s_empty = new Option();
     private Option() {
@@ -83,21 +83,21 @@ public sealed class Option {
         return new Option<T>(value);
     }
 }
-{% endhighlight %}
+```
 
 Using a private constructor allows us a high degree of confidence that any Option instance hanging around came from our Empty property and hence represents an empty option. Now all we need to do is define a conversion on Option<T>. Essentially we want to say that any non-generic Option is convertible to this instance. Add the following to Option<T>
 
-{% highlight csharp %}
+``` csharp
 public static implicit operator Option<T>(Option option) {
     return Option<T>.Empty;
 }
-{% endhighlight %}
+```
 
 Now, we can use an empty option in any generic scenario without having to specify ugly type parameters.
     
-{% highlight csharp %}
+``` csharp
 Option<int> SomeMethod3() {
     return Option.Empty;
 }
-{% endhighlight %}
+```
 

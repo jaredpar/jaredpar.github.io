@@ -15,11 +15,11 @@ As powerful as closures are in the language they do have a few limitations.  We 
 
 Example:
 
-{% highlight vbnet %}
+``` vbnet
 Sub LiftAByRef(ByRef x As Integer)
     Dim f = Function() x
 End Sub
-{% endhighlight %}
+```
 
     Message: error BC36639: 'ByRef' parameter 'x' cannot be used in a lambda expression.
 
@@ -29,7 +29,7 @@ The problem here is the expectation surrounding x.  Any change in the value of "
 
 Example:
     
-{% highlight vbnet %}
+``` vbnet
 Structure S1
     Public F1 As Integer
 
@@ -37,7 +37,7 @@ Structure S1
         Dim f = Function() F1
     End Sub
 End Structure
-{% endhighlight %}
+```
 
     Message: error BC36638: Instance members and 'Me' cannot be used within a lambda expression in structures
 
@@ -47,12 +47,12 @@ Closures capture values by reference.  It's not possible to capture the "Me" of 
 
 Example:
 
-{% highlight vbnet %}
+``` vbnet
 Sub LiftRestrictedType()
     Dim x As ArgIterator = Nothing
     Dim f = Function() x.GetNextArgType().GetModuleHandle()
 End Sub
-{% endhighlight %}
+```
 
 
     Message: error BC36640: Instance of restricted type 'System.ArgIterator' cannot be used in a lambda expression.
@@ -67,7 +67,7 @@ This hopefully will not affect many users.  There are several types in the CLR t
 
 Example:
 
-{% highlight vbnet %}
+``` vbnet
     Sub BadGoto()
         Dim x = 0
 
@@ -78,7 +78,7 @@ Label1:
             Dim f = Function() y
         End If
     End Sub
-{% endhighlight %}
+```
 
     Message: error BC36597: 'GoTo Label1' is not valid because 'Label1' is inside a scope that defines a variable that is used in a lambda or query expression.
 

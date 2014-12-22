@@ -13,7 +13,7 @@ Now I can just add a quick get-fortune to my profile script.
 
 Does the name Pavlov ring a bell?
     
-{% highlight vbnet %}
+``` vbnet
 <Cmdlet(VerbsCommon.Get, "Fortune")> _
 Public Class GetFortune
     Inherits PSCmdlet
@@ -81,5 +81,5 @@ Public Class GetFortune
     End Sub
 
 End Class
-{% endhighlight %}
+```
 

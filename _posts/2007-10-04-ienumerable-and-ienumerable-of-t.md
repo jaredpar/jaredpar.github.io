@@ -11,7 +11,7 @@ The basic shim involves two classes
 
 * EnumerableShim - Implements IEnumerable(Of Object).  This class wraps an IEnumerable object only has two methods. 
     
-{% highlight vbnet %}
+``` vbnet
         Public Function GetEnumerator() As System.Collections.Generic.IEnumerator(Of Object) Implements System.Collections.Generic.IEnumerable(Of Object).GetEnumerator
             Return New EnumeratorShim(m_enumerable.GetEnumerator())
         End Function
@@ -19,23 +19,23 @@ The basic shim involves two classes
         Public Function GetEnumerator1() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
             Return m_enumerable.GetEnumerator()
         End Function
-{% endhighlight %}
+```
 
 * EnumeratorShim - Implements IEnumerator(Of Object).  This class wraps the IEnumerator object created above and implements the standard methods by forwarding all calls to the IEnumerator implementation.  For example ...
     
-{% highlight vbnet %}
+``` vbnet
 Public ReadOnly Property Current() As Object Implements System.Collections.Generic.IEnumerator(Of Object).Current
     Get
         Return m_impl.Current
     End Get
 End Property
-{% endhighlight %}
+```
 
 Now whenever your stuck with and old framework collection that was not updated for generic support, you can use it in generic situations with a single indirection call.  
     
-{% highlight vbnet %}
+``` vbnet
 Dim list As New ArrayList
 ...
 SomeMethod(New EnumerableShim(list))
-{% endhighlight %}
+```
 

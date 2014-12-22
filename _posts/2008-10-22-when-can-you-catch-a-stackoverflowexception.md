@@ -11,7 +11,7 @@ This is a trivial point for sure. Yet I feel the need to point it out because I 
 
 Please don't take this post as advocating that you should handle a StackOverflowException (you shouldn't). This is merely an oddity I found interesting. Personally I'd prefer it not be catch-able in any circumstance.
 
-{% highlight csharp %}
+``` csharp
 public static void CatchStackOverflow1() {
     try {
         throw new StackOverflowException();
@@ -38,7 +38,7 @@ static void Main(string[] args) {
     CatchStackOverflow1();
     CatchStackOverflow2();
 }
-{% endhighlight %}
+```
 
 [^1]: Unless you are hosting the CLR in which case you can implement some recovery mechanism. This is certainly the exception though and not the rule
 

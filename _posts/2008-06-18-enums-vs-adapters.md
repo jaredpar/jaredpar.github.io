@@ -4,7 +4,7 @@ layout: post
 I like Enums and use them frequently for options and behavior. To an extent I
 use Enum's to control behavior. For example
 
-{% highlight csharp %}
+``` csharp
 enum Kind {
     Kind1,
     Kind2,
@@ -27,7 +27,7 @@ class Example {
         }
     }
 }
-{% endhighlight %}
+```
 
 This is an acceptable pattern and use for enums. However if you take a step back, what I've actually done here is use an enum to implement an [adapter pattern](http://en.wikipedia.org/wiki/Adapter_pattern). I've just been a bit lazy about it and not actually coded up the classes.  
 

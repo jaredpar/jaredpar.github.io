@@ -8,7 +8,7 @@ The most important thing to remember when Marshalling data is that the .Net Runt
 For example.  Here is the typical managed definition for the Student struct definition.
 
 
-{% highlight csharp %}
+``` csharp
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 public struct Student
 {
@@ -22,7 +22,7 @@ public struct Student
     public int BirthMonth;
     public int BirthYear;
 }
-{% endhighlight %}
+```
 
 Notice that the size of this structure is 52 bytes.
 
@@ -33,13 +33,13 @@ Notice that the size of this structure is 52 bytes.
 This is the same size as the native definiton of Student.  In memory these bytes will all appear in order with no spaces between them (FirstName and LastName are set as ByValTStr's so they will be inlined).  So LastName is 20 bytes offset of a student structure, BirthDay is 40 bytes offset and so on.
 
 You don't always have to be so perfect though.  In this case it's only important because we want to accesss the fields of the managed structure.  If this was not important to us, we could have just as easily declared the structure as so.  
-{% highlight csharp %}
+``` csharp
 [StructLayout(LayoutKind.Sequential, Size = 52, CharSet = CharSet.Unicode)]
 public struct Student
 { 
 
 }
-{% endhighlight %}
+```
 
 Note that i didn't leave anything out in the structure above.  It has the correct CharSet and Size so this could be successfully used wherever we need the Student structure.  It just doesn't help us very much in Managed code :)
 
@@ -47,7 +47,7 @@ Now onto the Course.  A lot of developers get tripped up when trying to define s
 
 This structure is very small.  There are only 5 inlined elements in the student array.  This means that we could easily define our structure as so.  
 
-{% highlight csharp %}
+``` csharp
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 public struct Course
 {
@@ -59,7 +59,7 @@ public struct Course
     Student Student3;
     Student Student4;
 }
-{% endhighlight %}
+```
 
 
 I realize there are several downsides to defining our structure like this.  For one, it doesn't look very clean.  Secondly we've lost the ability to easily index the array of students.  Also this works easily because there are only 5 elements in the array.  If there were much more than that this wouldn't be pheasible at all.  However this structure is layed out exactly like the one defined in Native code so this will Marshal correctly.

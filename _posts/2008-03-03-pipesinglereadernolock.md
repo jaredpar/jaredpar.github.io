@@ -12,7 +12,7 @@ For this exercise we will be using a slight variant of Eric Lippert's [Immutable
 This makes the implementation of reading input straight forward.  While m_readStack is not empty the reader thread can systematically pop off the values.  This doesn't require any contention with writer threads and since their is only one reader thread and the stack is immutable the code is straight forward.  Once the m_readStack is empty the reader thread will swap out the current state of m_writeStack with an empty stack.  The original value will be reversed so we can maintain the FIFO ordering and set as the new m_readStack.
 
      
-{% highlight csharp %}
+``` csharp
 private bool CheckForInput() {
     if( m_readerStack.IsEmpty ) {
         var prev = Interlocked.Exchange(ref m_writerStack, ImmutableStack<T>.Empty);
@@ -20,12 +20,12 @@ private bool CheckForInput() {
     }
     return !m_readerStack.IsEmpty;
 }
-{% endhighlight %}
+```
 
 Writing data is more complicated because it must deal with contention for updating the same data structure.  It can be altered by other writers or the reader thread when it runs out of data.  Basically it must push a value onto the stack and update the m_writerStack to point to the new value.  In between the operations the value of m_writerStack could change and thus invalidate the push.  To guard against this the writer must guarantee the current value of the m_writerStack is the same as it was before the push operation.  Interlocked.CompareExchange will do the trick.  If it's been changed then repeat the operation.
 
     
-{% highlight csharp %}
+``` csharp
 public void AddInput(T value) {
     bool done;
     do {
@@ -39,7 +39,7 @@ public void AddInput(T value) {
     } while (!done);
     m_event.Set();
 }
-{% endhighlight %}
+```
 
 At a glance it may seem like this suffers from the [ABA problem](http://en.wikipedia.org/wiki/ABA_problem).  This is not the case and it's easy to prove.  In between the read and push operation only two other operations can modify the m_writeStack variable.  The first is another write which will produce a new value of ImmutableStack<T>.  In this case the CLR guarantees that the references will not be equal and the CAS operation won't succeed.  The second is the reader thread swaps out the value and replaces it with Empty.  It's possible to hit an ABA situation here (detailed below) but fundamentally if it was empty before and empty now the operation is still safe.  No data is lost because we are still replacing an empty stack with a single value'd stack.  
 
@@ -56,7 +56,7 @@ Even though this exhibits many characterstics of the ABA pattern it is not a pro
 Below is the implementation in it's entirety.
 
     
-{% highlight csharp %}
+``` csharp
 public class PipeSingleReaderNoLock<T> : IDisposable {
     private readonly ThreadAffinity m_affinity = new ThreadAffinity();
     private ImmutableStack<T> m_readerStack = ImmutableStack<T>.Empty;
@@ -130,7 +130,7 @@ public class PipeSingleReaderNoLock<T> : IDisposable {
     public void CloseInput() {
         m_inputClosed = true;
     }
-{% endhighlight %}
+```
 
 [^1]: If you haven't read this series you really should.
 

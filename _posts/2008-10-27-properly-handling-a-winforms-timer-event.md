@@ -9,11 +9,11 @@ What's going on here is a side effect of how this event works under the hood.  T
 
 So imagine we had the following code.
 
-{% highlight vbnet %}
+``` vbnet
 Private Sub OnTimerTick() Handles m_timer.Tick
     RunSomeOperation()
 End Sub
-{% endhighlight %}
+```
 
 Consider what happens if RunSomeOperation takes longer than 2 seconds. The Tick event is fired in real time so while we're in the middle of RunSomeOperation, another Tick event is being queued up for processing. As soon as we leave OnTimerTick we're back in WinForms code which sees a Tick event and promptly raises it which puts us right back in OnTimerTick.  
 
@@ -21,7 +21,7 @@ This is contrary to what most people expect. Most people expect the Tick event t
 
 To work around this developers should stop the timer when processing a timer event. Just before exiting the event handler, re-enable the timer. This will cause Windows to start calculating the interval from the start. This has the effect of making the timer event fire 2 seconds after developer code stops executing.
 
-{% highlight vbnet %}
+``` vbnet
     Private Sub OnTimerTick() Handles m_timer.Tick
         m_timer.Stop()
         Try
@@ -30,6 +30,6 @@ To work around this developers should stop the timer when processing a timer eve
             m_timer.Start()
         End Try
     End Sub
-{% endhighlight %}
+```
 
 [^1]: This is not 100% true. It's really whenever the Application begins to pump messages again. Message pumping, more specifically when it does and does not occur, is too involved for this discussion.  

@@ -16,19 +16,19 @@ FSharpOption<T> is the exposed type for the native F# [option](http://msdn.micro
 
 In F# using an option is an inherent part of the language and the hence the resulting code is very elegant.
 
-{% highlight fsharp %}
+``` fsharp
 let OptionExample = 
     let optionWithValue = Some(42)
     let optionWithoutValue = None
     let isSome = Option.isSome optionWithValue
     let isNone = Option.isNone optionWithoutValue
     Option.get optionWithValue
-{% endhighlight %}
+```
 
 Unfortunately the equivalent C# code is not nearly so nice.
 
     
-{% highlight csharp %}
+``` csharp
 static int OptionExample() {
     var optionWithValue = new FSharpOption<int>(42);
     var optionWithoutValue = FSharpOption<int>.None;
@@ -36,7 +36,7 @@ static int OptionExample() {
     var isNone = FSharpOption<int>.get_IsNone(optionWithValue);
     return optionWithValue.Value;
 }
-{% endhighlight %}
+```
 
 Too many explicit types!!! Using any explicit type with F# related code just feels wrong.
 
@@ -44,7 +44,7 @@ In C#, and most other .Net languages, 4 out of the 5 operations you want to do o
 
 Luckily most of these can be solved by using the familiar pattern of using a non-generic class with static generic methods. These allow C# users to take advantage of the languages type inference capabilities to reduce the verbosity of the code.
 
-{% highlight csharp %}
+``` csharp
 public static class FSharpOption {
     public static FSharpOption<T> Create<T>(T value) {
         return new FSharpOption<T>(value);
@@ -56,11 +56,11 @@ public static class FSharpOption {
         return FSharpOption<T>.get_IsNone(opt);
     }
 }
-{% endhighlight %}
+```
 
 Now we can rewrite the original sample a bit cleaner
     
-{% highlight csharp %}
+``` csharp
 static int OptionExample() {
     var optionWithValue = FSharpOption.Create(42);
     var optionWithoutValue = FSharpOption<int>.None;
@@ -68,7 +68,7 @@ static int OptionExample() {
     var isNone = optionWithoutValue.IsNone();
     return optionWithValue.Value;
 }
-{% endhighlight %}
+```
 
 Notice we still haven't fixed the None case. Fixing this is a beyond the scope of what I want to write here but it is possible in certain scenarios.  You can take a look at how in one of my previous blog articles: [Function C# Providing an Option]({% post_url 2008-10-06-functional-c-providing-an-option %}).
 

@@ -11,7 +11,7 @@ But there are cases where events are sourced from a separate thread and we need 
 
 Here is an example implementation.
 
-{% highlight csharp %}
+``` csharp
 private void OnFileChanged(object sender, FileSystemEventArgs e)
 {
     if( this.InvokeRequired )
@@ -23,13 +23,13 @@ private void OnFileChanged(object sender, FileSystemEventArgs e)
 
     textBox2.Text = String.Format("{0} {1}", e.ChangeType, e.Name);
 }
-{% endhighlight %}
+```
 
 It would be easier if we could bind a delegate to a particular thread in such way that calls automatically marshal to the appropriate thread. Imagine for instance if we could type the following in such a way that all invocations of "del" below would automatically marshal to the thread for the Control. We could then freely pass this to any event source and not have to worry about what thread the event is raised on.
 
-{% highlight csharp %}
+``` csharp
 var del = SynchronizationContext.Current.BindDelegateAsPost(new FileSystemEventHandler(OnFileChanged));
-{% endhighlight %}
+```
 
 Instead of ISynchronizedInvoke we'll use [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx). IMHO this is a better approach for this type of work. It has the same functionality as ISynchronizedInvoke and helps with a few of the quirks. The Windows Forms Application Model (and if memory serves WPF) insert a [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx) for every thread running a WinForm application. It greatly reduces the chance your code will run into problem #1 above because the timespan for when it can be used to Marshal between threads is not dependent upon the internal workings of a particular Control. Instead it's tied to the lifetime of the Thread[^1].
 
@@ -39,7 +39,7 @@ Creating a delegate instance on the fly is not straight forward. Unless we code 
 
 First up are extension methods for [SynchronizationContext](http://msdn2.microsoft.com/en-us/library/system.threading.synchronizationcontext.aspx) that call into a helper class.
 
-{% highlight csharp %}
+``` csharp
 public static T BindDelegateAsPost<T>(this SynchronizationContext context, T del)
 {
     return DelegateFactory.CreateAsPost(context, del);
@@ -48,11 +48,11 @@ public static T BindDelegateAsSend<T>(this SynchronizationContext context, T del
 {
     return DelegateFactory.CreateAsSend(context, del);
 }
-{% endhighlight %}
+```
 
 Next is a class which injects the Send/Post call. We need this as a storage mechanism for holding the context and delegate. Essentially this is a hand generate closure.
 
-{% highlight csharp %}
+``` csharp
 private class DelegateData
 {
     private SynchronizationContext m_context;
@@ -74,12 +74,12 @@ private class DelegateData
         m_context.Post(() => m_target.DynamicInvoke(args));
     }
 }
-{% endhighlight %}
+```
 
 Now comes the actual delegate generation. The dynamic method will be bound to an instance of the DelegateData class. As such we must add an additional parameter to the delegate of type DelegateData in position 0. The rest of the method creates an object array with length equal to the number of parameters in the delegate. Each of the arguments are added to this array. Then it will call Post/Send in DelegateData passing the arguments along.
 
     
-{% highlight csharp %}
+``` csharp
 private static T Create<T>(SynchronizationContext context, T target, string name)
 {
     Delegate del = (Delegate)(object)target;
@@ -129,7 +129,7 @@ internal static T CreateAsPost<T>(SynchronizationContext context, T target)
 {
     return Create(context, target, "Post");
 }
-{% endhighlight %}
+```
 
 The resulting delegate is now of the same type as the original delegate and invocations will occur on the targeted thread.
 

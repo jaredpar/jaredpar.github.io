@@ -24,7 +24,7 @@ The next step was to write an easy to use wrapper for this functionality.  I use
 
 The first class is designed to properly install a translator at a given point in the stack and ensure that it is reset to the previous value when that stack frame is popped off.
     
-{% highlight c++ %}
+``` c++
 extern void SehTranslatorFunction(unsigned int, struct _EXCEPTION_POINTERS*);
 
 class SehGuard
@@ -43,12 +43,12 @@ public:
 private:
     _se_translator_function m_prev;
 };
-{% endhighlight %}
+```
 
 The second part is to actually throw an exception inside of SehTranslatorFunction.  Also to add an assert so that when an SEH exception is produced I can break at the point of failure (as opposed to in the catch block where the stack will be unwound.
 
     
-{% highlight c++ %}
+``` c++
 class SehException
 {
 public:
@@ -61,7 +61,7 @@ void SehTranslatorFunction(unsigned int code, struct _EXCEPTION_POINTERS*)
     MyAssertFunction(false,"Caught an SEH exception");
     throw SehException(code);
 }
-{% endhighlight %}
+```
 
 Now whenever I hit a point where I want to guard against SEH exceptions, I just put and instance of SehGuard on the stack and catch SehException instances.  No traditional SEH needed.
 

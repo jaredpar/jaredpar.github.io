@@ -6,23 +6,23 @@ In my last [post]({% post_url 2009-02-11-why-are-thread-safe-collections-so-hard
 One of the main issues I have with mutable thread safe collections is the use of decision procedures such as Count and Contains.  Procedures such these only return information that pertains to the collection as it existed at a previous point in time.  It can provide no relevant information to the collection in it's current state and only encourages the user to write bad code.  For example.
 
     
-{% highlight csharp %}
+``` csharp
 if (col.Count > 0) {  
     // Collection can be modified before this next line executes leading to   
     // an error condition  
     var first = col[0];   
 }
-{% endhighlight %}
+```
 
 Therefore they have no place on a mutable thread safe collection.  Yet, once you take away these procedures, you're left with a collection that is virtually useless.  It can only have a minimal API by which to access data.  Here is the last example we were left with
 
-{% highlight csharp %}
+``` csharp
 public sealed class ThreadSafeList<T> {  
     public void Add(T value) { ... }  
     public bool TryRemove(T value) { ... }  
     public bool TryGet(int index, out T value) { ... }  
 }
-{% endhighlight %}
+```
 
 This is hardly a usable API.  What's worse, as wekempf point out, is that I inadvertently exposed a decision procedure in this API.  It's possible to infer state about a lower or equal index by a successful return result from TryGet().  For example, a user may say that 'if I can access element 2, then surely element 1 must exist'.  The result would still be evident in code (ignoring the return value of a TryGet method should be a red flag).  But a better choice for this method would have been a TryGetFirst().
 
@@ -31,7 +31,7 @@ At the end of the day, users are going to want some level of determinism out of 
 One way to do this is to simply exposed the internal lock to the consumer of the collection.  Consumers can take the lock and then query to their hearts content.  Lets do a quick modification of the original sample to allow for this.
 
     
-{% highlight csharp %}
+``` csharp
 public sealed class ThreadSafeList<T> {  
     private List<T> m_list = new List<T>();  
     private object m_lock = new object();  
@@ -59,18 +59,18 @@ public sealed class ThreadSafeList<T> {
         set { lock (m_lock) { m_list[index] = value; } }  
     }  
 }
-{% endhighlight %}
+```
 
 Now we can go back to the original sample code and write a version which can use the decision procedures safely.
 
-{% highlight csharp %}
+``` csharp
 lock (col.SyncLock) {  
     if (col.Count > 0) {  
         var first = col[0];  
         ...  
     }  
 }
-{% endhighlight %}
+```
 
 This code will function correctly.  But the API leaves a lot to be desired.  In particular '
 
@@ -97,19 +97,19 @@ Lets run with this idea to design a more usable thread safe queue.  First we'll 
 
 The ThreadSafeQueue class will contain all of the methods in category #1.  It will also provide a method which returns an instance of an interface which has all of the methods in category #2.
 
-{% highlight csharp %}
+``` csharp
 public interface ILockedQueue<T> : IDisposable{  
     int Count { get; }  
     bool Contains(T value);  
     T Dequeue();  
 }
-{% endhighlight %}
+```
 
 The implementation of this interface object will acquire the internal lock of the original ThreadSafeQueue during construction and hold it for the duration if it's lifetime.  This effectively freezes the queue allowing for decision procedures to be used reliably.  Implementing IDisposable and releasing the lock in the Dispose method provides a measure of lifetime management.  
 
 The rest of the code sample is below.
 
-{% highlight csharp %}
+``` csharp
 public sealed class ThreadSafeQueue<T> {  
   
     #region LockedQueue  
@@ -169,12 +169,12 @@ public sealed class ThreadSafeQueue<T> {
         return new LockedQueue(this);  
     }  
 }
-{% endhighlight %}
+```
 
 This design now cleanly separates out the two modes by which the collection can be asked.  It completely hides the explicit synchronization aspects from the users and replaces it with design patterns (such as IDisposable) that they are likely already familiar with.  Now our original bad sample can be rewritten as follows.
 
     
-{% highlight csharp %}
+``` csharp
 static void Example1(ThreadSafeQueue<int> queue) {  
     using (var locked = queue.Lock()) {  
         if (locked.Count > 0) {  
@@ -182,7 +182,7 @@ static void Example1(ThreadSafeQueue<int> queue) {
         }  
     }  
 }
-{% endhighlight %}
+```
 
 No explicit synchronization code is needed by the user.  This design makes it much harder for the user to make incorrect assumptions or misuses of the collection.  The 'decision procedures' are simply not available unless the collection is in a locked state.
 

@@ -3,7 +3,7 @@ layout: post
 ---
 One pattern I've started running into is developers explicitly throwing a NullReferenceException when validating the 'this' parameter of an extension method.
 
-{% highlight csharp %}
+``` csharp
 public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
 {
     if (null == enumerable)
@@ -12,7 +12,7 @@ public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
     }
     // rest omitted 
 }
-{% endhighlight %}
+```
 
 The desired behavior here is to make extension methods look even more like instance methods by adding similar exception semantics. So now a call to col.ForEach(..) throws a NullReferenceException if col is null just like it would if ForEach were a real method.  
 
@@ -27,7 +27,7 @@ For me #1 and #3 are the most compelling points. Violating either of these goes 
 
 The correct pattern here is that for a normal static method: use an ArgumentNullException.
 
-{% highlight csharp %}
+``` csharp
 public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
 {
     if (null == enumerable)
@@ -36,7 +36,7 @@ public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
     }
     // rest ommitted 
 }
-{% endhighlight %}
+```
 
 [^1]: I very much wish explicitly throwing runtime exceptions produced unverifiable code
 

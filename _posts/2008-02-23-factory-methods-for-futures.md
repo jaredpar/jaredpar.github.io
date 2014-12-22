@@ -7,7 +7,7 @@ In addition to the 2 straight forward declaration of Func<T> and Action, the met
 
 In addition because we don't expose the EmptyFuture class directly we need to provide a factory method to create it in a non-run state.  Otherwise we are forcing the EmptyFuture to always be created and run in the ThreadPool.
 
-{% highlight csharp %}
+``` csharp
 public static Future Create(Action action)
 {
     var f = new EmptyFuture(action);
@@ -41,5 +41,5 @@ public static Future CreateNoRun(Action action)
 {
     return new EmptyFuture(action);
 }
-{% endhighlight %}
+```
 

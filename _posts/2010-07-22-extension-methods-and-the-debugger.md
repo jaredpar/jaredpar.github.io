@@ -8,7 +8,7 @@ Unfortunately no. In this case the behavior described is very possible and 'By D
 Quick review. Expression evaluators strive to have evaluation parity with the compiler. So if expression _expr _is valid at the place the debugger is stopped, _expr_ should also be a valid expression in the immediate, watch, etc ... windows. This holds true for extension methods. For example
 
     
-{% highlight csharp %}
+``` csharp
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +23,7 @@ namespace ConsoleApplication1 {
         }
     }
 }
-{% endhighlight %}
+```
 
 At the Debugger.Break line expressions like `col.First()` are valid and legal (assuming System.Core is referenced). Hence they should also be available in the debugger windows. But with extension methods developers will occasionally see the following.
 

@@ -15,13 +15,13 @@ Take the member Count for instance.  This is found on virtually every collection
 
 Take the example below.  Just because the Count is >0 in the if block has no dependable relevance to what the value will be inside the if block.
 
-{% highlight csharp %}
+``` csharp
 var ThreadSafeList<int> col = GetList();
 if( col.Count > 0 )
 {
     //...
 }
-{% endhighlight %}
+```
 
 To guard against this and have users of the collections avoid the pit of failure members such as Count should not appear on mutable thread-safe collections.
 
@@ -33,7 +33,7 @@ The output end is more interesting.  The end goal is to read output from the pip
   * GetNextOutput - Blocks until input is available and returns it
   * TryGetOutput - Returns immediately.  If output is available it will be returned.
     
-{% highlight csharp %}
+``` csharp
 public class PipeSingleReader<T> : IDisposable {
     private readonly ThreadAffinity m_affinity = new ThreadAffinity();
     private readonly Queue<T> m_queue = new Queue<T>();
@@ -105,7 +105,7 @@ public class PipeSingleReader<T> : IDisposable {
         }
     }
 }
-{% endhighlight %}
+```
 
 At a quick glance it may seem odd in GetNextOutput that I loop around m_event being set and TryGetOutput.  Why loop?  Shouldn't a single check for the settness of m_event be enough?  In this case no.  The reason why is TryGetOutput will remove output from the queue without resetting the settness of m_event.  Thus m_event can be set without actually having any data in m_queue.  In general the implementation must treat m_event being set as the possibility of data rather than a guarantee.
 

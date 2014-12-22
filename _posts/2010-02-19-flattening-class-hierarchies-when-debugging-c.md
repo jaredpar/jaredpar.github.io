@@ -6,7 +6,7 @@ One piece of feedback I heard in the MVP sessions this week is that debugging de
 Take for instance the following class hierarchy 
     
     
-{% highlight csharp %}
+``` csharp
 class Animal {
     public string name;
     public Animal(string name) {
@@ -29,7 +29,7 @@ class Mutt : Dog {
         this.breeds = new List<string>(breeds);
     }
 }
-{% endhighlight %}
+```
 
 When you are working with an instance of Mutt in the debugger, it takes 3 rounds of clicking to see what it's name is.
 
@@ -56,7 +56,7 @@ The basic strategy for flattening a hierarchy is to do the following in our type
 The result is a type proxy which will display all of the members of an object inline. Here is the full code sample
 
 
-{% highlight csharp %}
+``` csharp
 internal sealed class FlattenHierarchyProxy {
 
     [DebuggerDisplay("{Value}", Name = "{Name,nq}", Type = "{Type.ToString(),nq}")]
@@ -117,15 +117,15 @@ internal sealed class FlattenHierarchyProxy {
         return list;
     }
 }
-{% endhighlight %}
+```
 
 The last step is to attribute the root of our type hierarchy with this type
 proxy.
 
-{% highlight csharp %}
+``` csharp
 [DebuggerTypeProxy(typeof(FlattenHierarchyProxy))]
 class Animal {
-{% endhighlight %}
+```
 
 Now when when debugging instances which derive from Animal developers will see a flattened hierarchy of values.
 

@@ -4,11 +4,11 @@ layout: post
 A [question](http://stackoverflow.com/questions/2868862/newlines-in-the-immediate-window) came up recently on stack overflow concerning the display of newlines in the immediate window.'? The author noted that any .ToString method which contained a newline printed incorrectly when evaluated in the immediate window. For example given the following ToString implementation
 
     
-{% highlight csharp %}
+``` csharp
 public override string ToString() {
     return "Hello" + Environment.NewLine + "World";
 }
-{% endhighlight %}
+```
 
 The immediate window would display the following. Noticed how the newline was printed as the actual escape sequence instead of a physical newline.
 

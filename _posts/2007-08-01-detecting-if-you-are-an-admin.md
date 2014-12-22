@@ -5,7 +5,7 @@ This came up on an internal alias.  A customer wanted to know how to determine i
 
 This is essentially the same as the code in a previous post of mine but ported to [VB]({% post_url 2005-11-07-489942 %}).
 
-{% highlight vbnet %}
+``` vbnet
 Imports System.Security.Principal
 Module Module1
 
@@ -29,7 +29,7 @@ Module Module1
     End Sub
 
 End Module
-{% endhighlight %}
+```
 
 
     

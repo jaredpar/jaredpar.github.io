@@ -28,7 +28,7 @@ Most adventures in PInvoke start with a developer having a small set of C code t
 
 For instance assume you wanted to translate the following C code into VB.
 
-{% highlight c %}
+``` c
 struct S1
 {
   int a;
@@ -36,7 +36,7 @@ struct S1
 };
 
 float CalculateData(S1* p);
-{% endhighlight %}
+```
 
 Start up the tool and switch to the "SigImp Translate Snippet" tab.  Then paste the code in and then hit the Generate button.
 
@@ -57,7 +57,7 @@ The tool also provides a database of many commonly used functions, structs, cons
 In addition this part of the tool will also do dependency calculation.  For instance if choose a method which has a parameter that is a C structure it will automatically generate the structure with the function.  For instance if you choose the function [FindFirstFile](http://msdn2.microsoft.com/en-us/library/aa364418.aspx) it will determine that the function depends on the WIN32_FIND_DATA structure.  Furthermore it will notice that WIN32_FIND_DATA depends on FILETIME and generate both in addition to the method.
 
     
-{% highlight vbnet %}
+``` vbnet
 <System.Runtime.InteropServices.StructLayoutAttribute( _
     System.Runtime.InteropServices.LayoutKind.Sequential, _
     CharSet:=System.Runtime.InteropServices.CharSet.[Unicode])> _
@@ -110,7 +110,7 @@ Partial Public Class NativeMethods
         ByRef lpFindFileData As WIN32_FIND_DATAW) As System.IntPtr
     End Function
 End Class
-{% endhighlight %}
+```
 
 ### Translating Large Code bases
 

@@ -6,7 +6,7 @@ Recently I had to test a class which heavily depended upon a [SynchronizationCon
 The solution I came up with is simple and gives the unit test a large degree of control over the execution of posted delegates. The resulting tests were much easier to code and understand.
 
     
-{% highlight csharp %}
+``` csharp
 public sealed class TestSynchronizationContext : SynchronizationContext {
     private List<Tuple<SendOrPostCallback, object>> m_pending 
         = new List<Tuple<SendOrPostCallback, object>>();
@@ -23,5 +23,5 @@ public sealed class TestSynchronizationContext : SynchronizationContext {
         m_pending.ForEach(x => x.First(x.Second));
     }
 }
-{% endhighlight %}
+```
 

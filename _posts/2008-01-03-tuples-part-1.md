@@ -17,10 +17,10 @@ For me this still works.  In my code, I only end up using tuples when I need to 
 
 In addition, our tuple implementation will leverage type inference as much as possible such that the following code can be written.
 
-{% highlight csharp %}
+``` csharp
 var tuple = Tuple.Create("foo");
 Console.WriteLine(tuple.A);
-{% endhighlight %}
+```
 
 Why write a script to generate these classes?  Wouldn't it just be easier to just do this by hand'  Yes and no.  If you are doing a fixed set of short used classes then yes, do it by hand.  These scripts evolved out of my use of tuples.  Once I would settle on a structure and I would think of a new feature I needed.  Typically I have tuples defined up to 5 fields.  Retyping out a new feature got tiresome and error prone.  With a scripting solution I could add a new feature and tests in just a few minutes.  The series is very representative of the way my solution changed over time.  Simple at first but I added features as the situation dictated.  Having a scripting solution saved me a lot of time.
 

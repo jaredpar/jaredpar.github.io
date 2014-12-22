@@ -6,14 +6,14 @@ Script blocks are a concise way of representing an expression or statement group
 One difference between C#/F#/VB lambda expressions and a scriptblock is the lack of lexical closures (otherwise known as variable capturing). This feature allows for a variable defined in an outer scope to be captured by the lambda in such a way that the value is maintained with the lambda expression.  The details on how the variable is captured can vary from language to language but the basics are the same.
 
     
-{% highlight csharp %}
+``` csharp
 static void ClosureExample() {
     var name = "first";
     Func<string> captureName = () => name;
     name = "second";
     Console.WriteLine(captureName());   // prints: second
 }
-{% endhighlight %}
+```
 
 Due to the flexible nature of powershell it is possible for a scriptblock to appear to have captured a variable when in fact it's just a quirk of variable name resolution. An important item to remember when considering how a scriptblock will execute is knowing that a script block is evaluated at the point of execution, not the point of definition.  
     

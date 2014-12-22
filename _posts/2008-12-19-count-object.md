@@ -20,7 +20,7 @@ The second is that it forces you to allocate a contiguous block of memory to exa
 A better solution is using a filter to count the elements. Filters integrate into the powershell pipeline and process data a single element at a time.  This solves both problems above. The first is that it will smoothly integrate onto the end of an existing pipeline. Also because it is a filter it processes each element individually preventing a huge array allocation.
 
     
-{% highlight powershell %}
+``` powershell
     function Count-Object() {
         begin {
             $count = 0
@@ -32,7 +32,7 @@ A better solution is using a filter to count the elements. Filters integrate int
             $count
         }
     }
-{% endhighlight %}
+```
 
 Now lets get back to the original problem.
     

@@ -20,21 +20,21 @@ Lets add some substance to this conversation by considering these types of APIs 
 A 'will' API is the safest to work with because the data will always be valid.  This API cannot be influenced by side effects. Hence the the programmer is free to think only about the algorithm at hand. These APIs are rare and are typically associated with purely immutable data structures. This is the main type of structure for which data does not ever change. For instance consider this set of calls
 
     
-{% highlight csharp %}
+``` csharp
 var name = "bob";
 ImmutableMap<string, Student> map = GetSomeImmutableMap();
 if (map.ContainsKey(name)) {
     SomeOtherCall();
     var student = map[name];
 }
-{% endhighlight %}
+```
 
 This call to the indexer will succeed no matter what. The structure cannot be changed irrespective of what actually happens in SomeOtherCall. The ContainsKey method already asserted the key was present in the hashtable.  Because the structure is immutable this assertion will be valid for the remainder of the program and hence the indexer must succeed.
 
 An 'is' API is the most common type of API. It is generally associated with mutable structures completely within the control of the program / thread. The data will remain valid until it is explicitly, or much worse implicitly, invalidated by the user. In a well factored program it is possible to reason about these types of APIs but hidden side effects can get you into trouble.  For instance consider the following code in the context of a single thread.
 
     
-{% highlight csharp %}
+``` csharp
 var name = "bob";
 Dictionary<string, Student> map = GetSomeDictionary();
 if (map.ContainsKey(name)) {
@@ -42,7 +42,7 @@ if (map.ContainsKey(name)) {
     SomeOtherCall();
     Console.WriteLine(map[name]);
 }
-{% endhighlight %}
+```
 
 The state of a Dictionary<TKey,TValue> structure is completely within the control of the program. As such the first call to Console.WriteLine will work fine. There is nothing which can alter the state of map between the call to ContainsKey and the actual accessing of the map in the first WriteLine call so the assertion is still valid.
 
@@ -52,13 +52,13 @@ As previously stated, a 'was' API is the most dangerous type of API. They never 
 
 For an example, consider SynchronizedDictionary to be an implementation of Dictionary<TKey,TValue> which uses locks internally to prevent data corruption from reads / writes on multiple threads but provides no other synchronization capabilities .
 
-{% highlight csharp %}
+``` csharp
 var name = "bob";
 SynchronizedDictionary<string, Student> map = GetSomeSynchronizedDictionary();
 if (map.ContainsKey(name)) {
     var student = map[name];
 }
-{% endhighlight %}
+```
 
 In this example it's possible for the call to map[name] to fail because another thread came through and cleared the collection in between the if statement and the call to map[name]. The bug here is that the program was written as if ContainsKey gave information about the present or future but in fact only gave information about the past. This actual return of the API could be made clearer by simply altering the name of the API. A much more applicable name is 'DidContainKey' or 'DidAndMayStillContainKey'. This name is much more representative of the data returned and will hopefully give a developer pause before writing code like the above.
 

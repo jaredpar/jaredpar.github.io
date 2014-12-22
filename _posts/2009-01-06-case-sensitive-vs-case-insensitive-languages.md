@@ -6,12 +6,12 @@ Just had a random thought while I was looking at some code today. It's yet anoth
 Do you really want this to be able to compile?
 
     
-{% highlight csharp %}
+``` csharp
 class C1 {
   int M1;
   int m1;
 }
-{% endhighlight %}
+```
 
 Yes it's an abuse and should absolutely be caught in a code review. But at the same time, experience has taught me that if an evil thing can be done with a language, someone will do it.
 

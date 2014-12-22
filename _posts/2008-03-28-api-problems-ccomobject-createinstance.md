@@ -5,7 +5,7 @@ layout: post
 
 Below is a typical example I see in code.
     
-{% highlight c++ %}
+``` c++
 void AMethod()
 {
     CComObject<Student> *pStudent;
@@ -16,7 +16,7 @@ void AMethod()
         pStudent->Release();
     }
 }
-{% endhighlight %}
+```
 
 As a result of the manual ref counting, this code is not exception safe.  If VerifyStudent or any API it calls throws, an instance of Student will be leaked.
 
@@ -27,7 +27,7 @@ Real world example.  I created a class to wrap a couple of operations.  One of i
 Writing the correct code is repetitive and begs for a wrapper function.  Enter CreateWithRef
 
     
-{% highlight c++ %}
+``` c++
 template <class T>
 static 
 HRESULT CreateWithRef(T** ppObject)
@@ -51,13 +51,13 @@ void AMethod2()
         VerifyStudent(pStudent);
     }
 }
-{% endhighlight %}
+```
 
 As you can see, using this function takes less typing that a normal CreateInstance due to using type inference.  It's also exception safer since the resource is managed.
 
 This API still has one flaw.  It allows people to pass in a raw pointer and hence violate exception safety.  It could be improved by forcing a caller to pass in a class which supports [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization).  In this case a good choice is CComPtrBase<>.  I tend to prefer this design because it forces the caller to use safer code.  
     
-{% highlight c++ %}
+``` c++
 template <class T>
 static 
 HRESULT CreateWithRef2(CComPtrBase<T>& spPointer)
@@ -81,5 +81,5 @@ void AMethod3()
         VerifyStudent(pStudent);
     }
 }
-{% endhighlight %}
+```
 

@@ -10,7 +10,7 @@ The difficulty can come in testing it.  Many implementers of ISynchronizeInvoke 
 The idea is to just do it ... now.  I call the class ImmediateInvoke.  The basic methods are straight forward.
 
     
-{% highlight csharp %}
+``` csharp
 object ISynchronizeInvoke.Invoke(Delegate method, object[] args)
 {
     return method.DynamicInvoke(args);
@@ -20,7 +20,7 @@ bool ISynchronizeInvoke.InvokeRequired
 {
     get { return false; }
 }
-{% endhighlight %}
+```
 
 The other two methods are a little more tricky.  The require an implementation of [IAsyncResult](http://msdn2.microsoft.com/en-us/library/system.iasyncresult.aspx).  The basic usage pattern is the consumer will call BeginInvoke, peform some operations and finally call EndInvoke when it wants to join with the asynchronous operation.  I will use the thread pool to perform this operation and define a private nested class for the IAsnycResult implementation called AsyncResult
 
@@ -33,7 +33,7 @@ The implementation needs a few variables to implement the contract.
 
 Most of the properties are straight forward.
 
-{% highlight csharp %}
+``` csharp
 public object AsyncState
 {
     get { return this; }
@@ -53,11 +53,11 @@ public bool IsCompleted
 {
     get { return m_completed == 1; }
 }
-{% endhighlight %}
+```
 
 Now we need to define a method to run the delegate passed to BeginInvoke in the thread pool and update the state as we go along.  I call this method directly from the constructor.  
     
-{% highlight csharp %}
+``` csharp
 private void RunDelegateAsync(Delegate method, object[] args)
 {
     WaitCallback del = delegate(object unused)
@@ -78,7 +78,7 @@ private void RunDelegateAsync(Delegate method, object[] args)
 
     ThreadPool.QueueUserWorkItem(del);
 }
-{% endhighlight %}
+```
 
 Notice I've avoided using a lock in this implementation.  This is safe for this case.  All of the members are set atomically.  Only m_completed can be accessed before the operation is completed and it is simply checked for the value 1.  Since the value is set atomically this is safe.  In the implementation of EndInvoke I will not access any of the other variables until the WaitHandle is signaled and then I will not make any decision based on the contents of their values (rather the abscence or presence).
 
@@ -86,7 +86,7 @@ Also notice that I did not explicitly dispose of the WaitHandle.  This is a quir
 
 Now BeginInvoke and EndInvoke.
 
-{% highlight csharp %}
+``` csharp
 IAsyncResult ISynchronizeInvoke.BeginInvoke(Delegate method, object[] args)
 {
     return new AsyncResult(method, args);
@@ -110,7 +110,7 @@ object ISynchronizeInvoke.EndInvoke(IAsyncResult result)
     }
     return r.m_return;
 }
-{% endhighlight %}
+```
 
 Unfortunately EndInvoke has to take care of two cases.  The first is the delegate completed successfully and produced a value which can now be returned as a part of the interface contract.  The other case is when the delegate throws and exception and it's a bit more tricky.  The exception cannot be simply re-thrown because you will loose all of the original call stack and generally speaking most of the data which would help track down the problem.  The better option is to throw a new exception and make this exception the inner exception.
 

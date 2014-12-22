@@ -7,7 +7,7 @@ A feature which seems to be getting more requests recently is support for seeing
 
 Indeed C# could implement this feature but it's not a CLR debugging feature that VB.Net is relying on but is rather an issue of VB6 legacy support.  The VB6 language didn't have a return statement.  Instead values were returned by assigning the value to be returned to the name of the function.  For example
 
-{% highlight vbnet %}
+``` vbnet
 Function IsEven(ByVal i As Integer)
     If i Mod 2 = 0 Then 
         IsEven = True 
@@ -15,7 +15,7 @@ Function IsEven(ByVal i As Integer)
         IsEven = False 
     End If 
 End Function 
-{% endhighlight %}
+```
 
 While VB.Net added a Return statement it still supports this legacy syntax (and it allows the two to be mixed within a single function).  The compiler models this by having a local of the same name of the function which is used to store the return value.  Returns from the function are rewritten as assignments to this local and then a return of the same local.  The debugger understands this hidden local and displays it during the debugging session.  This gives VB.Net the appearance of supporting Return value display when in reality it's just a positive side effect of legacy support.
 

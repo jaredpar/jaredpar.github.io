@@ -6,11 +6,11 @@ Title pretty much says it all but what good is a rule without any explanation.  
 Take the following contrived but real example.
 
     
-{% highlight csharp %}
+``` csharp
 static Future<int> Example() {
     using (var obj = new MyDisosableObject()) {
         return Future.Create(() => obj.SomeFunction());
     }
 }
-{% endhighlight %}
+```
 

@@ -9,13 +9,13 @@ In the case of a double pointer, the native data structure the pointer points to
 
 For Example, say we had the following native data signature
 
-{% highlight c %}
+``` c
 void GetDoublePointer(int** ppData)
-{% endhighlight %}
+```
 
 This function returns a pointer to a pointer that points to an int.  (Pointer->Pointer->int). We can then use the following C# code to access the final int value.
 
-{% highlight csharp %}
+``` csharp
 [DllImport("PInvokeSample.dll")]
 static extern void GetDoublePointer(IntPtr doublePtr);
 
@@ -34,5 +34,5 @@ static void Main(string[] args)
         Marshal.FreeHGlobal(ptr);
     }
 }
-{% endhighlight %}
+```
 

@@ -6,7 +6,7 @@ layout: post
 The best way to use type inference to create a generic argument is through static methods.  In C# and VB it's legal to define a non-generic class with the same name as a generic class.  I tend to create a non-generic class with a static Create method that takes advantage of type inference.  For tuples the method will look like the following.
 
     
-{% highlight csharp %}
+``` csharp
 public partial class Tuple
 {
     public static Tuple<TA> Create<TA>(TA a)
@@ -14,13 +14,13 @@ public partial class Tuple
         return new Tuple<TA>(a); 
     }
 }
-{% endhighlight %}
+```
 
 This allows us to write the following code.
 
-{% highlight csharp %}
+``` csharp
 var tuple = Tuple.Create("foo");
-{% endhighlight %}
+```
 
 Partial classes are used because we will be generating one per Tuple class that we create.  It's just easier to script it this way.
 

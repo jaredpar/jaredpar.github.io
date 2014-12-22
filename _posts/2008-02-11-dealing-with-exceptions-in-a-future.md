@@ -26,7 +26,7 @@ This is very similar to Option #3. The only difference is when the user calls Wa
 There is a downside to this approach though. Users can no longer have different catch blocks to handle the different types of exceptions that can be thrown.
 
     
-{% highlight csharp %}
+``` csharp
 try
 {
     Future.Create(() => SomeOperation());
@@ -39,11 +39,11 @@ catch (InvalidOperationException ex)
 {
     // ...
 }
-{% endhighlight %}
+```
 
 Instead the user can only catch a Future exception and examine the inner result to take corrective action.
 
-{% highlight csharp %}
+``` csharp
 try
 {
     Future.Create(() => SomeOperation());
@@ -60,22 +60,22 @@ catch (FutureException ex)
         // ...
     }
 }
-{% endhighlight %}
+```
 
 This doesn't actually limit any functionality but users may find the syntax uncomfortable. VB users can still do exception filtering but this is not at option for C# users.
 
-{% highlight vbnet %}
+``` vbnet
 Try
     Future.Create(Function() SomeOperation())
 Catch ex As Exception When ex.InnerException.GetType() Is GetType(IOException)
 
 End Try
-{% endhighlight %}
+```
 
 The FutureException class is straight forward. A simple implementation of the
 exception snippet will do the trick.
 
-{% highlight csharp %}
+``` csharp
 [global::System.Serializable]
 public class FutureException : Exception
 {
@@ -87,5 +87,5 @@ public class FutureException : Exception
       System.Runtime.Serialization.StreamingContext context)
         : base(info, context) { }
 }
-{% endhighlight %}
+```
 

@@ -17,7 +17,7 @@ In order to get the actual Count every singe value must be accessed an verified 
 
 This is what Count would need to look like '
 
-{% highlight csharp %}
+``` csharp
 public class WeakHashtable<TKey,TValue> {
     private Dictionary<TKey, WeakReference> _map;
     public int Count {
@@ -30,7 +30,7 @@ public class WeakHashtable<TKey,TValue> {
         }
     }
 }
-{% endhighlight %}
+```
 
 Count transformed from a simple O(1) return of an internal counter to a O(N) method which allocates memory. Worse yet, the return value is practically useless. As soon as the value is returned it cannot be considered to be valid. A GC could kick in and invalidate half the table. Count would in fact be giving the user information about the object in the past.
 
@@ -58,7 +58,7 @@ The Values property returns a List<TValue> implementation instead of IEnumerable
 
 At first I did consider a design where Values returned IEnumerable. It is fairly simple to implement with a C# iterator.
 
-{% highlight csharp %}
+``` csharp
 public IEnumerable<TValue> Values {
     get {
         foreach (var weakRef in _map.Values) {
@@ -69,7 +69,7 @@ public IEnumerable<TValue> Values {
         }
     }
 }
-{% endhighlight %}
+```
 
 The problem though is that anything more than a simple .ForEach() over the IEnumerable may behave unexpectedly. Consecutive calls to GetEnumerator can produce different enumerations with no explicit user alteration of the table.  I've seen several APIs which (rightly or wrongly) make this assumption. Given the user is not explicitly modifying the collection, it is not a necessarily bad assumption to make. However it would not work for a collection of this type.
 
@@ -79,7 +79,7 @@ This post went a bit longer than I originally intended. I also wanted to discuss
 
 Here is the implementation of the dictionary without any compaction support.
 
-{% highlight csharp %}
+``` csharp
 public sealed class WeakDictionary<TKey, TValue> {
     private Dictionary<TKey, WeakReference> m_map;
 
@@ -137,5 +137,5 @@ public sealed class WeakDictionary<TKey, TValue> {
         return option.HasValue;
     }
 }
-{% endhighlight %}
+```
 

@@ -7,7 +7,7 @@ The problem is there are several levels of thread safe collections.  I find that
 
 For Example, lets build a data thread safe List<T>.
 
-{% highlight csharp %}
+``` csharp
 public sealed class ThreadSafeList<T> : IEnumerable<T> {  
     private List<T> m_list = new List<T>();  
     private object m_lock = new object();  
@@ -34,7 +34,7 @@ public sealed class ThreadSafeList<T> : IEnumerable<T> {
     }  
     // IEnumerable<T> left out  
 }
-{% endhighlight %}
+```
 
 And there you have it.  The lock statement prevents concurrent access from multiple threads.  So the actual m_list instance is only ever accessed by a single thread at a time which is all it's designed to do.  This means instances of ThreadSafeList<T> can be used from any thread without fear of corrupting the underlying data.
 
@@ -45,14 +45,14 @@ Answer: ThreadSafeList<T> is a virtually unusable class because the design leads
 The flaws in this design are not apparent until you examine how lists are commonly used.  For example,  take the following code which attempts to grab the first element out of the list if there is one.
 
     
-{% highlight csharp %}
+``` csharp
 static int GetFirstOrDefault(ThreadSafeList<int> list) {  
     if (list.Count > 0) {  
         return list[0];  
     }  
     return 0;  
 }
-{% endhighlight %}
+```
 
 This code is a classic race condition.  Consider the case where there is only one element in the list.  If another thread removes that element in between the if statement and the return statement, the return statement will throw an exception because it's trying to access an invalid index in the list.  Even though ThreadSafeList<T> is data thread safe, there is nothing guaranteeing the validity of a return value of one call across the next call to the same object.  
 
@@ -69,7 +69,7 @@ When designing a concurrent collection you should follow different guidelines th
 
 Based on that, lets look at a refined design for ThreadSafeList<T>
 
-{% highlight csharp %}
+``` csharp
 public sealed class ThreadSafeList<T> {  
     private List<T> m_list = new List<T>();  
     private object m_lock = new object();  
@@ -95,7 +95,7 @@ public sealed class ThreadSafeList<T> {
         }  
     }  
 }
-{% endhighlight %}
+```
 
 Summary of the changes
 

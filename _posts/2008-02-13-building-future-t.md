@@ -13,7 +13,7 @@ In addition Future<T> adds one new method; Wait;?? It's a combination of calling
 
 In a perfect world WaitEmpty in Future would really be called Wait and be virtual. Future<T> would override the method and alter the return type to be T. Unfortunately C#/VB don't support covariant return types on virtual method overrides so it's not possible. Truthfully I don't know if this is a C#/VB limitation or a CLR one.
 
-{% highlight csharp %}
+``` csharp
 public class Future<T> : Future
 {
     private Func<T> m_function;
@@ -40,7 +40,7 @@ public class Future<T> : Future
         m_value = m_function();
     }
 }
-{% endhighlight %}
+```
 
 Next time I'll go over the implementation of Futures which return no values.
     

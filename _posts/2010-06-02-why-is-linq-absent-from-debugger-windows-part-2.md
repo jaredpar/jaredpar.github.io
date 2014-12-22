@@ -9,18 +9,18 @@ First a quick refresher. Features in the Expression Evaluator are started on the
 
 As stated in the previous article the most expensive portion of this design is adding ENC support to the Expression Evaluator. ENC is necessary for true parity because closures in C# and VB.Net are mutable and requiring altering program state to implement. The standard example is evaluating the following expression in the EE which modifies the value of a local variable.
     
-{% highlight csharp %}
+``` csharp
 ((Action)(() => { local1 = 42; }))();
-{% endhighlight %}
+```
 
 Properly implementing this requires program mutation not just inspection.
 
 Now comes the compromise. How often do users really want to do this' In my observations the answer is rarely if ever. When I talk with customers about LINQ in the debugger windows almost every single answer comes down to allowing filtering / where expressions. These are inherently, but not strictly, non- mutating operations.
 
     
-{% highlight csharp %}
+``` csharp
 list.Where(x => x.Name == "Jared");
-{% endhighlight %}
+```
 
 Cutting mutation is a huge advantage because we can forget about the impact into existing closures and alteration of program structure. Instead we can generate new closures which copy the initial state of the values and work from there. This removes all of the state tracking problems examined in the previous article.
 

@@ -3,7 +3,7 @@ layout: post
 ---
 Not to long ago I received an email from a customer who wanted to report a bug in the VB.Net debugger. They believed that there was a bug invoking ToString on Integer types in the immediate window and provided the following sample as evidence
 
-{% highlight vbnet %}
+``` vbnet
 i = 100
 ? i
 100 {Integer}
@@ -21,7 +21,7 @@ i = 100
     Source: "Microsoft.VisualBasic"
     StackTrace: "   at Microsoft.VisualBasic.CompilerServices.Conversions.ToInteger(String Value)"
     TargetSite: {Int32 ToInteger(System.String)}
-{% endhighlight %}
+```
 
 The customer expected the method Integer.ToString(String) to be invoked and found the conversion to Integer to be a bug. Surprisingly to the user, and several people on the team, this behavior is 'By Design' [^1]. To understand why we have to get a better picture of how exactly this is evaluated in the immediate window. There are two particular areas of importance here.
 
@@ -30,23 +30,23 @@ The customer expected the method Integer.ToString(String) to be invoked and foun
 
 These two combine together to mean that almost every expression evaluated on a variable declared in the immediate window will be done in a late bound fashion. It also means the above code sample is most accurately represented by the following real code.
 
-{% highlight vbnet %}
+``` vbnet
 Sub Main()
     Dim i As Object = 100
     Dim result = i.ToString("co2")
 End Sub
-{% endhighlight %}
+```
 
 Compiling and running that code will indeed cause the exact same exception as viewed in the immediate window. But why?
 
 Remember earlier I said that **almost** every expression would be evaluated it a late bound fashion. The compiler will use late binding when it can't find a suitable method to bind to statically and late binding is otherwise allowed.  In this case the type of the variable is Object and hence Object.ToString() can be bound to statically and indeed that's what happens in this case.  Further in VB.Net it's possible to call a method that has no parameters without parens: ex i.ToString is legal. This results in the ('c02') portion of the expression being interpreted as an indexer expression into the resulting string. Because Option Strict is off the compiler allows a silent narrowing conversion between String and Integer. The result of all of this is the code is actually evaluated as
 
-{% highlight vbnet %}
+``` vbnet
 Sub Main()
     Dim i As Object = 100
     Dim result = i.ToString()(CInt("co2"))
 End Sub
-{% endhighlight %}
+```
 
 I certainly found this interesting the first time I encountered it.
 

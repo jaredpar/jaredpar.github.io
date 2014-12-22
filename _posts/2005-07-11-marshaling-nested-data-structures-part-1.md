@@ -12,7 +12,7 @@ Index
 The first installment is just going to be laying out our Native data structures that will be used throughout this series.  I'm going to use a generic(and quite contrived) university classroom examle.  Here are the C struct definitions and a couple of functions that I will be using.
 
     
-{% highlight c++ %}
+``` c++
 struct Student 
 { 
   WCHAR FirstName[10]; 
@@ -49,7 +49,7 @@ __declspec(dllexport) void UpdateStudentInfo(
     // Get information for a particurlar course.  Returned structure should be freed with 
     // GlobalFree
 __declspec(dllexport) Course *GetCourseInfo(int courseId)
-{% endhighlight %}
+```
 
 The environment I am coding and testing my fixes in is Microsoft Visual Studio 2005 Beta 2. All of these examples should work in all versions of Visual Studio though.  If you find an inconsistencies please let me know.  All native examples will also be in Unicode.
 

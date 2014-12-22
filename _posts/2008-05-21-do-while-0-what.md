@@ -11,19 +11,19 @@ In my experience there are two main uses for it.
 
 Macros are mutating little constructs which jump back and forth depending on the compile time options.  Many macros compile to different expressions based on the options and in some cases they compile to nothing.  This is where #1 really comes in hand.  Imagine you have the following code.  
     
-{% highlight c %}
+``` c
 if(someCondition)
 MY_MACRO();
-{% endhighlight %}
+```
 
 Compiling MY_MACRO to nothing will cause at the least a compile time warning since you will have essentially if(someCondition);. Instead you can use the do{}while(0) trick.
 
-{% highlight c %}
+``` c
 #if CONST_1
 #define MY_MACRO() Func1()
 #else
 #define MY_MACRO() do{}while(0)
-{% endhighlight %}
+```
 
 Another us is for stylistic reasons.  Some camps don't believe a ; should be used as a empty statement and use do{}while(0) instead.  I tend to agree.  Mainly because one of my early C professors had the same belief.  The habit stuck around.  
 

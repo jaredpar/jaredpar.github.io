@@ -5,7 +5,7 @@ A couple of days ago I finished coding up a feature in our C++ code base, hit F5
 
 Here's a trimmed down version of the heap type I was looking at.
 
-{% highlight c++ %}
+``` c++
     class SpecialHeap {
     public:
         SpecialHeap() { 
@@ -21,7 +21,7 @@ Here's a trimmed down version of the heap type I was looking at.
     private:
         void* m_pBlock;
     }
-{% endhighlight %}
+```
 
 Anyone else immediately guess what I did wrong[^1]?
 
@@ -34,12 +34,12 @@ After taking one look at this I knew I almost certainly left a & off of a Specia
 What's really frustrating is that this bug is 100% preventable.  Types can opt out of copy construction by simply declaring a user defined copy constructor with no implementation.  [^2]
 
     
-{% highlight c++ %}
+``` c++
     private:
         // Disable value copying
         SpecialHeap(const SpecialHeap&);
         SpecialHeap& operator=(const SpecialHeap&);
-{% endhighlight %}
+```
 
 This code just turned my runtime bug into a compilation error.  What's very frustrating about this issue is that it took < 1 minute to type and would have saved me an hour of debugging had the original author taken the time to add it.  This type is not copy safe and allowing it to have a copy constructor is simply a bug.
 

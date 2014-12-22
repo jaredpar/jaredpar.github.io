@@ -8,7 +8,7 @@ In Beta1 all information which could be extracted from a discriminated type unio
 For instance take the following F# definition
 
     
-{% highlight fsharp %}
+``` fsharp
 type ActionKind =
     | Mouse = 1
     | Keyboard = 2
@@ -17,11 +17,11 @@ type ActionResult =
     | Complete of (ActionKind * int)
     | Error of string
     | NeedMore of (char -> ActionResult)
-{% endhighlight %}
+```
 
 The use case in C# was quite simple
 
-{% highlight csharp %}
+``` csharp
 [TestMethod]
 public void TestActionBeta1(){
     var res = GetResult();
@@ -29,7 +29,7 @@ public void TestActionBeta1(){
     Assert.AreEqual(ActionKind.Mouse, res.Complete1.Item1);
     Assert.AreEqual(42, res.Complete1.Item2);
 }
-{% endhighlight %}
+```
 
 Notice how no type information is necessary and the code flows quite naturally. C# type inference works great here and allows me to do what I need to do without fussing around with little stuff. The type in this case is a detail I don't need to know about. It simply adds no value.
 
@@ -39,7 +39,7 @@ For instance in the case of ActionResult there are 3 generated inner classes: Co
 
 Lets take a a look at how the above test code has to change to deal with the Beta2 generation of ActionResult.
 
-{% highlight csharp %}
+``` csharp
 [TestMethod]
 public void TestActionBeta2() {
     var res = GetResult();
@@ -47,7 +47,7 @@ public void TestActionBeta2() {
     Assert.AreEqual(ActionKind.Mouse, ((ActionResult.Complete)res).Item.Item1);
     Assert.AreEqual(42, ((ActionResult.Complete)res).Item.Item2);
 }
-{% endhighlight %}
+```
 
 Notice the explicit casts which must be added to access the values. This makes it impossible to rely soley on C# type inference. I must now understand the underlying type structure of discriminated unions in order to use them.  This extra cast adds no real value to my code.
 
@@ -55,11 +55,11 @@ My C# test assembly has literally hundreds of test cases which use this pattern 
 
 Eventually I settled on a different solution. For every type I exposed in F# I added a set of extension methods in the form of AsXXX where XXX represented the name of the generated inner types.'? For example
     
-{% highlight csharp %}
+``` csharp
 public static ActionResult.Complete AsComplete(this ActionResult res) {
     return (ActionResult.Complete)res;
 }
-{% endhighlight %}
+```
 
 The advantage of this approach is 2 fold
 
@@ -68,7 +68,7 @@ The advantage of this approach is 2 fold
 
 This extension method allows me to get closer to the Beta1 style code
 
-{% highlight csharp %}
+``` csharp
 [TestMethod]
 public void TestActionBeta2() {
     var res = GetResult();
@@ -76,7 +76,7 @@ public void TestActionBeta2() {
     Assert.AreEqual(ActionKind.Mouse, res.AsComplete().Item.Item1);
     Assert.AreEqual(42, res.AsComplete().Item.Item2);
 }
-{% endhighlight %}
+```
 
 With these methods and a quick series of Find / Replace calls, I was back in business.
 

@@ -8,14 +8,14 @@ Sanity.
 Going through legacy code is hard enough already.  Reserved words at least allow you to mentally structure the code you are looking at.  If there was open season on the use of keywords you know someone will take advantage and flat out abuse the system.  Can you imagine digging through some legacy C++ and seeing the following [^1]
 
     
-{% highlight c++ %}
+``` c++
 class int : public new { public: new private; }
 new void() {
   int int = new new;
   int.private = int;
   return int;
 }
-{% endhighlight %}
+```
 
 Reading that makes my head hurt.
 

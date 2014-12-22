@@ -13,7 +13,7 @@ Remaining issues:
   * Need to make it generic :)
   * Still exposing a type union. Great for F# but it produces somewhat awkward looking metadata for non-F# languages to consume
 
-{% highlight fsharp %}
+``` fsharp
 #light
 
 namespace Col  
@@ -56,5 +56,5 @@ namespace Col
            | Value (v,n) -> seq {  
                yield v  
                yield! n.All() }
-{% endhighlight %}
+```
 

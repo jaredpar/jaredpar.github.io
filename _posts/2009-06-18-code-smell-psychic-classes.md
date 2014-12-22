@@ -11,10 +11,10 @@ This cache takes several different forms of input which has no common base class
 
 The result is a service that reads well in code, but will not always act as you expect it to. The service at times will seemingly ignore all input and pick a source it thinks is better. Take the following code as an example
 
-{% highlight c++ %}
+``` c++
 pCache->SetSource(pSomeFile);
 ParseTree* pTree = pCache->GetTree();  
-{% endhighlight %}
+```
 
 This code is very straight forward but is certainly not guaranteed to do what it appears to do.
 

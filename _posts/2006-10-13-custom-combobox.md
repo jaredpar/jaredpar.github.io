@@ -13,7 +13,7 @@ To make the logic a bit easier, we will also provide a default empty control to 
 
 Here is the full text of the constructor used to initialize the CustomComboBox
 
-{% highlight vbnet %}
+``` vbnet
 Public Sub New()
 
         ' This call is required by the Windows Form Designer.
@@ -30,11 +30,11 @@ Public Sub New()
         m_dropDownHeight = Me.DropDownHeight
         Me.DropDownHeight = 1       ' Prevent the DropDown from showing
     End Sub
-{% endhighlight %}
+```
 
 The next step is to have the form display in the proper place when the drop down button is hit. To do this we override the OnDropDown() method and add the display logic there.
 
-{% highlight vbnet %}
+``` vbnet
 Protected Overrides Sub OnDropDown(ByVal e As System.EventArgs)
     MyBase.OnDropDown(e)
 
@@ -52,12 +52,12 @@ Private Sub DisplayControl()
     m_form.Location = loc
     m_form.Show()
 End Sub
-{% endhighlight %}
+```
 
 
 The last item left is to add a property for the user to set the custom control to display. To be flexible we will allow instances of Control. It will be docked in the form. We also need to listen to the LostFocus event on the control. This is the key for us to hide the form like when the user clicks away from the normal ComboBox.
 
-{% highlight vbnet %}
+``` vbnet
 Public Property Control() As Control
     Get
         Return m_control
@@ -78,7 +78,7 @@ End Property
 Private Sub OnControlLostFocus(ByVal sender As Object, ByVal e As EventArgs)
     m_form.Hide()
 End Sub
-{% endhighlight %}
+```
 
     
 

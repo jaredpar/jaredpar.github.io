@@ -14,7 +14,7 @@ I most frequently encounter this error in larger code bases with older classes. 
 To work around this I defined a new CComPtr class named CComPtrEx which inherits from CComPtr base.  It defines the same operators as CComPtr but uses a Copy Constructor and Swap to perform the = which gets around the multiple paths to IUnknown.  The rest of the functions are identical to CComPtr.
 
     
-{% highlight csharp %}
+``` csharp
 template <class T>
 class CComPtrEx : public CComPtrBase<T>
 {
@@ -55,5 +55,5 @@ public:
         return *this;
     }
 };
-{% endhighlight %}
+```
 

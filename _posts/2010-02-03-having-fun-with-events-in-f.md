@@ -7,7 +7,7 @@ Recently I ran into a situation where I needed to handle some events in F# in a 
 I started by using the F# Observable pattern. Disposing of the handler when I was through with it and recreating it on demand. This works great but after several uses I decided to write a full abstraction for it.'? For lack of a better name I call it ToggleHandler.
 
     
-{% highlight fsharp %}
+``` fsharp
 [<AbstractClass>]
 type internal ToggleHandler() =
     abstract IsHandling : bool
@@ -38,28 +38,28 @@ and internal ToggleHandler<'T>
             actual.Dispose()
             _handler <- None
         | None -> ()
-{% endhighlight %}
+```
 
 The design goal was to support my standard pattern for consuming events.  Typically I store all event handlers as let bindings within a type but the actual delegate handling the event is bound to a member. Member declarations are not available in let bindings so creating an event handler becomes a 2 step process: defining in the let binding and then actually creating inside of a do binding. ToggleHandler facilitates this by providing a very easy let binding story.
 
     
-{% highlight fsharp %}
+``` fsharp
 let mutable _clickHandler = ToggleHandler.Empty
-{% endhighlight %}
+```
 
 The base class ToggleHandler is type independent so this will work for any event type. Creating the real binding inside of the initial do binding is likewise as easy (and lacking explicit types).
 
-{% highlight fsharp %}
+``` fsharp
 do
     _clickHandler <- ToggleHandler.Create _button.Click this.OnButtonClick
     _clickHandler.Add()
-{% endhighlight %}
+```
 
 Now I can toggle my event handler at any point in the application by calling Add/Remove.
 
 Full Sample:
     
-{% highlight fsharp %}
+``` fsharp
     type Form1() as this =
         inherit Form()
     
@@ -77,6 +77,6 @@ Full Sample:
         member private x.ToggleHandler() =  
             if _clickHandler.IsHandling then _clickHandler.Remove()
             else _clickHandler.Add()
-{% endhighlight %}
+```
 
 

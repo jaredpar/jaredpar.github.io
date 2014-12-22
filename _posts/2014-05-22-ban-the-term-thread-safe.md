@@ -25,7 +25,7 @@ Examples of data race free types are this include Java vectors, .Net 1.0 [synchr
 
 Such a type is still fraught with usability problems though.  For example here is an incorrect sample using a synchronized version of [ArrayList](http://msdn.microsoft.com/en-us/library/vstudio/system.collections.arraylist)
 
-{% highlight csharp %}
+``` csharp
 static object GetFirstOrDefault(ArrayList synchronizedList) { 
   if (synchronizedList.Count > 0) {
     return synchronizedList[0];
@@ -33,7 +33,7 @@ static object GetFirstOrDefault(ArrayList synchronizedList) {
 
   return null;
 }
-{% endhighlight %}
+```
 
 None of the individual statements here are an incorrect usage of synchronizedList yet the function itself is wrong.  It's possible for any number of threads to execute in between the initial `if` block and the `return` statement.  Any of which could clear the list thus causing an execption on the `return` statement [^1]. 
 
@@ -53,7 +53,7 @@ This pattern is probably most common in UI frameworks.  It is in fact the source
 
 > Why does an exception get thrown when I change a property on my control? 
 
-{% highlight csharp %}
+``` csharp
 var worker = new BackgroundWorker();
 worker.DoWork += DoWork;
 
@@ -61,7 +61,7 @@ private void DoWork(object sender, DoWorkEventArgs e) {
   /* background caclulation */
   _theLabel.Text = theResult;
 }
-{% endhighlight %}
+```
 
 All WinForm controls are affinitized to the UI thread.  Any attempt to modify them from another thread will be met with an exception.  In this case the BackgroundWorker callback executes on a different thread and hence this is a violation of the types threading contract.  
 

@@ -5,7 +5,7 @@ After my recent postings on the [rules of Equality]({% post_url 2008-04-28-prope
 
 Unfortunately, as my posts alluded to, even though the check is simple getting it right is not necessarily so.  The equality portion of example takes roughly 20 lines of code while the actual equality check represents only 1 of those lines [^1].  Not a good ratio.  The good and bad news about the other 19 lines is they are boiler plate so once you know them you don't have to think about them.  For my own purposes I've converted those 19 lines into a snippet which automates the process but doesn't make it any easier on the eye.
 
-{% highlight vbnet %}
+``` vbnet
 Class Example
     Implements IEquatable(Of Example)
 
@@ -69,7 +69,7 @@ Module Module1
     End Sub
 
 End Module
-{% endhighlight %}
+```
 
 [^1]: Before VB criticism enters, C# has roughly the same ratio for the same sample.
 

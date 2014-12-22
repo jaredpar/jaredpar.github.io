@@ -8,7 +8,7 @@ The biggest decision is how to declare it. EmptyFuture exposes no new accessible
 Yes this makes it impossible to directly create from a user perspective. You could also make a good argument that creation is new behavior and therefore EmptyFuture should be exposed. However for Future's, as with other generic classes, I prefer static factory methods for creation. It allows the user to take advantage of type inference as much as possible.
 
     
-{% highlight csharp %}
+``` csharp
 private sealed class EmptyFuture : Future
 {
     private Action m_action;
@@ -24,7 +24,7 @@ private sealed class EmptyFuture : Future
     }
 
 }
-{% endhighlight %}
+```
 
 Next we'll go over the creation of the factory methods to create this and Future<T>.
 

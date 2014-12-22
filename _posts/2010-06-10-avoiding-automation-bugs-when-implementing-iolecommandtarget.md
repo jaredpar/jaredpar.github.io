@@ -22,12 +22,12 @@ The implications are even further reaching than just the package wizard.  Macros
 Luckily there is a very simply fix to the problem. Visual Studio provides a nice helper method which allows you to determine if you are currently in the middle of automation. Adding a [simple check](http://github.com/jaredpar/VsVim/commit/df0b6e6c1c95ff53acc14cbd5ad3cf5ccca05cd0) for this at my IOleCommandTarget entry points cleared up the issues nicely.
 
     
-{% highlight csharp %}
+``` csharp
 if (VsShellUtilities.IsInAutomationFunction(_serviceProvider))
 {
     return false;
 }
-{% endhighlight %}
+```
 
 In general any component in the IOleCommandTarget chain should be making the same check on both QueryStatus and Exec. Unless your component is specifically designed for macros and automations handling a command during automation will lead to hard to track down issues.
 

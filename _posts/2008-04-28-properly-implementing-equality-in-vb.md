@@ -27,7 +27,7 @@ This is the bread and butter of object/value equality. The author has free reign
 
 #2 and #3 may seem a bit off at first but it is implemented with a standard pattern as seen below.
 
-{% highlight vbnet %}
+``` vbnet
 Class C1
     Public Overrides Function Equals(ByVal obj As Object) As Boolean
         Dim other = TryCast(obj, C1)
@@ -37,7 +37,7 @@ Class C1
         ...
     End Function
 End Class
-{% endhighlight %}
+```
 
 It's very important that you use "Is" to compare other in the above example.  Imagine if you slip up and type "=" instead. You're about to override Operator= and this will cause "other=Nothing" to call operator=. If this is a valid C1 instance operator= will almost certainly call Equals and then you'd have a stack overflow. Our implementation of Operator= below will avoid this problem.
 
@@ -51,7 +51,7 @@ The better version of the GetHashCode rule has a small suffix on the simple rule
 
 For instance take this not so small example. In this case value equality is based solely off of Field1 which is a modifiable field. Once Field1 is changed you may or may not be able to access the value in the dictionary because GetHashCode() will change. This example is contrived but it does happen in the real world and it can be incredibly difficult to track down.
 
-{% highlight vbnet %}
+``` vbnet
 Class C2
     Public Field1 As Integer
 
@@ -82,7 +82,7 @@ Module Module1
     End Sub
 
 End Module
-{% endhighlight %}
+```
     
 
 If Field1 were ReadOnly there would be no way to hit this problem. Then again we'd also not be able to change Field1.
@@ -95,11 +95,11 @@ Operator= has virtually the same rules as Equals. Mainly don't throw from operat
 
 What's great here is there is a simple solution that you should use every time you define Operator=. [EqualityComparer(Of T)](http://msdn2.microsoft.com/en-us/library/ms132123.aspx) knows all of these rules and in the face of both parameters being non-Nothing will call Equals() just like we want. This makes the definition of Operator= boiler plate (I define very Operator= the exact same way)
 
-{% highlight vbnet %}
+``` vbnet
 Public Shared Operator =(ByVal left As C2, ByVal right As C2) As Boolean
     Return EqualityComparer(Of C2).Default.Equals(left, right)
 End Operator
-{% endhighlight %}
+```
 
 What's even better is that EqualityComparer(Of T) understands the stack overflow problem which can occur in equality comparison and avoids it.
 
@@ -107,11 +107,11 @@ What's even better is that EqualityComparer(Of T) understands the stack overflow
 
 Operator<> has the same rules as Operator= and luckily the same easy type of answer.
 
-{% highlight vbnet %}
+``` vbnet
 Public Shared Operator <>(ByVal left As C2, ByVal right As C2) As Boolean
     Return Not EqualityComparer(Of C2).Default.Equals(left, right)
 End Operator
-{% endhighlight %}
+```
 
 ### Wrapping Up
 

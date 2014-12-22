@@ -11,9 +11,9 @@ For the moment lets ignore #3 (after all they don't care).  I'm a firm believer 
 
 #2 believers disagree with this notion.  They believe the * is a part of the individual variable's type and not the actual type.  This is technically correct and can be demonstrated with the following code
 
-{% highlight c++ %}
+``` c++
 Type* p1, p2;
-{% endhighlight %}
+```
 
 The type of p2 is of course Type and not Type*. Therefore they argue, #2 is the superior way
 

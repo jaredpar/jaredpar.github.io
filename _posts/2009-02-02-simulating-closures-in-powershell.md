@@ -7,9 +7,9 @@ layout: post
 
 This would be the rough equivalent of the following C# code
     
-{% highlight csharp %}
+``` csharp
 var a = from it in source where it > 5;
-{% endhighlight %}
+```
 
 In C# this code works because the where clause 'it > 5' is converted to a lambda expression under the hood. The variable it is captured in the lambda expression via a closure. In order to get similar functionality out of powershell, the value $it must be resolvable when the 'where' scriptblock is executed.
 

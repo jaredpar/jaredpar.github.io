@@ -12,7 +12,7 @@ For debugging support a simple DebuggerDisplay attribute will be used.  It will 
 Here is the latest version of the full script which includes all of the new information.  With the exception of a few small tweaks this is just the combination of the individual parts specified throughout these postings.
 
 
-{% highlight powershell %}
+``` powershell
 {% raw %}
 param ( [int]$tupleCount = 5, 
         [string]$namespace = "Tuples" )
@@ -317,4 +317,4 @@ $output += Gen-TestTuple $tupleCount "MutableTuple"
 $output += "}}" 
 $output > (join-path $scriptPath "TestCore\TupleTest.cs")
 {% endraw %}
-{% endhighlight %}
+```

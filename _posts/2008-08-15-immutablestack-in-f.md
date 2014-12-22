@@ -14,7 +14,7 @@ After playing around with it a bit I'm left with the following questions/hangups
   4. In All(), that can't be the most efficient way to build up a sequence.
     
     
-{% highlight fsharp %}
+``` fsharp
 #light
 
 type Node = 
@@ -65,5 +65,5 @@ printStack s1
 printStack s2
 printStack s3
 printStack s4
-{% endhighlight %}
+```
 

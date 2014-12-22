@@ -19,7 +19,7 @@ Simple enough' Lets take a look at the code.
 
 **F# Code**
     
-{% highlight fsharp %}
+``` fsharp
 let FoldRight combine (sequence:seq<'a>) acc = 
     use e = sequence.GetEnumerator()
     let rec inner cont = 
@@ -29,11 +29,11 @@ let FoldRight combine (sequence:seq<'a>) acc =
                 inner (fun racc -> cont (combine cur racc))
             | false -> cont acc
     inner (fun x -> x )
-{% endhighlight %}
+```
 
 **C# Code**??
     
-{% highlight csharp %}
+``` csharp
 public static TAcc FoldRight<TSource, TAcc>(
     this IEnumerable<TSource> enumerable, 
     Func<TAcc, TSource, TAcc> combine, 
@@ -53,7 +53,7 @@ public static TAcc FoldRight<TSource, TAcc>(
         return inner(x => x);
     }
 }
-{% endhighlight %}
+```
 
 My immediate reaction to the two samples is the conciseness of the F# code.  This is a not a criticism of C# though. F# is designed to be a concise language and it's delivery on that goal is evident in this sample.
 
@@ -95,18 +95,18 @@ I explored the limits of both samples on my home laptop. I generated a simple ex
 
 F#
     
-{% highlight fsharp %}
+``` fsharp
 let sum = FoldRight (fun x y -> x + y) [1..1000000] 0
 printfn "%d" sum
-{% endhighlight %}
+```
 
 C#
 
-{% highlight csharp %}
+``` csharp
 var source = Enumerable.Range(1, 9397);
 var result = source.FoldRight((x, y) => x + y, 0);
 Console.WriteLine("{0}", result);
-{% endhighlight %}
+```
 
 The C# sample can process a maximum size of 9397 elements. After that I encounter a stackoverflow exception. The F# sample however can easily process 1,000,000 elements.
 

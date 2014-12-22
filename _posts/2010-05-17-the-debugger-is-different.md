@@ -13,7 +13,7 @@ One the surface this doesn't seem like a big change. It's an additive change all
 
 However even seemingly simple changes like removing accessibility checks can lead to very surprising behavior for our users. Recently our QA team filed a bug that illustrates this point.
 
-{% highlight vbnet %}
+``` vbnet
     Module Module1
         Class Base
             Private Field1 As Integer = 55
@@ -37,7 +37,7 @@ However even seemingly simple changes like removing accessibility checks can lea
     Module Module2
         Public Field1 As Integer
     End Module
-{% endhighlight %}
+```
 
 QA noted that if they ran this code and typed Field1 in the watch window that the value showed 55 instead of 72. This was noted as a bug because Field1 was set to 72 on the line before.
 

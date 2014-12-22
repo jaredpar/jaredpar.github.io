@@ -8,7 +8,7 @@ Lexical Closures (more often referred to as simply Closures) are the underpinnin
 To start off, let's get a basic summary of what a Closure is.  [Wikipedia](http://en.wikipedia.org/wiki/Closure_%28computer_science%29) defines it as "... a  is a semantic concept referring to a function paired with an environment ...".  I prefer to describe it as follows.  A closure is a feature which allows users to seemlessly access an environment (locals, parameters and methods) from more than one function.  Even better are samples
 :)
 
-{% highlight vbnet %}
+``` vbnet
 Class C1
     Sub Test()
         Dim x = 5
@@ -17,7 +17,7 @@ Class C1
     End Sub
 
 End Class
-{% endhighlight %}
+```
 
 In this code we have a lambda expression which takes in a single parameter and adds it with a local variable.  Lambda expressions are implemented as functions in VB (and C#).  So now we have two functions, "Test" and "f", which are accessing a single local variable.  This is where closures come into play.  Closures are responsible for making the single variable "x" available to both functions in a process that is referred to as "lifting the variable".  
 
@@ -28,7 +28,7 @@ To do this the compiler will take essentially 4 actions.
 3. Create a new instance of the class "Closure" inside the sub "Test" 
 4. Rewrite all access of "x" into the member "x" of "Closure".
     
-{% highlight vbnet %}
+``` vbnet
 Class Closure
     Public x As Integer
 
@@ -46,7 +46,7 @@ Class C1
     End Sub
 
 End Class
-{% endhighlight %}
+```
 
 Now "x" is shared amongst both functions and the user didn't have to know anything about the code we generated.  You can see from this simplified example just how much code Closures and all of the other new VB 9.0 features are saving you here (Type Inference, Lambda Expressions).
 

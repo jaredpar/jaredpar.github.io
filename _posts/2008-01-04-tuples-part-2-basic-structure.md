@@ -15,7 +15,7 @@ Now for the function that generates a property.  The tuples will be immutable by
 
 It would also be just as plausible to skip the property here and instead produce a read only public field.  Later on we will be altering the tuples to be used in a generic fashion through interfaces.  Interfaces cannot define fields and instead we will need properties. 
 
-{% highlight powershell %}
+``` powershell
 {% raw %} 
 function script:Gen-Property 
 { 
@@ -27,13 +27,13 @@ function script:Gen-Property
 "@ -f $upperList[$index],$lowerList[$index] 
 }
 {% endraw %}
-{% endhighlight %}
+```
 
 Next up we need to define a constructor.  All of the fields in the tuple are read only so we must define a constructor for the consumer (otherwise the tuples would be useless). 
 
 Generating the parameter list string would be tedious in most languages but PowerShell makes it a snap.  When converting an array of strings into a single string the individual strings will be combined with the value of the *** $OFS variable (default is space).  We can switch this to a comma and provide a quick pipeline for the parameter list. 
 
-{% highlight powershell %}
+``` powershell
 function script:Gen-Constructor 
 { 
     param ( [int] $count = $(throw "Need a count") ) 
@@ -43,11 +43,11 @@ function script:Gen-Constructor
     0..($count-1) | %{ "m_{0} = {0};" -f $lowerList[$_] } 
     "}" 
 }
-{% endhighlight %}
+```
 
 Now that we have the basics we can generate the class.  We'll use the same $OFS trick to generate the generic argument list here.
 
-{% highlight powershell %}
+``` powershell
 function script:Get-Tuple 
 { 
     param ( [int] $count ) 
@@ -59,12 +59,12 @@ function script:Get-Tuple
     Gen-Constructor $count 
     "}" 
 }
-{% endhighlight %}
+```
 
 Now all that's left is processing the arguments
 
-{% highlight powershell %}
+``` powershell
 [string](0..($tupleCount-1) | %{ Get-Tuple ($_+1) })
-{% endhighlight %}
+```
 
 Next step is to generate code that is more type inference friendly. 

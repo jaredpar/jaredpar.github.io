@@ -3,9 +3,9 @@ layout: post
 ---
 One item you strive to avoid when you design and implement a feature is unexpected behavior. Unfortunately there is one case we couldn't avoid with Lambda's in VB9. I just ran into the this problem when coding up a handler.  I wanted to disable a button when the text of particular TextBox was empty. I wrote the following code to handle the situation.
 
-{% highlight vbnet %}
+``` vbnet
 AddHandler c.TextChanged, Function() okButton.Enabled = (0 <> c.Text.Length)
-{% endhighlight %}
+```
 
 This doesn't quite do what I intended. This instead will simply compare the two values.
 

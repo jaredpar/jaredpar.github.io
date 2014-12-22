@@ -7,7 +7,7 @@ To work around this we'll create a new class that can wrap both a value and an i
 
 Unfortunately generic classes will not provide a 1:1 mapping. However getting to the actual data is strongly typed and comes through a simple property.  
     
-{% highlight csharp %}
+``` csharp
 public sealed class ComparerNode<T> : IComparable<ComparerNode<T>> {
     private readonly IComparer<T> m_comparer;
     private readonly T m_value;
@@ -85,5 +85,5 @@ public static class ComparerNode {
         return new ComparerNode<T>(Comparer<T>.Default, value);
     }
 }
-{% endhighlight %}
+```
 

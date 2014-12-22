@@ -3,7 +3,7 @@ layout: post
 ---
 The VB Catch syntax has a particular feature not present in C#: When.  It allows users to filter expressions based on something other than their type.  Any arbitrary code can enter a When block to decide whether or not to handle an Exception
 
-{% highlight vbnet %}
+``` vbnet
 Sub Sub1()
     Try
         DoSomeAction()
@@ -11,12 +11,12 @@ Sub Sub1()
         Stop
     End Try
 End Sub
-{% endhighlight %}
+```
     
 
 Newsgroups often ask, "Why's this so special? I could effectively get the same behavior out of C# by doing the following."
 
-{% highlight csharp %}
+``` csharp
 static void Sub1()
 {
     try
@@ -32,7 +32,7 @@ static void Sub1()
         HandleException();
     }
 }
-{% endhighlight %}
+```
 
 This is true to an extent.  In both cases the code is handling an exception and making a decision, via calling Filter, as to whether or not to handle the exception.  The subtle difference is when the Filter method is called.  
 

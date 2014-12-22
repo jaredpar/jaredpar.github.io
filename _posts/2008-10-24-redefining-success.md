@@ -7,12 +7,12 @@ This put me back to investigating where I wrote the data out. Restarted the scen
 
 Now what' Well the data clearly wasn't there so I concluded the data writing must be failing in some odd way. I eventually found the data writing code and was horrified to find the following definition.
 
-{% highlight c %}
+``` c
 HRESULT WriteSomeData(...) {
   // We don't support data of this type
   return S_OK;
 }
-{% endhighlight %}
+```
 
 Personally I thought this warranted an error code (perhaps E_NOTIMPL). But given the situation I must conclude the author successfully failed to write the data.
 

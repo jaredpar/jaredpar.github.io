@@ -9,7 +9,7 @@ My first experience with this was transitioning to the languages team in Visual 
 
 As you can imagine that kind of environment creates quite a few humorous gems over time.  Even after years of working there we'd still find new ones every few weeks.  The one that will always stick with me though is *the great naming hack*.  It is best exemplified by this sample
 
-{% highlight c++ %}
+``` c++
 struct SymbolNode : ExprNode
 {
   union
@@ -24,7 +24,7 @@ struct SymbolNode : ExprNode
     NameNode* Name;
   };
 };
-{% endhighlight %}
+```
 
 Typically a unions are used when two mutually exclusive pieces data are present in the same data structure.  It uses a single storage location for all the values hence removing wasted space.  When I first encountered this my thought was 
 

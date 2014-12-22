@@ -9,7 +9,7 @@ The simple fix is to add the operator ==/!= definitions to Parent which call thr
 
 While this is intuitive when you think about it, it's an easy trap to fall into.  It would be nice if there was a Compiler/FXCop warning here.
 
-{% highlight csharp %}
+``` csharp
 class Parent {
 }
 class Child : Parent{
@@ -47,4 +47,4 @@ class Program {
         bool isParentEqual = parent1 == parent2;    // False
     }
 }
-{% endhighlight %}
+```

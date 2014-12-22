@@ -16,31 +16,31 @@ Translating a PInvoke signature for a native 1 byte bool is simple enough though
 
 Native:
 
-{% highlight c %}
+``` c
 bool SomeOperation();
-{% endhighlight %}
+```
 
 Managed:
     
-{% highlight csharp %}
+``` csharp
 [return: MarshalAs(UnmanagedType.I1)]  
 public static extern bool SomeOperation();
-{% endhighlight %}
+```
 
 BOOL's can be usefully marshalled in two different ways.  The first is simply as a int (signed or unsigned).  This works because int matches the size requirement of a BOOL and the sign is not really important as true or false is simply 0 or not 0.
 
-{% highlight csharp %}
+``` csharp
 public static extern int SomeOtherOperation();
-{% endhighlight %}
+```
 
 This is certainly sub-optimal since we're now returning a non-boolean type for what is intended to be a boolean operation but some people choose to Marshal it this way.  
 
 Marshaling a native BOOL to a managed bool works without any annotations.  However it is preferred that you include the annotations to make it much clearer what the native data type is.  The [UnmanagedType](http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.unmanagedtype%28VS.80%29.aspx) enumeration contains a Bool value for just this purpose.  This can be applied to any managed bool return or parameter.  
 
-{% highlight csharp %}
+``` csharp
 [return: MarshalAs(UnmanagedType.Bool)]  
 public static extern bool SomeOtherOperation();
-{% endhighlight %}
+```
 
 And presto, we have maintained the boolean semantics of the operation.
 

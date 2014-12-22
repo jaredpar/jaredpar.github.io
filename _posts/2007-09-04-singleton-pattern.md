@@ -9,7 +9,7 @@ Secondly because T was at a class level rather than a method level I couldn't ha
 
 The new pattern takes care of both of these problems.  It has two methods.  One of which can be satisfied with a trivial lambda expression.  The other can easily be used for classes that satisfy the generic constraint new() with no additional lambda.
 
-{% highlight csharp %}
+``` csharp
 class c1
 {
     public static c1 Instance1 
@@ -28,11 +28,11 @@ class c1
     }
     
 }
-{% endhighlight %}
+```
 
 Below is the new singleton pattern.
 
-{% highlight csharp %}
+``` csharp
 public delegate T Operation<T>();
 /// <summary>
 /// Used for classes that are single instances per appdomain
@@ -71,7 +71,7 @@ public static class Singleton
 
 #endregion
 }
-{% endhighlight %}
+```
 
 
     

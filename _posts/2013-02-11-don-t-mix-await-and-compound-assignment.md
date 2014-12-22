@@ -4,25 +4,25 @@ title: Don't mix await and compound assignment
 ---
 The 5.0 release of C# introduced the await keyword which makes it extremely easy to use Task<T> in a non-blocking fashion. This allows developers to replace either blocking calls to Task.Wait() or complicated combinations of ContinueWith and callbacks with a nice simple, straight forward expression
 
-{% highlight csharp %}
+``` csharp
 Task<int> task = ...;
 int local = await task;
 Use(local);
-{% endhighlight %}
+```
 
 What most people don't consider is the implications of this non-blocking support. At the point the 'await task' expression executes the program can do one of two things. If task is resolved the await expression will complete and the method will continue executing immediately. If it's not then the method will pause and some other part of the program will wake up and start running.  This other code interleaves with with the execution of this method. This means subtle timing changes in when Task values are resolved can drastically alter the order in which a program executes.
 
 These method interleavings can be the source of many subtle bugs in the program. They are typically timing related and hence often don't predictably reproduce and possibly don't show up at all until the program is executing on a customers machine. One of the most common bugs I see is when developers mistakenly combine compound assignment with the await keyword
 
-{% highlight csharp %}
+``` csharp
 x += await y;
-{% endhighlight %}
+```
 
 The C# compiler will rewrite this code into roughly the following [^1]
 
-{% highlight csharp %}
+``` csharp
 x = x + await y;
-{% endhighlight %}
+```
 
 And it executes in the following steps
 
@@ -36,7 +36,7 @@ In the case where 'y' isn't resolved the execution of this code will stop at ste
 
 I most frequently see this problem with accumulator scenarios. A collection of tasks are spun up and the results are tallied up as they complete
 
-{% highlight csharp %}
+``` csharp
 class Accumulator
 {
     private int m_sum;
@@ -51,7 +51,7 @@ class Accumulator
         m_sum += await value;
     }
 }
-{% endhighlight %}
+```
 
 This code is fundamentally incorrect because it invites this very problem.  Consider the following scenario
 
@@ -61,17 +61,17 @@ This code is fundamentally incorrect because it invites this very problem.  Cons
 
 The way to avoid this problem is to simply not mix await and the compound operator. Instead store the await value into a temp and then do the assignment without the risk of interleavings.
 
-{% highlight csharp %}
+``` csharp
 public async Task Add(Task<int> value)
 {
     var temp = await value;
     m_sum += temp;
 }
-{% endhighlight %}
+```
 
 Here is a sample which will demonstrate the bug in a deterministic fashion.
     
-{% highlight csharp %}
+``` csharp
 var accumulator = new Accumulator();
 var taskCompletionSource1 = new TaskCompletionSource<int>();
 var taskCompletionSource2 = new TaskCompletionSource<int>();
@@ -84,7 +84,7 @@ taskCompletionSource1.SetResult(2);
 await task1;
 await task2;
 Console.WriteLine(accumulator.Sum);
-{% endhighlight %}
+```
 
 This code will print out 2 instead of the expected 5
 

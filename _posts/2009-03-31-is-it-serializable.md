@@ -15,7 +15,7 @@ Why is this the case though that serialization is tough to determine' Lets start
 These are completely separate actions. It's possible to have types which do any combination of the above but not both. Take for instance the following type declarations
 
     
-{% highlight csharp %}
+``` csharp
 [Serializable]
 class DeclaredOnly {
     private ConformsOnly m_conforms;
@@ -24,19 +24,19 @@ class DeclaredOnly {
 class ConformsOnly {
     private string m_name;
 }
-{% endhighlight %}
+```
 
 Both of these types are legal C# code and both represent one of the two extremes listed above. Yet neither of these types are actually serializable.  ConformsOnly is not because it has not actually declared itself to be serializable. DeclaredOnly is not because one of it's members is not serializable.
 
 Lets look at proving serialization by ensuring types follow both of the rules.  Proving the first part of serialization is pretty straight forward. Simply check to see if a type implements ISerializable or is decorated with the Serialization attribute. The latter is directly supported in the type system via [Type.IsSerializable](http://msdn.microsoft.com/en- us/library/system.type.isserializable.aspx). This property is also the source of the most common mistake I see with respect to determining if an object is serializable. Take the following code snippet for an example.
 
-{% highlight csharp %}
+``` csharp
 public static voidExample1(object o) {  
     if(o.GetType().IsSerializable) {  
         // Do something different  
     }  
 }
-{% endhighlight %}
+```
 
 On the surface, this looks like reasonable code. But as we just pointed out, the property IsSerializable just determines the presence or absence of the Serializable attribute but nothing about the second part. A more descriptive attribute name would be IsSerializableAttributeDeclared. Yet many pieces of code attempt to equate this property with the ability to be serialized (A fun experiment here is to search for it's use in Reflector)
 
@@ -51,12 +51,12 @@ Instances of types which meet these guidelines will always be serializable.  Not
 
 Take for instance types that violate rule 2.2. By having a field whose type is not sealed, it is possible to construct a runtime instance which contains a value whose type is not serializable. The following type fits into this category.
 
-{% highlight csharp %}
+``` csharp
 [Serializable]
 class OnlyKnownPerInstance {
     private object m_field1;
 }
-{% endhighlight %}
+```
 
 Whether or not an instance of this type is serializable depends on the value of m_field1. So the only way to prove it is serializable is to look at the runtime information. This makes any definitive analysis on the type impossible. The actual object must be inspected.
 

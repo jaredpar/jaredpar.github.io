@@ -23,7 +23,7 @@ I'm not satisfied by simply following a standard template and hoping I got it ri
 
 The first step is defining a type to encapsulate a value and set of equal or not equal values.
 
-{% highlight csharp %}
+``` csharp
 public class EqualityUnit<T> {
     private static ReadOnlyCollection<T> EmptyCollection = new ReadOnlyCollection<T>(new T[] { });
 
@@ -65,31 +65,31 @@ public static class EqualityUnit {
         return new EqualityUnit<T>(value);
     }
 }
-{% endhighlight %}
+```
 
 I chose a fluent interface design here because it makes the usage code very readable. For example
 
-{% highlight csharp %}
+``` csharp
 var unit = EqualityUnit
     .Create(new MyType(42))
     .WithEqualValues(new MyType(42))
     .WithNotEqualValues(new MyType(13));
-{% endhighlight %}
+```
 
 Now that we have the data defined we need to follow through with the actual test code. Most of it is very straight forward enforcement of the above said rules. The only trick part is how to test operator == and !=.'? The testing class is necessarily generic but neither == or != can be used against open generic types. Instead we must use them against the non-generic types.
 
 This can be solved by having the calling code provide 2 lambda expressions of type Func<T,T,bool> which call the == and != operator.
 
     
-{% highlight csharp %}
+``` csharp
 EqualityUtil.RunAll(
     (x, y) => x == y,
     (x, y) => x != y,
-{% endhighlight %}
+```
 
 This is boiler plate code that has to be repeated for every caller but it's small enough to not be that much of a burden.'? Now finally the code.
 
-{% highlight csharp %}
+``` csharp
 public sealed class EqualityUtil<T> {
     private readonly ReadOnlyCollection<EqualityUnit<T>> _equalityUnits;
     private readonly Func<T, T, bool> _compareWithEqualityOperator;
@@ -283,11 +283,11 @@ public static class EqualityUtil {
         RunAll(compEqualsOperator, compNotEqualsOperator, skipEquatable: false, skipOperators: false, values: values);
     }
 }
-{% endhighlight %}
+```
 
 And what would any code, including test framework code be without a few test cases?
 
-{% highlight csharp %}
+``` csharp
 [TestFixture]
 public class EqualityUtilTesting {
 
@@ -309,4 +309,4 @@ public class EqualityUtilTesting {
             EqualityUnit.Create("FOO").WithNotEqualValues("foo"));
     }
 }
-{% endhighlight %}
+```

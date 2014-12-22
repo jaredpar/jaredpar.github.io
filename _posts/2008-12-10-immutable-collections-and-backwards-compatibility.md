@@ -15,7 +15,7 @@ This is the easiest decision.  IEnumerable<T> represents a read only, one elemen
 
 This interfaces represents a general collection class.  Unfortunately this interface is meant to represent a mutable collection class and implements such methods as Add, Clear and Remove.  These methods cannot be implemented on an Immutable collection given the current design.  All three of these methods are void returning methods because the collection is meant to be changed in place.  Immutable collections can support these operations but it involves returning a new instance of the collection.
 
-{% highlight csharp %}
+``` csharp
 public sealed class ImmutableCollection<T> : ICollection<T> {
     public ImmutableCollection<T> Add(T item) {
         // Actually add 
@@ -31,7 +31,7 @@ public sealed class ImmutableCollection<T> : ICollection<T> {
 
     ...
 }
-{% endhighlight %}
+```
 
 But wait!  The interface does support a property named [IsReadOnly](http://msdn.microsoft.com/en-us/library/0cfatk9t.aspx).  The intention of this property is to allow an interface to programmatically declare they do not support modifications.  A read only collection can just implement this interface, throw a [NotSupportedException](http://msdn.microsoft.com/en-us/library/system.notsupportedexception.aspx) for all of the mutable methods and return true for IsReadOnly and presto we have a suitable interface for an immutable collection.
 
@@ -39,7 +39,7 @@ Or do we?
 
 The design for ICollection<T> with respect to read only or immutable collections is not optimal.  It attempts to combine to separate behaviors into a single interface: mutable and readonly view of a collection.  Dual purpose interfaces run into problems because it's impossible to separate out the behaviors at compile time.  This is especially problematic when the behaviors are conflicting.  There is no way a read only collection can prevent itself from being passed to a function that expects a mutable collection at compile time.  Nor can a consumer who intends to mutate a collection prevent a read- only collection from being passed.
 
-{% highlight csharp %}
+``` csharp
 static void DisplayForEdit<T>(ICollection<T> col) {
     // ...
     m_clearButton.Click += (x, y) => col.Clear(); 
@@ -49,7 +49,7 @@ static void Example1() {
     ImmutableCollection<int> col = ImmutableCollection.Create(new int[] { 1, 2, 3, 4 });
     DisplayForEdit(col);    // Will fail as soon as Clear is clicked
 }
-{% endhighlight %}
+```
 
 But isn't it the responsibility of the user of ICollection<T> to verify that IsReadOnly is false before mutating a instance?  Given the current design of ICollection<T> it is indeed both the responsibility of the consumer to verify this and the implementer to ensure they are not called incorrectly.  The problem with putting responsibility on the consumer though is they have to 1) know about read only uses of ICollection<T> and 2) actually care about it.
 
@@ -69,7 +69,7 @@ After debating this for awhile I decided that loss of compile time validation wa
 
 In order to centralize this effort I created a factory class, CollectionUtility, which contains appropriate overloads for all of my immutable collection classes [^1].
 
-{% highlight csharp %}
+``` csharp
 public static class CollectionUtility {
     public static IEnumerable<T> CreateEmptyEnumerable<T>();
     public static IEnumerable<T> CreateEnumerable<T>(T value);
@@ -81,19 +81,19 @@ public static class CollectionUtility {
     public static IList CreateObjectIList<T>(IReadOnlyList<T> list);
     public static IEnumerable<int> GetRangeCount(int start, int count);
 }
-{% endhighlight %}
+```
 
 The proxy objects live as private inner classes inside CollectionUtility.  They implement the collection interfaces in the most read-only way possible.  When confronted with mutating calls, the proxies throw [NotSupportedException](http://msdn.microsoft.com/en-us/library/system.notsupportedexception.aspx).
 
 So at the end of the day I have compile time validation for immutable collections.  If a developer wants to use them in a less than safe scenario it requires an explicit conversion.  
     
-{% highlight csharp %}
+``` csharp
 static void Example2() { 
   var col = ImmutableCollection.Create(new int[] { 1, 2, 3, 4 }); 
   // Still fails, but explicit conversion required 
   DisplayForEdit(CollectionUtility.CreateICollection(col)); 
 }
-{% endhighlight %}
+```
 
 I feel like this as an appropriate tradeoff.   In the worst case scenario, a developer can search for all accesses of the CollectionUtility class and find places where a proxy is being created.  
 

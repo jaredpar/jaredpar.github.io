@@ -9,7 +9,7 @@ I am a huge fan of read only/immutable collections and data.  Hopefully the incr
 
 Unfortunately there is not a good interface to implement.  The indexable interfaces are all representative of mutable collection types.  It would be nice to add an immutable/read only interface which can be safely implemented.  
     
-{% highlight csharp %}
+``` csharp
 interface IReadOnlyList<T> : IEnumerable<T>
 {
     T this[int index] { get; }
@@ -18,7 +18,7 @@ interface IReadOnlyList<T> : IEnumerable<T>
     bool Contains(T item);
     void CopyTo(T[] array, int arrayIndex);
 }
-{% endhighlight %}
+```
 
 Ideally this would be called IImmutableList<T> but I'm having trouble getting over the double I, double M pattern to start the name.  Perhaps IPersistentList.
 
@@ -28,7 +28,7 @@ ReadOnlyCollection<T> is a read only facade on top of mutable collection.  Read 
 
 Take the following sample which uses a ReadOnlyCollection to wrap a List.
 
-{% highlight csharp %}
+``` csharp
 var list = new List<int>();
 list.AddRange(Enumerable.Range(1, 10));
 
@@ -36,12 +36,12 @@ var roList = new ReadOnlyCollection<int>(list);
 Console.WriteLine(roList.Count);    // Outputs: 10
 list.Add(42);
 Console.WriteLine(roList.Count);    // Outputs: 11
-{% endhighlight %}
+```
 
 There are ways to avoid this problem with ReadOnlyCollectionn.  The simplest
 is to make sure you pass a copy of your list into the constructor.
 
-{% highlight csharp %}
+``` csharp
 var roList2 = new ReadOnlyCollection<int>(new List<int>(list));
-{% endhighlight %}
+```
 

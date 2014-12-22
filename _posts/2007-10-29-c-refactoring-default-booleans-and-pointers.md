@@ -7,11 +7,11 @@ I recently refactored a large set of API's in our code base to remove a common p
 
 After making the switch I recompiled and starting running regression suites on the code and found that a whole set were failing.  It turns out that many of our methods had the following pattern.
 
-{% highlight c++ %}
+``` c++
 class Student;
 
 int CalculateValue(Student *pStudent, Manager *pManager, bool cache=false);
-{% endhighlight %}
+```
 
 The parameter I was removing was "pManager".  So now we have a function that used to take 2 or 3 arguments and now takes 1 or 2 arguments.  Unfortunately, now all of the places that used to call this function with 2 arguments will now recompile without warning since pointers are implicitly convertible to booleans.
 

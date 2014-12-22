@@ -33,7 +33,7 @@ As you can see, based on my sample program, BinaryInsert is much slower than Ins
 
 Perhaps there is a reason BinaryInsert is missing.
     
-{% highlight vbnet %}
+``` vbnet
 Module Module1
 
     Function BinaryInsert(Of T)(ByVal enumerable As IEnumerable(Of T), ByVal comp As IComparer(Of T)) As TimeSpan
@@ -103,4 +103,4 @@ Module Module1
     End Sub
 
 End Module
-{% endhighlight %}
+```
