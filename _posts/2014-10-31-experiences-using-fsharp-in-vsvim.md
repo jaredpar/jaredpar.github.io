@@ -27,7 +27,7 @@ I stared by writing a couple of toy programs in F# and this only increased my in
 
 As I stated before I had 0 practical, or really any, experience using a functional language.  My background was a heavy dose of C/C++ and Java with a side helping of scripting.  F# was a brand new world for me and I was determined to dive in full force. 
 
-That pretty quickly backfired on me.  This was before Visual Studio 2010 was released so F# documentation was still very thin and there were very few samples to draw from.  I was spending all of my time trying to translate complex C# COM interop and WPF into F# using nothing but the language spce.  It was painfully slow and eventually forced me to divide up the project: 
+That pretty quickly backfired on me.  This was before Visual Studio 2010 was released so F# documentation was still very thin and there were very few samples to draw from.  I was spending all of my time trying to translate complex C# COM interop and WPF into F# using nothing but the language spec.  It was painfully slow and eventually forced me to divide up the project: 
 
 - F# for the core vim logic 
 - C# for WPF and VS shell integration
@@ -62,7 +62,7 @@ This may seem strange now given F#'s rise in popularity but at the time it was a
 
 The problem was severe enough that ~2.5 years into the project I had begun to outline a plan to convert all of my F# to C# over the course of a couple releases.  I was very happy with the language but the prospect of being the sole significant contributor to the project over the long term wasn't something I was looking forward to. 
 
-But then the tide started turning doing so relatively fast.  As the community around F# grew up the documentation got better, F# talks started showing up at conferences, more OSS projects came into existance, great blog series were written and then suddenly developers were sending me patches.  
+But then the tide started turning and doing so relatively fast.  As the community around F# grew up the documentation got better, F# talks started showing up at conferences, more OSS projects came into existance, great blog series were written and then suddenly developers were sending me patches.  
 
 The really interesting part is that most of the developers still hadn't written F#.  But now they were willing to take the plunge and learn enough of the language to get their fixes submitted.  I can only presume this is because the language simply appeared more mainstream and developers felt like it was a valuable use of their time to learn the language.  Whatever the reason though I couldn't be happier.  
 
