@@ -1,4 +1,7 @@
 
 _site
 *.ps1
+*.swp
 Thumbs.db
+Gemfile.lock
+
