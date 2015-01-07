@@ -35,7 +35,7 @@ IL_0014: div
 IL_0015: stloc.1
 ```
 
-In the second set of IL instructions the [`conv.r4`](http://msdn.microsoft.com/en-us/library/system.reflection.emit.opcodes.conv_r4(v=vs.110).aspx) instruction is missing.  This instruction is used to convert the top of the evaluation stack to a `float`.  In this case the top of the stack is already a `float` so is't this instruction, like the cast used to produce it, redundant?  
+In the second set of IL instructions the [`conv.r4`](http://msdn.microsoft.com/en-us/library/system.reflection.emit.opcodes.conv_r4(v=vs.110).aspx) instruction is missing.  This instruction is used to convert the top of the evaluation stack to a `float`.  In this case the top of the stack is already a `float` so is this instruction, like the cast used to produce it, redundant?  
 
 It turns out that this instruction is not redundant, it's actually significant to the value of the expression. 
 
