@@ -18,20 +18,26 @@ As much as I like StyleCop though I'm enormously frustrated by it when I have a 
 - Put a brace on the wrong line. 
 - Namespaces weren't sorted correctly. 
 
-All I wanted to do was F5 my latest change and see if it fixed the bug I was working on.  But before I can test out a functional change to the source tree I need to spend a few precious minutes making style based edits to my code.  Why should a style issues block me from testing out this change???  
+All I wanted to do was F5 my latest change and see if it fixed the bug I was working on.  But before I can test out a functional change to the source tree I need to spend a few precious minutes making style edits to my code.  Why is this silly style issue blocking me from testing my change??? 
 
-I often find these little annoyances are what turn developers off to StyleCop.  They don't oppose having an enfoced coding style, they just don't want to be constantly fighting the tools to make changes to the source tree.  
+I often find annoynances like this are the root of opposition to enforcing style guidelines in a code base.  Developers are fine, often reluctantly, with having a coding style, they just don't want to be constantly fighting StyleCop to make changes. 
 
-And they are right to feel that way.  Fixing style issues is a task that is immeniently automatable.  It doesn't require any kind of complicated solution wide analysis, just a parser and a rewrite API.  Yet this silly little automatable task is stopping me from F5ing my last bug fix of the day! 
+And they are right to feel that way.  Fixing style issues is a task that is very automatable.  This type of job is best done by a dedicated tool, not by annoying and blocking developers. 
 
-A path forward here is to extend StyleCop so that it has two purposes:
+Looking forward I'm hoping we can extend StyleCop like tools to be multipurpose:
 
 1. Detect style violations.
 2. Fix style violations.
 
-The latter task is not computationally expensive and could easily be run as part of a "Save File" operation.  Most IDEs do minor formatting changes already today.  StyleCop should be taking this operation to the next level and just apply the style instead of nagging me about it all the time. 
+I often like to refer to #2 as StyleBoss: don't nag me about the problems in my code, just go out there and fix them for me. 
 
-I often refer to this modified StyleCop tool as StyleBoss.  Don't nag me about the changes, just make it happen.  
+Many of the fixes to style violations don't require complex solution wide analysis; just a parser and code generation API [^1].  These changes amount to little more than code formatting and should be applied in the same way.  Have StyleCop hook into well known formatting hooks and just fix my style violations as I type. 
+
+More complicated style fixing could be done via an explicit IDE command.  Or just run from the command line in a batch mode style.  
+
+Lets embrace enforced style guidelines by makig the experience easy and pleasant instead of bothering developers all the time about it. 
+
+[^1]: Can you say Roslyn? 
 
 ===
 
