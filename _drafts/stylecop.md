@@ -33,9 +33,14 @@ I often like to refer to #2 as StyleBoss: don't nag me about the problems in my 
 
 Many of the fixes to style violations don't require complex solution wide analysis; just a parser and code generation API [^1].  These changes amount to little more than code formatting and should be applied in the same way.  Have StyleCop hook into well known formatting hooks and just fix my style violations as I type. 
 
-More complicated style fixing could be done via an explicit IDE command.  Or just run from the command line in a batch mode style.  
+And I don't mean add a smart tip for every violation.  Initiating the fix still requires developer interaction and itime.  Just fix the code without even bothering me.  
 
-Lets embrace enforced style guidelines by makig the experience easy and pleasant instead of bothering developers all the time about it. 
+- Save a file: fix the style violations as a part of the save.
+- Close a method brace: fix the style violations just like you'd format the method.
+
+Not all style fixes are simple enough to be done implicitly.  Those more explicit ones could be done in batch via an explicit IDE command.  Or from a command line tool that runs over a solution. 
+
+This is the tools that I'm looking forward to.  Pick a style and don't make me constantly have to think about it.  Just make it happen for me. 
 
 [^1]: Can you say Roslyn? 
 
