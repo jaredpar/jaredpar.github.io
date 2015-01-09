@@ -11,9 +11,9 @@ Just as it's hard to understand someone speaking in a dialect that differs from 
 
 This gets even harder as the number of styles within a code base increases.  Juggling two styles is annoying but once you're juggling five it's a real hamper to productivity.  Code bases with no enforcement end up with as many styles as there are developers.  It only takes a few years before that number gets into the teens and the code is as messy as a college dorm room.  
 
-Coding styles help prevent this by defining a single style for the entire project.  It makes the transition between files as smooth as possible because it lets deveolpers focus on what the code is saying, not how or where it is saying it. 
+Coding styles help prevent this by adding a level of consistency to a project.  It makes the transition between files as smooth as possible because it lets deveolpers focus on what the code is saying, not how or where it is saying it. 
 
-A coding style though is worthless unless it is ruthlessly enforced.  Developer diligence is simply not a good method of enforcement here.  Coding styles can be highly contenious issues and having to constantly square off over them on code reviews and with new hires is a mentally draining activity.  Over time the diligant developers wear down and the code once again begins to devolve into personal preference. 
+A coding style though is worthless unless it is ruthlessly enforced.  Developer diligence is simply not a good method of enforcement here.  Coding styles can be highly contenious issues and having to constantly square off over them on code reviews and with new hires is a mentally draining activity.  Over time even the diligant developers wear down and the code once again begins to devolve into individual preferences. 
 
 This is why I'm an unabashed lover of StyleCop.  It is simply the best tool around for defining and enforcing style guidelines in a code base.  It can be run on the command line, in the IDE and as a part of a checkin verification system.  This removes the need for developers to constantly square off over the issue.  Get the style right or your change simply won't pass the necessary tests. 
 
@@ -28,7 +28,7 @@ All I wanted to do was F5 my latest change and see if it fixed the bug I was wor
 
 I find annoynances like this are often the root of opposition to adding style enforcement to a code base.  Developers are fine, even if it's reluctantly, with having a coding style.  What they dread is having to be constantly fighting the tools to get their job done. 
 
-And they are right to feel that way.  Fixing style issues is a tedious, repetitive task.  The type of changes needed in the code is easily automatable.  We should be relying on tooling here, not manually intervention by developers. 
+And they are right to feel that way.  Fixing style issues is a tedious, repetitive task.  Changing the code to be in conformance to the style is needed is easily automatable.  We should be relying on tooling here, not manually intervention by annoyed developers. 
 
 Many of the fixes to style violations don't require complex solution wide analysis; just a parser and code generation API [^1].  These changes amount to little more than code formatting.  The IDE is constantly formatting my code as type, it should be fixing my style violations at the same time.  
 
@@ -39,7 +39,7 @@ What I don't want is to see fixes move into smart tips.  Initiating that type of
 
 Not all style fixes are simple enough to be done implicitly.  Those more explicit ones could be done in batch via an explicit IDE command.  Or from a command line tool that runs over a solution. 
 
-This is the type of style tool that I'm looking forward to in the future.  One that lets developers enforce a style wihtout constantly bothering them about minor violations.  Sure there would still need to be enforcement on checkin, but lets make that failures of that nature as rare as possible. 
+This is where I believe style enforcement tools need to go in the future.  They absolutely must keep their checkin enforcement capabilities.  But they should also evolve so style conformance is as automated as possible and those checkin tests are rarely, if ever, hit during normal development.
 
 [^1]: Can you say Roslyn? 
 
