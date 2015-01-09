@@ -3,11 +3,17 @@ layout: post
 title: Looking forward to a better StyleCop
 tags: [misc]
 ---
-A consistent coding style is one of the most undervalued components of a maintainable code base.  Code should always be optimized for readability as developers spend far more time reading code than writing it.  A consistent style helps greatly here because it establishes conventions and locations for well known programming elements.  This makes the transition between code written by different developers as smooth as possible because the reader can focus on the algorithms without having to take in the style quirks of the current author.
+A consistent coding style is one of the most undervalued components of a maintainable code base.  Code should always be optimized for readability as developers spend far more time reading code than writing it.  Having a consistent style helps here because it establishes conventions and locations for well known programming elements.  
 
-When taken individually items like the naming of fields, the position of braces, the casing of names, etc ... are all small neglible issues.  Taken as a whole though they serve to create a a wide variety of dialects within the language.  Just as it's often hard for speakers of a language to understand other dialects, it's hard for developers to read other dialects.  Or at the very least, slows down the reading process.  Coding styles help prevent this by defining a single dialect for all developers on a project.
+When taken individually items like the naming of fields, the position of braces, the casing of names, etc ... are all small neglible issues.  Any time spent debating which is right or wrong is time that could be better spent doing virtually anything else.  Yet when these items are taken as a whole they serve to create a dialect within the language. 
 
-A coding style though is worthless unless it is ruthlessly enforced.  Developer diligence is simply not a good method of enforcement.  Coding styles can be highly contenious issues and having to constantly square off over them on code reviews and with new hires is a mentally draining activity.  Over time the diligant developers wear down and the code once again begins to devolve into different dialects.
+Just as it's hard to understand someone speaking in a dialect that differs from your own, it's hard to read code that significantly differs from your dialect.  Or at the very least, it slows down the reading process.  
+
+This gets even harder as the number of styles within a code base increases.  Juggling two styles is annoying but once you're juggling five it's a real hamper to productivity.  Code bases with no enforcement end up with as many styles as there are developers.  It only takes a few years before that number gets into the teens and the code is as messy as a college dorm room.  
+
+Coding styles help prevent this by defining a single style for the entire project.  It makes the transition between files as smooth as possible because it lets deveolpers focus on what the code is saying, not how it is saying it. 
+
+A coding style though is worthless unless it is ruthlessly enforced.  Developer diligence is simply not a good method of enforcement here.  Coding styles can be highly contenious issues and having to constantly square off over them on code reviews and with new hires is a mentally draining activity.  Over time the diligant developers wear down and the code once again begins to devolve into personal preference. 
 
 This is why I'm an unabashed lover of StyleCop.  It is simply the best tool around for defining and enforcing style guidelines in a code base.  It can be run on the command line, in the IDE and as a part of a checkin verification system.  This removes the need for developers to constantly square off over the issue.  Get the style right or your change simply won't pass the necessary tests. 
 
@@ -20,9 +26,9 @@ As much as I like StyleCop though I'm enormously frustrated by it when I have a 
 
 All I wanted to do was F5 my latest change and see if it fixed the bug I was working on.  But before I can test out a functional change to the source tree I need to spend a few precious minutes making style edits to my code.  Why is this silly style issue blocking me from testing my change??? 
 
-I often find annoynances like this are the root of opposition to enforcing style guidelines in a code base.  Developers are fine, often reluctantly, with having a coding style, they just don't want to be constantly fighting StyleCop to make changes. 
+I often find annoynances like this are the root of opposition to enforcing style guidelines in a code base.  Developers are fine, even if it's reluctantly, with having a coding style, they just don't want to be constantly fighting the tools to make changes. 
 
-And they are right to feel that way.  Fixing style issues is a task that is very automatable.  This type of job is best done by a dedicated tool, not by annoying and blocking developers. 
+And they are right to feel that way.  Fixing style issues is a task that can be easily automated.  They are right to be annoyed that the IDE isn't just fixing this problem for them. 
 
 Looking forward I'm hoping we can extend StyleCop like tools to be multipurpose:
 
