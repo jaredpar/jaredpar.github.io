@@ -1,6 +1,6 @@
 ---
 layout: post
-title: The curious case of Task.Run not starting
+title: The curious case of Task.Run
 tags: [c#]
 ---
 
