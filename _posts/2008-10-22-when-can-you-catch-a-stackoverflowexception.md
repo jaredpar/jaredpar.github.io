@@ -1,5 +1,6 @@
 ---
 layout: post
+tags: [clr, gotcha]
 ---
 Answer: When you're the one who threw it.
 
@@ -40,7 +41,6 @@ static void Main(string[] args) {
 }
 ```
 
-[^1]: Unless you are hosting the CLR in which case you can implement some recovery mechanism. This is certainly the exception though and not the rule
+[^1]: Unless you are hosting the CLR in which case you can implement some recovery mechanism. This is certainly the exception though and not the rule. 
 
-[2] Sorry for the pun
 
