@@ -8,7 +8,7 @@ A few days ago while discussing VsVim with a coworker it occured to me that I'd 
 
 What better place to start than how F# impacted this project?  
 
-# Why did I chose F# for VsVim? 
+# Why did I choose F# for VsVim? 
 
 I started working on VsVim at the end of the Visual Studio 2010 release cycles.  That was easily the toughest release cycle I ever went through and towards the end I was approaching a major burn out.  I needed a fresh new side project to give me some release and boost my morale[^1].  
 
