@@ -10,11 +10,9 @@ As a junior developer I had nothing to lose, no reputation to be tarnished by as
 It's also quite possibly the dumbest mentality that I've had.  
 
 
-
-
 The more success you have as a programmer the more tempting it is to hold back Qs for fear of looking the fool. That's foolish, ask away
 
-It's a problem that I personally suffer from and regularly battle against. 
+It's a problem that I personally suffer from and regularly battle against.
 
 
 Holding back questions also has the potential to set a bad example for new employees.  A
