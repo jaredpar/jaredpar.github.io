@@ -94,83 +94,64 @@ This particular scenario is interesting because it's not limited to C#.  It affe
 
 ## Definite Assignment
 
+Definite assignment is the process by which C# ensures programs only use variables which are properly initialized.  In general the rules are very straight forward and can be summarized as variables must be assigned or used in an `out` position before they are referenced as a value.  
 
-Effects: C#
+Structs are an interesting case because definite analysis only requires that all of the fields of a struct are assigned a value [^1].  This can be done by calling a constructor, using `default(T)` or initializing all fields by hand. This last case is interesting because it allows for structs to be considered initialized without every being assigned a value as a whole:
 
-## Field Offset
+``` csharp
+struct Point
+{
+    public int X;
+    public int Y;
+    public override string ToString() => $"{X} - {Y}";
+}
 
-Effects: IL verification
+Point p;
+Console.WriteLine(p); // Error! p is not initialized
+p.X = 0;
+p.Y = 0;
+Console.WriteLine(p); // Okay, it's initialized at this point
+```
 
-## Interop
+This logic also applies to struct values which have no fields.  Instances of such types are trivially considered to be initialized:
 
-Effects: C#, VB, F#
+``` csharp
+struct Example
+{
 
-For instance internal members can't be removed if there are any `InternalsVisibleTo` attributes because the member could be accessed from an outside assembly.  Private members are never accessible hence they can be removed.
+}
+Example e;
+Console.WriteLine(e); // Okay, e is trivially initialized.
+```
 
-This is a trickier question than
+Knowing that consider what happen to the usage of a struct consisting of only `private` fields if they are stripped away:
 
+``` csharp
+// Implementation assembly definition
+public struct Rectangle
+{
+    private int Width;
+    private int Height;
+}
 
+// Reference assembly definition
+public struct Rectangle
+{
 
-That means `internal` members can be excluded correct?  
+}
+```
 
-Not so fast.   
+To other programs `Rectangle` now appears as an empty struct.  That means it can be used without any assignment (as `Example` was above).  This creates an observable difference between programs that compile against the reference and implementation assembly.
 
+To be fair here: this is not a violation of IL but only C# rules.  Other languages, notably VB, specifically allow for using variables before they are properly initialized.  It does however cause observable breaks in C# applications.
 
-- Smaller SDKs: Lack of code means the DLL is significantly smaller.
-- Targeted APIs: The types and members in the reference assembly can be any consistent set
+### Conclusion
 
-A reference assembly is a .NET assembly that contains
-A reference assembly is a .NET assembly that contain accessible types and members but no actual code.  It is a API only assembly that programs can compile, but not run, against.  They are paired with implementation assemblies which have the
-Frameworks are often broken up into reference
-It is essentially a contract only assembly that programs can compile, but not run against.  
-It is paired with an implementation assembly which contains types, members and code.  Programs compile against reference assemblies and run against actual implementation assemblies.
+The scenarios above are just the most common, and severe, consequences of stripping `private` fields from structs in reference assemblies.  There are several other less severe ones that are affected:
 
+- Explicit struct layouts: can't be done if there is a reference type field.
+- Interop: developer needs to know true size to design interop correctly.
 
-In object oriented programming developers are taught to use accessibility to control the parts of the type which are visible to consumers.  Keep the accessible members to the minimum necessary and use the
+All of these scenarios though add up to one, unfortunate, conclusion.  Private structs fields cannot be considered just an implementation detail.  They are instead an observable part of the struct's contract.  
 
-This is a nice mental model to have but unfortunately reality gets in the way with structs in .NET.  Their properties and usage in .NET languages combine to mean private fields are never an implementation detail.  Their presence, or absence, observably affect how code compiles and executes.  
-
-These details come up most often in discussions around reference assemblies.  A reference assembly is a .NET assembly that contains types and members but no actual code.  An implementation assembly contains types, members and code. Programs compile against reference assemblies and run against actual implementation assemblies.
-
-Breaking up assemblies into reference and implementation parts [^1] is a useful tool for creating targeted API surfaces.  This is in fact how targeting PCL, Windows 8, UWP, etc ... works.  
-
-In order to create correct reference assemblies you can't remove members  from types that meaningfully affect compilation.   
-
-That is true in the majority of cases.  The one case it is not
-
-This is a useful tool for pairing down large implementation assemblies into more targeted API surfaces.  
-
-The APIs can be carefully controlled without having to change the implementation assembly at all.  It's
-
-
-
- (this is in fact how targeting PCL, Windows 8, etc... works).  
-
-It's a useful tool for pairing down large assemblies into more manageable API surfaces (often having multiple reference assemblies per implemenation DLL
-
-
-** Pointer Types **
-
-
-
-Developers want to operate under the principle that private fields are merely implementation details of a type.  
-
-Unfortunately this doesn't a
-
-
-**CSharp**
-
-This is one area where there is no ambiguity.  The C# language does not consider private fields on struct an implementation detail.  Instead it has clear impact on how types are used:
-
-- Definite assignment
-- Unmanaged type: fixed, unsafe, etc ...
-
-**IL**
-
-
-
-**Developers**
-
-This is a more ambiguous question.
-
-[^1]: Known as an "unmanaged type" in the C# spec which is defined in section 18.2.  
+[^1]: This was done in part to ease the porting from C programs.
