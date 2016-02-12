@@ -31,7 +31,7 @@ public struct S
 
     public static S GetValue()
     {
-        return new S() { _field = new object(); };
+        return new S() { _field = new object() };
     }
 }
 
@@ -48,7 +48,7 @@ public struct S
 The reference assembly definition meets the C# standard for pointers.  This means any program using the reference assembly could legally author the following:
 
 ``` csharp
-S* p = Marshal.CoTaskMemAlloc(sizeof(S*));
+S* p = (S*)Marshal.AllocCoTaskMem(sizeof(S*));
 *p = S.GetValue();
 ```
 
@@ -88,7 +88,7 @@ public struct Container<T>
 }
 ```
 
-The lack of the `T` field means there is no cycle and C# allows the definition of `Usage` to compile.  This would then blow up at runtime as the CLR can't represent this definition.
+The lack of the `T` field means there is no cycle and C# allows the definition of `Usage` to compile.  This would then result in an error at runtime as the CLR can't represent this definition.
 
 This particular scenario is interesting because it's not limited to C#.  It affects any .NET language that implements generics: C#, F#, VB and C++/CLI.
 
