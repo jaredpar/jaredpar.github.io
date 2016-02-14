@@ -8,7 +8,7 @@ For previous articles in this series please see
 
 Thus far in the series we've only lifted variables that are declared in the same block/scope. What happens if we lift variables in different scope?  The answer is that one closure class will be created for every unique scope where a lifted variable is declared and all of the variables in that scope that are lifted will be placed in that closure.  Once again, examples speak best
 
-``` vbnet
+``` vb
 Sub Scope1()
     Dim x = 5
     Dim f1 = Function(ByVal z As Integer) x + z
@@ -24,7 +24,7 @@ End Sub
 
 The code will end up looking like so ...
 
-``` vbnet
+``` vb
 Class Closure1
     Public x As Integer
 
@@ -66,13 +66,13 @@ The next twist is what were to happen if the lambda "f2" were to also use the va
 
 Secondly if x were used inside of "f2", the real use would be "c1.x".  That's (almost) no different than "someOtherVar.x".  Therefore the instance of c1 will be lifted into Closure2.
     
-``` vbnet
+``` vb
 Dim f2 = Function(ByVal z As Integer) z + y + g + x
 ```
 
 Woud result in the following definition of Closure2 ...
 
-``` vbnet
+``` vb
 Class Closure2
     Public y As Integer
     Public g As Integer

@@ -16,7 +16,7 @@ There are 2 types of methods and method calls that closures have to handle.
 
 Below is an example of a method call inside a lambda expression for scenario #1.
 
-``` vbnet
+``` vb
 Module M1
 
     Function MyValue() As Integer
@@ -33,7 +33,7 @@ End Module
 
 Here we are calling a module method inside a lambda.  Module Methods or Shared methods can be called from anywhere because they require no specific variable for the call.  This requires no special work from closures as the call can just be made naturally.
 
-``` vbnet
+``` vb
 Class Closure
     Private x As Integer
 
@@ -49,7 +49,7 @@ Calling an instance method is more difficult than a shared method because it req
 
 Calling a instance method inside a lambda expression is little difference than calling a member method on a variable used in a lambda.  The only difference is the variable is "Me".  For example
 
-``` vbnet
+``` vb
 Class C1
     Private m_myValue As Integer
 
@@ -66,7 +66,7 @@ End Class
 
 In this case we need to access both "x" and "Me.MyValue()" from the closure.  The generated code will create space for both of these variables and the transformed code in Example2 will store both of the values.
 
-``` vbnet
+``` vb
     Class Closure
         Private x As Integer
         Private OriginalMe As C1

@@ -3,7 +3,7 @@ layout: post
 ---
 Not to long ago I received an email from a customer who wanted to report a bug in the VB.Net debugger. They believed that there was a bug invoking ToString on Integer types in the immediate window and provided the following sample as evidence
 
-``` vbnet
+``` vb
 i = 100
 ? i
 100 {Integer}
@@ -30,7 +30,7 @@ The customer expected the method Integer.ToString(String) to be invoked and foun
 
 These two combine together to mean that almost every expression evaluated on a variable declared in the immediate window will be done in a late bound fashion. It also means the above code sample is most accurately represented by the following real code.
 
-``` vbnet
+``` vb
 Sub Main()
     Dim i As Object = 100
     Dim result = i.ToString("co2")
@@ -41,7 +41,7 @@ Compiling and running that code will indeed cause the exact same exception as vi
 
 Remember earlier I said that **almost** every expression would be evaluated it a late bound fashion. The compiler will use late binding when it can't find a suitable method to bind to statically and late binding is otherwise allowed.  In this case the type of the variable is Object and hence Object.ToString() can be bound to statically and indeed that's what happens in this case.  Further in VB.Net it's possible to call a method that has no parameters without parens: ex i.ToString is legal. This results in the ('c02') portion of the expression being interpreted as an indexer expression into the resulting string. Because Option Strict is off the compiler allows a silent narrowing conversion between String and Integer. The result of all of this is the code is actually evaluated as
 
-``` vbnet
+``` vb
 Sub Main()
     Dim i As Object = 100
     Dim result = i.ToString()(CInt("co2"))

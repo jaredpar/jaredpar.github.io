@@ -5,7 +5,7 @@ This is somewhat of a follow up on a previous [post]({% post_url 2007-10-04-ienu
 
 I've seen several people type in the following code and wonder if there was a fundamental bug in the type inference code.
 
-``` vbnet
+``` vb
 Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
     For Each cur In Controls
         cur.Text = "A Value"

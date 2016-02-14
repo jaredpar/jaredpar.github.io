@@ -7,7 +7,7 @@ A feature which seems to be getting more requests recently is support for seeing
 
 Indeed C# could implement this feature but it's not a CLR debugging feature that VB.Net is relying on but is rather an issue of VB6 legacy support.  The VB6 language didn't have a return statement.  Instead values were returned by assigning the value to be returned to the name of the function.  For example
 
-``` vbnet
+``` vb
 Function IsEven(ByVal i As Integer)
     If i Mod 2 = 0 Then 
         IsEven = True 

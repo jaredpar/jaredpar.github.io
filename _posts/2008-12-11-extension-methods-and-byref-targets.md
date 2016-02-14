@@ -5,7 +5,7 @@ One of the seldom used, and often unknown, features of VB extension methods is t
 
 Obviously this can produce unexpected but often amusing behavior. The following sample prints 'False'.
     
-``` vbnet
+``` vb
 <Extension()> _
 Public Sub EnsureNotNull(ByRef str As String)
     If str Is Nothing Then
@@ -27,7 +27,7 @@ I think people will look at this example and either cringe, call it terrible cod
 
 Why' The feature is fun to play with and can create some interesting samples but it can also just as easily lead to very bad and unanticipated behavior.  For instance what if instead of making sure something wasn't Nothing, the code made the argument Nothing?
 
-``` vbnet
+``` vb
 <Extension()> _
 Sub EvilMethod(ByRef p1 As Object)
     p1 = Nothing

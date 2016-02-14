@@ -22,7 +22,7 @@ function Is-BinaryFileName() {
 
 Now running a recursive search on a directory structure is quick and easy
 
-``` vbnet
+``` vb
 function Select-StringRecurse() {
     param ( [string]$text = $(throw "Need text to search for"),
             [string[]]$include = "*",

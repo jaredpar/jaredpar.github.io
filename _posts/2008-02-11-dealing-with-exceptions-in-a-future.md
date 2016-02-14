@@ -64,7 +64,7 @@ catch (FutureException ex)
 
 This doesn't actually limit any functionality but users may find the syntax uncomfortable. VB users can still do exception filtering but this is not at option for C# users.
 
-``` vbnet
+``` vb
 Try
     Future.Create(Function() SomeOperation())
 Catch ex As Exception When ex.InnerException.GetType() Is GetType(IOException)

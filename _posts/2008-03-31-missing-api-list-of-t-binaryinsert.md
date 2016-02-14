@@ -9,7 +9,7 @@ An alternative method for keeping a sorted list sorted is to insert and then res
 
 Yet this API doesn't exist. No matter. We can quickly fix this problem with a couple of extension methods.
 
-``` vbnet
+``` vb
 Public Module Extensions
 
     <Extension()> _

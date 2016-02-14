@@ -27,7 +27,7 @@ This is the bread and butter of object/value equality. The author has free reign
 
 #2 and #3 may seem a bit off at first but it is implemented with a standard pattern as seen below.
 
-``` vbnet
+``` vb
 Class C1
     Public Overrides Function Equals(ByVal obj As Object) As Boolean
         Dim other = TryCast(obj, C1)
@@ -51,7 +51,7 @@ The better version of the GetHashCode rule has a small suffix on the simple rule
 
 For instance take this not so small example. In this case value equality is based solely off of Field1 which is a modifiable field. Once Field1 is changed you may or may not be able to access the value in the dictionary because GetHashCode() will change. This example is contrived but it does happen in the real world and it can be incredibly difficult to track down.
 
-``` vbnet
+``` vb
 Class C2
     Public Field1 As Integer
 
@@ -95,7 +95,7 @@ Operator= has virtually the same rules as Equals. Mainly don't throw from operat
 
 What's great here is there is a simple solution that you should use every time you define Operator=. [EqualityComparer(Of T)](http://msdn2.microsoft.com/en-us/library/ms132123.aspx) knows all of these rules and in the face of both parameters being non-Nothing will call Equals() just like we want. This makes the definition of Operator= boiler plate (I define very Operator= the exact same way)
 
-``` vbnet
+``` vb
 Public Shared Operator =(ByVal left As C2, ByVal right As C2) As Boolean
     Return EqualityComparer(Of C2).Default.Equals(left, right)
 End Operator
@@ -107,7 +107,7 @@ What's even better is that EqualityComparer(Of T) understands the stack overflow
 
 Operator<> has the same rules as Operator= and luckily the same easy type of answer.
 
-``` vbnet
+``` vb
 Public Shared Operator <>(ByVal left As C2, ByVal right As C2) As Boolean
     Return Not EqualityComparer(Of C2).Default.Equals(left, right)
 End Operator

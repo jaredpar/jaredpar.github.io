@@ -13,7 +13,7 @@ Originally I wanted to talk about looping structures next.  However when I start
 
 Prior to Orcas the lifetime of a variable in VB was the entire function.  This presented several problems from a closures perspective.  Imagine you had a looping structure and the value was used in a lambda expression.  
 
-``` vbnet
+``` vb
 Sub LifetimeExample()
     Dim list As New List(Of Func(Of Integer))
     For i = 0 To 5
@@ -40,7 +40,7 @@ This is somewhat unexpected and essentially means that VB could not support comp
 
 We did make one backcompat adjustment for this change.  The lifetime of variables in VB was visible if you tried to use an uninitialized variable in a loop/goto.  For instance the following code will also print out 0 2 4 6 8 10 because it takes advantage of the fact that the variable "x" has a lifetime longer than the loop.
 
-``` vbnet
+``` vb
 Sub VisibleLifetime()
     For i = 0 To 5
         Dim x As Integer

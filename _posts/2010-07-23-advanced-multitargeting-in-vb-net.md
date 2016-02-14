@@ -6,7 +6,7 @@ Multi-targeting is a feature introduced in Visual Studio 2008 which allows devel
 At a compiler level this works by providing binary compatibility with previous versions of the CLR (or producing an error when it's not possible). It doesn't warn developers about using new language constructs on older frameworks so long as they function in the target framework.  
 Take the following code sample as an example. It is taking advantage of [implicit line continuations](http://blogs.msdn.com/b/vbteam/archive/2009/03/27/implicit-line-continuation-in-vb-10-tyler-whitney.aspx) which is a feature introduced in VB.Net 10 and not available in Visual Studio 2008. Since it's just syntactic sugar it compiles just fine in an application targeting 4.0 or any previous version of the framework.  
     
-``` vbnet
+``` vb
 Dim query =
     From it In col
     Where it Mod 2 = 0

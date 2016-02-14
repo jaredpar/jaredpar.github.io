@@ -34,7 +34,7 @@ However this code now works without modification in Orcas.  This is a welcome an
 
 And yes, the same inference is possible with VB in Orcas.  In Whidbey this was not an issue because VB did not support lambda expressions.
 
-``` vbnet
+``` vb
 Module Module1
 
     Public Delegate Function Operation(Of T)() As T

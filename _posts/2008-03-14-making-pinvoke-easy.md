@@ -57,7 +57,7 @@ The tool also provides a database of many commonly used functions, structs, cons
 In addition this part of the tool will also do dependency calculation.  For instance if choose a method which has a parameter that is a C structure it will automatically generate the structure with the function.  For instance if you choose the function [FindFirstFile](http://msdn2.microsoft.com/en-us/library/aa364418.aspx) it will determine that the function depends on the WIN32_FIND_DATA structure.  Furthermore it will notice that WIN32_FIND_DATA depends on FILETIME and generate both in addition to the method.
 
     
-``` vbnet
+``` vb
 <System.Runtime.InteropServices.StructLayoutAttribute( _
     System.Runtime.InteropServices.LayoutKind.Sequential, _
     CharSet:=System.Runtime.InteropServices.CharSet.[Unicode])> _

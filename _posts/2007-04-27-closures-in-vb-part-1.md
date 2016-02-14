@@ -8,7 +8,7 @@ Lexical Closures (more often referred to as simply Closures) are the underpinnin
 To start off, let's get a basic summary of what a Closure is.  [Wikipedia](http://en.wikipedia.org/wiki/Closure_%28computer_science%29) defines it as "... a  is a semantic concept referring to a function paired with an environment ...".  I prefer to describe it as follows.  A closure is a feature which allows users to seemlessly access an environment (locals, parameters and methods) from more than one function.  Even better are samples
 :)
 
-``` vbnet
+``` vb
 Class C1
     Sub Test()
         Dim x = 5
@@ -28,7 +28,7 @@ To do this the compiler will take essentially 4 actions.
 3. Create a new instance of the class "Closure" inside the sub "Test" 
 4. Rewrite all access of "x" into the member "x" of "Closure".
     
-``` vbnet
+``` vb
 Class Closure
     Public x As Integer
 

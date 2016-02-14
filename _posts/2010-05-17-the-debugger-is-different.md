@@ -13,7 +13,7 @@ One the surface this doesn't seem like a big change. It's an additive change all
 
 However even seemingly simple changes like removing accessibility checks can lead to very surprising behavior for our users. Recently our QA team filed a bug that illustrates this point.
 
-``` vbnet
+``` vb
     Module Module1
         Class Base
             Private Field1 As Integer = 55

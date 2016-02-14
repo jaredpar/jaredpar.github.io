@@ -3,7 +3,7 @@ layout: post
 ---
 The VB Catch syntax has a particular feature not present in C#: When.  It allows users to filter expressions based on something other than their type.  Any arbitrary code can enter a When block to decide whether or not to handle an Exception
 
-``` vbnet
+``` vb
 Sub Sub1()
     Try
         DoSomeAction()

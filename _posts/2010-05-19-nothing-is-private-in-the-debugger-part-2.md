@@ -10,7 +10,7 @@ In the case of late binding the compiler only participates in building an expres
 Late bound access combined with static access can lead to additional confusing behavior. For example.
 
     
-``` vbnet
+``` vb
 Class C1
     Private Field1 As Integer
     Public Property Property1 As Integer

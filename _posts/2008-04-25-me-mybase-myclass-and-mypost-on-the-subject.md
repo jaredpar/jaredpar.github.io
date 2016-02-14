@@ -7,7 +7,7 @@ Recently we had a good discussion on an internal alias about the use of Me, MyCl
 
 The keywords are used to alter the way in which instance members of a class/structure are accessed.  In particular they affect the way Overridable/MustOverride/Overrides functions are evaluated. Methods defined with Overridable/Overrides/MustOverride are defined as virtual by the CLR.  For the purpose of this post all of these definitions are mostly equal.  This discussion will be useless without and example so here's the code to discuss.
 
-``` vbnet
+``` vb
 Class GrandParent
     Public Overridable Sub Sub1()
         Console.WriteLine("GrandParent.Sub1")
@@ -31,7 +31,7 @@ End Class
 
 In this case Sub1 is a virtual method and there are three instances of it (one per class).  By default virtual methods are called based on the runtime type of the object.  The CLR will essentially walk the hierarchy from current type to object looking for the first class which defines a particular method and call that version.  It doesn't matter what the variable type is declared as, just what type it actually is.
 
-``` vbnet
+``` vb
 Dim v1 As GrandParent = New Parent
 v1.Sub1()   ' Calls Parent.Sub1
 Dim v2 As GrandParent = New GrandParent
@@ -42,7 +42,7 @@ v2.Sub1()   ' Calls GrandParent.Sub1
 
 If the CLR will always call a virtual Sub/Function based on the runtime type of an object how can I access the parent function?  This is where MyBase comes in.  MyBase allows you to call the version of the virtual method defined in the parent class.  Essentially it tells the CLR call this method/property as if my runtime type was my base type.
 
-``` vbnet
+``` vb
 Class Child2
     Inherits Parent
     Public Overrides Sub Sub1()
@@ -54,7 +54,7 @@ End Class
 
 MyClass is similar to MyBase.  Instead of telling the CLR the current type is the base type, it tells the CLR the runtime type is the type where MyClass is used.  This allows developers to call their type's version of a virtual method no matter who derives from them.  In the following example it doesn't matter how many, or who derives from Child3, Sub2 will always call the version of Sub1 defined in Child3.
 
-``` vbnet
+``` vb
 Class Child3
     Inherits Parent
     Public Overrides Sub Sub1()

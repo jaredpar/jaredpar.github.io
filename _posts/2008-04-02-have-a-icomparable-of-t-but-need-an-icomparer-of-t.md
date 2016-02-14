@@ -10,7 +10,7 @@ Now back to the original problem, we have a type which implements IComparable(Of
 Example usage: [Previously]({% post_url 2008-03-31-missing-api-list-of-t-binaryinsert %}) we defined a BinaryInsert method for List(Of T). It required an explicit IComparer(Of T) be passed even for simple types like Int32. We can fix this by using the Comparer(Of T) class.
 
     
-``` vbnet
+``` vb
 <Extension()> _
 Public Sub BinaryInsert(Of T)(ByVal list As List(Of T), ByVal value As T)
     list.BinaryInsert(value, Comparer(Of T).Default)

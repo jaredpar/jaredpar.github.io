@@ -9,7 +9,7 @@ What's going on here is a side effect of how this event works under the hood.  T
 
 So imagine we had the following code.
 
-``` vbnet
+``` vb
 Private Sub OnTimerTick() Handles m_timer.Tick
     RunSomeOperation()
 End Sub
@@ -21,7 +21,7 @@ This is contrary to what most people expect. Most people expect the Tick event t
 
 To work around this developers should stop the timer when processing a timer event. Just before exiting the event handler, re-enable the timer. This will cause Windows to start calculating the interval from the start. This has the effect of making the timer event fire 2 seconds after developer code stops executing.
 
-``` vbnet
+``` vb
     Private Sub OnTimerTick() Handles m_timer.Tick
         m_timer.Stop()
         Try

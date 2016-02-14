@@ -15,7 +15,7 @@ As powerful as closures are in the language they do have a few limitations.  We 
 
 Example:
 
-``` vbnet
+``` vb
 Sub LiftAByRef(ByRef x As Integer)
     Dim f = Function() x
 End Sub
@@ -29,7 +29,7 @@ The problem here is the expectation surrounding x.  Any change in the value of "
 
 Example:
     
-``` vbnet
+``` vb
 Structure S1
     Public F1 As Integer
 
@@ -47,7 +47,7 @@ Closures capture values by reference.  It's not possible to capture the "Me" of 
 
 Example:
 
-``` vbnet
+``` vb
 Sub LiftRestrictedType()
     Dim x As ArgIterator = Nothing
     Dim f = Function() x.GetNextArgType().GetModuleHandle()
@@ -67,7 +67,7 @@ This hopefully will not affect many users.  There are several types in the CLR t
 
 Example:
 
-``` vbnet
+``` vb
     Sub BadGoto()
         Dim x = 0
 

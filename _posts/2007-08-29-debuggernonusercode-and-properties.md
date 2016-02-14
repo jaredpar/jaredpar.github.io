@@ -7,7 +7,7 @@ The benefits of this attribute is that it allows the compiler and designers to d
 
 However if you type code like the following you won't get the behavior you probably expect.
 
-``` vbnet
+``` vb
 Class C1
     Private m_f1 As Integer
 
@@ -25,7 +25,7 @@ End Class
 
 While investigating a recent bug I found that I could step into the get/set method of properties annotated with DebuggerNonUserCode.  The reason why is a bit unexpected.  The attribute is applied to the property, not the get/set method.  The debugger will only check the actual methods involved.  It doesn't special case properties in any fashion.  If you want to get the expected behavior, you have to annotate the get/set method directly.
 
-``` vbnet
+``` vb
 Class C1
     Private m_f1 As Integer
 

@@ -9,7 +9,7 @@ Extension methods require the ExtensionAttribute be available.  Since the attrib
 
 You can simply define the ExtensionAttribute in your assembly and extension methods will start working.  No references to the 3.5 framework required.  It's a lightweight solution that adds the full power of extension methods to your program.
 
-``` vbnet
+``` vb
 Namespace System.Runtime.CompilerServices
     Class ExtensionAttribute
         Inherits Attribute
