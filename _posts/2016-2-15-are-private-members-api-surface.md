@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Are private members a part of the API surface?
+tags: [c#, api]
 ---
 
 A reference assembly is a slimmed down version of an implementation assembly that contains the API surface but no real code.  A program can reference these assemblies at compile time but cannot run against them.  Instead at deploy time programs are paired with the original implementation assembly.
