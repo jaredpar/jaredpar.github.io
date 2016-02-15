@@ -7,7 +7,7 @@ A reference assembly is a slimmed down version of an implementation assembly tha
 
 Breaking up assemblies into reference and implementation pairs is a useful tool for creating targeted API surfaces.  The author is free to exclude otherwise public APIs and hence create a more constrained API surface. This is in fact how targeting PCL, Windows 8, UWP, etc ... works.  
 
-Another advantage is reference assemblies are significantly smaller than their implementation counterparts.  After all they have no code and omit all APIs that are either inaccessible or not intended as part of the API surface.  This means SDKs consisting of reference assemblies can be quite small.  In order to get them as small as possible the question comes up:
+Another advantage is reference assemblies are significantly smaller than their implementation counterparts.  After all they have no code and omit all APIs that are either inaccessible or not intended as part of the API surface.  This means SDKs consisting of reference assemblies can be quite small.  In order to get them as small as possible developers often ask:
 
 > What APIs can omitted such that it won't effect any code that compiles against the assembly?  
 
@@ -15,13 +15,13 @@ On the surface this seems like it has a simple answer: just exclude the types / 
 
 Many developers take this to mean they only need to include `public` and `protected` APIs as they are the only ones accessible outside the assembly.  This breaks down in the face of `InternalsVisibleTo` attributes as it makes `internal` APIs accessible as well.  In that case a reference assembly must include the `internal` APIs to be compatible.
 
-Surely though `private` APIs can be excluded?  There is no `PrivatesVisibleTo` attribute hence other programs can't ever access these members. They are nothing more than an implementation detail.
+Surely though `private` APIs can be excluded?  There is no `PrivatesVisibleTo` attribute hence other programs can't ever access these members. They are nothing more than an implementation detail and can't effect how other programs compile.
 
 While that is generally true, there is one case where `private` members have a meaningful effect on other programs: struct fields.  The presence, or absence, of these fields can change the way in which the containing struct can be used.  The details are often subtle but the scenarios do exist.
 
 ## Pointer Types
 
-C# permits user defined structs to be pointer types in unsafe code provided the struct meet a specific guideline: it must not contain any fields that are of a reference type [^1].  This requirement exists because the .NET GC does not trace through pointers to find object references.  Hence references behind pointers would neither be tracked for liveness nor have their addresses rewritten if the object moves during compaction.
+C# permits user defined structs to be pointer types in unsafe code provided the struct meet a specific guideline: it must not contain any fields that are of a reference type.  This requirement exists because the .NET GC does not trace through pointers to find object references.  Hence references behind pointers would neither be tracked for liveness nor have their addresses rewritten if the object moves during compaction.
 
 Knowing that consider the effect of removing private fields on the following struct:
 
@@ -47,11 +47,14 @@ public struct S
 }
 ```
 
-The reference assembly definition meets the C# standard for pointers.  This means any program using the reference assembly could legally write the following:
+The implementation assembly definition could never be used as a pointer type (`S*`) due to the presence of `_field`.  Yet the reference assembly definition meets the C# standard for pointers.  This means any program using the reference assembly could legally write the following:
 
 ``` csharp
-S* p = (S*)Marshal.AllocCoTaskMem(sizeof(S*));
-*p = S.GetValue();
+unsafe
+{
+    S* p = (S*)Marshal.AllocCoTaskMem(sizeof(S*));
+    *p = S.GetValue();
+}
 ```
 
 This is extremely dangerous because now there is a reachable object reference which is untracked by the GC.  It's a crash in the application just waiting to happen at some point in the future!
@@ -67,11 +70,13 @@ Console.WriteLine(typeof(S*));
 When constructing generic instantiations that involves structs, C# needs to verify that it doesn't create a struct layout cycle.  For example:
 
 ``` csharp
+// Assembly 1
 public struct Container<T>
 {
     private T _field;
 }
 
+// Assembly 2
 public struct Usage
 {
     Container<Usage> Data;
