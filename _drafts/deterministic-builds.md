@@ -3,10 +3,11 @@ layout: post
 title: Deterministic builds
 tags: [roslyn, c#, vb]
 ---
+It seems silly to celebrate features which should have been there from the start.  But I can't help but be excited about adding deterministic build support to the C# and VB compilers.  The `/deterministic` flag causes the compiler to emit the **exact** same EXE / DLL, byte for byte, given the same inputs to the compiler. This is a seemingly minor accomplishment that enables a large number of scenarios around content based caching: build artifact, test results, etc ...
 
-It seems silly to celebrate features which should have been there from the start.  But I can't help but be excited about adding deterministic build support to the C# and VB compilers.  The `/deterministic` flag causes the compiler to emit the **exact** same EXE / DLL, byte for byte, given the same inputs to the compiler.  
+Roslyn enabled deterministic builds in February.  Since then we've built a test content caching system based on our build output that on average provides 70% savings on the time it takes to run tests.  That's a huge productivity boost for developers because our changes can be verified almost 15 full minutes faster now in PRs.
 
-This is a seemingly minor accomplishment that enables a large number of scenarios around content based caching: build artifact, test results, etc ...  Roslyn started self hosting deterministic builds in 
+Getting a bit ahead of ourselves though.  Let's discuss what exactly the deterministic switch does to the PE output.
 
 ## Deterministic Compilations
 When discussion determinism compilations we need to divide up the contents of the PE into two categories:
@@ -53,6 +54,27 @@ It serves to make the inherently non-determinismic sections of the PE determinis
 Windows PDBs still have non-deterministic output.  These are emitted by a native component shared by the C++ compiler.  Attempts were made to make the output of the PDB deterministic as well but fell short for this release.  It's possible in future releases this will also become fully deterministic.
 
 Portable PDBs are fully deterministic.  They were designed with determinism in mind and are fully deterministic in the face of the `/deterministic` flag.
+
+## What if I build from different enlistment paths?
+There are a number of cases where the enlistment path of a build will show up in the resulting PE / PDB:
+
+- Full path of source files are embedded in the PDB.
+- `[CallerFilePath]` embeds full source path as a default argument.
+- `#line` directives can include file paths.
+- The full path of the PDB if generated.
+
+This means identical builds from different enlistment paths will often have different outputs.  To fix this the compiler provides the `/pathmap:` option.  It takes arguments in the form of `/pathmap:<source directory>=<dest directory>`.  Multiple pairs can be provided by separating them with a semicolon.  
+
+When given this option the compiler will replace the any occurrence of `<source path>` in file path it writes out with `<dest path>` instead.  This allows builds from different enlistment paths to have identical output.
+
+Note: If producing PDBs then in update 2 the following flag also needs to be provided: `/feature:pdb-path-determinism`.  This is a short term work around that [will be replaced](https://github.com/dotnet/roslyn/issues/9813) with a supported option in update 3.
+
+## What options do I provide in MSBuild files?
+Here are the MSBuild project file entries for the equivalent command line option:
+
+- `/deterministic` - `<Deterministic>true</Deterministic>`
+- `/pathmap` - `<PathMap>source=dest</PathMap>`
+
 
 [^1]: A common practice in complex build environments.
 [^2]: The use of SHA1 is subject to change in future releases of the compiler.
