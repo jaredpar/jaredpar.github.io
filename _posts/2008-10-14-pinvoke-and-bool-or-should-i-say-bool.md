@@ -1,5 +1,6 @@
 ---
 layout: post
+title: PInvoke and bool or should I say BOOL?
 ---
 Boolean value types are a constant source of problems for people attempting to generate PInvoke signatures.  It's yet another case of managed and native types differing on size.  
 
