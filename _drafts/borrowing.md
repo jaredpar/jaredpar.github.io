@@ -4,6 +4,23 @@ title: Using assembly attributes to control code behavior
 tags: [c#, language design]
 ---
 
+* borrowed values vs. types ... aka ref struct
+
+One requesnt I see fairly often for C# is to add the concept of borrowed values. That is values which can be used but
+not arbitrarily stored to the heap / disposed. This generally comes up in the context of other features which require
+some form of ownership semantics like stack allocation of classes and resource management. 
+
+This a feature we explored quite deeply while working on M# in the [Midori Project](http://joeduffyblog.com/2015/11/03/blogging-about-midori/)
+in the context of having stack like allocations. The experience taught us quite a bit about the difficulties in 
+introducing ownership concepts into a language that didn't have them designed in from the start. 
+
+This blog post will explore what adding borrowing to C# would look like today. 
+
+One request I see fairly often for C# is to add the concept of borrowed values. That is to mark a specific variable
+/ location as being able to use but never own. A borrowed value can be used but not stored away.  
+
+One request I see fairly often for C# is to add some form of borrowed values into the language. 
+
 This is a markdown rendering of a response I gave to the following question: 
 
 > Why doesn't C# add support for linear types into the language?
