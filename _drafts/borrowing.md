@@ -14,7 +14,11 @@ This a feature we explored quite deeply while working on M# in the [Midori Proje
 in the context of having stack like allocations. The experience taught us quite a bit about the difficulties in 
 introducing ownership concepts into a language that didn't have them designed in from the start. 
 
-This blog post will explore what adding borrowing to C# would look like today. 
+Below we're going to explore what adding borrowed values to C# would potentially look at. This will focus on the 
+borrowing aspect only (use but don't store). Explicit ownership is a topic for another day. 
+
+This blog post will explore what adding borrowing to C# would look like today. This will only focus on borrowing 
+though and save 
 
 One request I see fairly often for C# is to add the concept of borrowed values. That is to mark a specific variable
 / location as being able to use but never own. A borrowed value can be used but not stored away.  
