@@ -8,6 +8,8 @@ tags: [c#, language design]
     * borrowed values vs. types ... aka ref struct
     * borrowed fields and array elements
     * borrowed return values
+* TODO
+    * cover boxing in the rules of things you can't do
 
 One requesnt I see fairly often for C# is to add the concept of borrowed values. That is values which can be used but
 not arbitrarily stored to the heap. This generally comes up in the context of other features which require some 
@@ -77,15 +79,32 @@ zero of their methods have `this` marked as borrowed.
 
 The non-virtual methods could be fixed by updating their annotation in the framework. The `virtual` methods and 
 `interface` definitions can't be changed as it would break compat. That means `object&` is by itself only useful for
-storing values as no operations can be done on it. This means .NET Framework APIs which call methods on `object` can 
-not switch to `object&` even if they never themselves escape it. Concrete example here is `Console.WriteLine`.
+storing values as none of it's members can be invoked.
 
-Maybe this doesn't deter you. You have a big code base, you’re willing to really invest the time to put borrowed 
-annotations on all the places they need to go. Additionally you'll invest in an `object` like `interface` that will 
-give you back much of the `object` behavior. Once all this work is done you'll be able to thread borrowed references 
+This is a pretty significant problem. It means that .NET Framework API parameters which invoke members on `object`
+can't be marked as `object&` regardless of whether or not they escape the parameter. Concrete example here is 
+`Console.WriteLine`. This is the conceptual definition of "use but don't store" but because it calls `ToString` the 
+parameters can never be marked as `object&`. 
+
+This is a pretty significant problem. It means the .NET Framework is very limited in where it can apply borrowing to 
+parameters. Limited to the point that it questions whether the feature is useful at all. Successful uses of borrowing
+would require significant duplication of .NET Framework surface area with the old real change being to use a new
+object-like interface which had proper borrowing annotations.
+
+This limitation alone is significant enough that it means general borrowing probably won't ever happen in .NET. But 
+for the sake of exploration lets move past this. Lets imagine that .NET decided to break compat here and change the 
+definition of `object` such that all its members were borrowed.
+
+
+
+
+}. Further you're willing to duplicate all of the .NET Framework APIs you 
+consume and rebuild them on top of your 
+Once all this work is done you'll be able to thread borrowed references 
 through the system. That experiment though will likely result in two conclusions:
 
-1. Borrowed is a more logical default than non-borrowed. That's a compat break though so you're stuck with manually
+1. Borrowed is a more logical default than non-borrowed. Assuming the 
+That's a compat break though so you're stuck with manually
 adding `&` everywhere.
 1. 
 - Two states (borrowed and non-borrowed) are simply not enough. You actually need to be able to describe the relative
