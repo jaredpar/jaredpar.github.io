@@ -68,7 +68,7 @@ Again though, this is about marking fields `readonly`, not the containing type. 
 though. Even in code bases where compat is of incredibly high value there have been sweeping changes to 
 [mark](https://github.com/dotnet/roslyn/pull/34478) [large](https://github.com/dotnet/corefx/pull/24997)
 [blocks](https://github.com/dotnet/coreclr/pull/14789) of `struct` 
-[instances](https://github.com/dotnet/corert/pull/4855) as `readonly`. 
+[declarations](https://github.com/dotnet/corert/pull/4855) as `readonly`. 
 
 The other case where behavior changes can occur has to do with aliasing. This is extremely rare though, only showing 
 up in hypotheticals vs. actual code bases. It is best demonstrated by example:
