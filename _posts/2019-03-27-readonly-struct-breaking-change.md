@@ -41,7 +41,7 @@ number of cases.
 
 That being said there is one scenario to be careful of when applying this feature. One of the requirements is that every 
 field of the type be explicitly marked as `readonly`. Adding `readonly` to a field as a part of making the containing
-type `readonly` can cause observable behavior changes. When the field type is a non-readontly `struct` defensive copies 
+type `readonly` can cause observable behavior changes. When the field type is a non-readonly `struct` defensive copies 
 will now be made for invocations and this can cause changes to be dropped where previously they were persisted. This 
 has nothing to do with `readonly struct` but instead is a direct result of making the field `readonly`.
 
