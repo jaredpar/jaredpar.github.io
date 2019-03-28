@@ -59,7 +59,7 @@ struct Nullable<T> {
 
     public override string ToString() {
         // Oops: value.ToString now creates a defensive copy
-        return  hasValue ? value.ToString : "";
+        return  hasValue ? value.ToString() : "";
     }
 }
 ```
