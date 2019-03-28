@@ -52,6 +52,18 @@ like `value.ToString` now caused a defensive copy to occur which caused all muta
 Eventually this lead to the change [being reverted](https://github.com/dotnet/coreclr/pull/15198) because of the high
 impact of `Nullable<T>`. 
 
+``` csharp
+struct Nullable<T> { 
+    readonly T value;
+    bool hasValue;
+
+    public override string ToString() {
+        // Oops: value.ToString now creates a defensive copy
+        return  hasValue ? value.ToString : "";
+    }
+}
+```
+
 Again though, this is about marking fields `readonly`, not the containing type. This type of problem is fairly rare
 though. Even in code bases where compat is of incredibly high value there have been sweeping changes to 
 [mark](https://github.com/dotnet/roslyn/pull/34478) [large](https://github.com/dotnet/corefx/pull/24997)
