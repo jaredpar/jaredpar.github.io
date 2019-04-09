@@ -47,7 +47,7 @@ String s2 = 42; // Might error, might not, depends on the code
 ```
 
 Many will argue that while this is information technically accurate using `String` is still fine because it's 
-exceedingly are that a code base would define a type of this name. Or that when `String` is defined it's a sign of a 
+exceedingly rare that a code base would define a type of this name. Or that when `String` is defined it's a sign of a 
 bad code base.
 
 The reality though is quite different. Defining `String` happens with some regularity as is demonstrated by the 
