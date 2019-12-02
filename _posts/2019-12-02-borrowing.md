@@ -21,7 +21,7 @@ of ownership. Lacking borrowing the more desired features, like stack allocation
 In this post borrowed references will be denoted with a `&` following the type name. So `Widget` is a normal reference 
 while `Widget&` is a borrowed reference. There is a subtyping relationship between borrowed and normal references
 meaning a `Widget` is convertible to a `Widget&` but not the other way around. This annotation can be applied to locals
-and parameters. It cannot be applied to fields, return types, or parameters that are which are not `out`, `in` or `ref`. 
+and parameters. It cannot be applied to fields, return types, or parameters which are not `out`, `in` or `ref`. 
 
 ```cs
 class Widget { 
