@@ -8,9 +8,9 @@ not stored beyond the invocation of a particular method. This generally comes up
 require a form of ownership semantics like stack allocation of classes, `using` statements, resource management, etc ...
 Borrowing provides a way to safely use owned values without complicated ownership transfer.
 
-This a feature we explored while working on System C# in the 
+This is a feature we explored while working on System C# in the 
 [Midori Project](http://joeduffyblog.com/2015/11/03/blogging-about-midori/) in the context of having stack like
-allocations. The experiment was successful and brought with it signficant performance wins for the system. But the 
+allocations. The experiment was successful and brought with it significant performance wins for the system. But the 
 experience also taught us quite a bit about the difficulties in introducing ownership concepts into languages and 
 frameworks that didn't have them designed in from the start.
 
@@ -40,7 +40,7 @@ class Widget {
 ``` 
 
 This simple system enforces that borrowed references have the desired "use but don't store" semantics. When a value is
-passed to a borrowed parameter of a method, the caller can be assured that the value is not reference at the
+passed to a borrowed parameter of a method, the caller can be assured that the value is no longer referenced at the
 completion of the method. That is it cannot be stored into a field, used as a generic argument, returned or smuggled 
 out via a `ref` / `out` parameter.
 
