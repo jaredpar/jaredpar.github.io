@@ -6,20 +6,22 @@ tags: [c#, language design]
 One request I see fairly often for C# is to add the concept of borrowed values. That is values which can be used but
 not stored beyond the invocation of a particular method. This generally comes up in the context of features which 
 require a form of ownership semantics like stack allocation of classes, `using` statements, resource management, etc ...
+Borrowing provides a way to safely use owned values without complicated ownership transfer.
 
 This a feature we explored while working on System C# in the 
 [Midori Project](http://joeduffyblog.com/2015/11/03/blogging-about-midori/) in the context of having stack like
-allocations. The experience taught us quite a bit about the difficulties in introducing ownership concepts into 
-languages and frameworks that didn't have them designed in from the start. 
+allocations. The experiment was successful and brought with it signficant performance wins for the system. But the 
+experience also taught us quite a bit about the difficulties in introducing ownership concepts into languages and 
+frameworks that didn't have them designed in from the start.
 
-To help illustrate these complications this post is going to focus on what it would look like if borrowing were added
+To help illustrate these difficulties this post is going to focus on what it would look like if borrowing were added
 to C# for reference types. Borrowing, the concept of use but don't store, is a necessary pre-requisite for most forms
-of ownership. Lacking borrowing the more desired features, like stack allocation of classes, won't be possible. 
+of ownership. Lacking borrowing the more desired features, like stack allocation of classes, wouldn't be possible. 
 
-In this post borrowed references will be denoted with a `&` following the name. So `Widget` is a normal reference 
+In this post borrowed references will be denoted with a `&` following the type name. So `Widget` is a normal reference 
 while `Widget&` is a borrowed reference. There is a subtyping relationship between borrowed and normal references
-meaning a `Widget` is convertible to a `Widget&` but not the other way around. This notation can be applied to locals
-and parameters which are not `out`, `in` or `ref`. It cannot be applied to fields or method / delegate return types.
+meaning a `Widget` is convertible to a `Widget&` but not the other way around. This annotation can be applied to locals
+and parameters. It cannot be applied to fields, return types, or parameters that are which are not `out`, `in` or `ref`. 
 
 ```cs
 class Widget { 
@@ -38,9 +40,9 @@ class Widget {
 ``` 
 
 This simple system enforces that borrowed references have the desired "use but don't store" semantics. When a value is
-passed to a borrowed parameter of a method, the caller can be assured that the value is not reference ad the
-completion of the method. It cannot be stored into a field, used as a generic argument, returned or smuggled out via 
-a `ref` / `out` parameter.
+passed to a borrowed parameter of a method, the caller can be assured that the value is not reference at the
+completion of the method. That is it cannot be stored into a field, used as a generic argument, returned or smuggled 
+out via a `ref` / `out` parameter.
 
 This system is limiting though because there is no way to invoke instance members on borrowed references. The `this`
 reference in instance methods is a normal reference. Hence invoking an instance method on a borrowed reference would 
@@ -61,6 +63,7 @@ class MyResource : Resource {
     bool Valid;
     public override void PrintStatus() & {
         Console.WriteLine($"Is valid {Valid}");
+        MyResource r = this;    // Error: can't convert MyResource& to MyResource
     }
 
     public override void Close() {
@@ -82,10 +85,10 @@ class MyResource : Resource {
 So far this all seems pretty sensible. Borrowed values have the desired "use but don't store" semantics, have a clean
 integration into the type system and have a minimal syntax burden.
 
-What happens though when we apply borrowing to a real world scenario like `string.Format`? The parameters to this 
-method are never stored and in practice are often a source of wasteful boxing allocations. This is a classic scenario
-where borrowing should bring big wins. The parameters can be marked properly as borrowed and then the runtime can 
-safely stack allocate the boxing allocations.
+What happens though when we attempt to leverage this feature in the .NET SDK? Consider as an example `string.Format`.
+The parameters to this method are never stored and in practice are often a source of wasteful boxing allocations. This
+is a classic scenario where borrowing should bring big wins. The parameters can be marked properly as borrowed and then
+the runtime can safely stack allocate the boxing allocations.
 
 ```cs
 class String {
@@ -96,7 +99,7 @@ class String {
 }
 ```
 
-This though also reveals a significant problem: the call `arg.ToString` is illegal because the definition 
+This example though also reveals a significant problem: the call `arg.ToString` is illegal because the definition 
 `object.ToString` is not defined as having a borrowed `this` parameter. Worse is that the .NET team can't fix this by
 going back and marking `object.ToString` as borrowed. This would be a massive compatibility break because every override
 of `ToString` would likewise need to be marked as borrowed. 
@@ -107,25 +110,24 @@ virtually the entire surface area of .NET. Borrowed values are significantly ham
 - Can’t call any methods on object `GetHashCode`, `ToString`, `ReferenceEquals`, `GetType` or `Finalize`
 - Can’t call `operator==`, `!=`, etc …
 - Can’t be used as generic arguments. So no `List<Widget&>`.
-- Can’t be used as array elements.
-- Think of any interface we’ve defined anywhere in .NET. They are useless in the face of borrowed references because 
-zero of their methods have `this` marked as borrowed.
+- Can't call any method on any interface defined in the .NET SDK surface area.
 
 The non-virtual methods could be fixed by updating their annotation in the framework to be borrowed. The `virtual` 
-methods and `interface` definitions though can't be changed as it would break compatibility. That means `object&` is by
-itself is basically useless. It can't be stored as it's borrowed and no members can be invoked on it.
+methods and `interface` definitions though can't be changed as it would break compatibility. That means `object&` or 
+any borrowed interface is by themselves is basically useless. They can't be stored as they're borrowed and no members
+can be invoked on them.
 
-This is a pretty significant problem. It means that .NET Framework API parameters which invoke members on `object`
-can't be marked as `object&` regardless of whether or not they escape the parameter. This means large sections of .NET
-which are perfect for ownership semantics can never take advantage of them. So much so that it brings up the question
-of whether this feature is even worth doing. That's because successful uses of borrowing would require significant 
-duplication of the .NET Framework surface area with the only real change being to add borrowing semantics to 
-parameters. 
+This is a pretty significant problem. It means that a good portion of the .NET Framework API parameters can never be 
+marked as borrowed because doing so would make the values unusable. That's true for `object`, interfaces or really any
+unsealed type where virtual methods are used. This means large sections of .NET which are perfect for ownership
+semantics can never take advantage of them. So much so that it brings up the question of whether this feature is 
+worth doing. Successful uses of borrowing would require significant duplication of the .NET Framework surface area 
+with the only real change being to add borrowing semantics to parameters. Not ideal.
 
-This is the problem with retrofitting languages with core features like ownership. The problem isn't just extending 
-a 20 year old language to understand ownership, it's also about extending a 20 year old SDK. Both present challenges 
-that need to be overcome. In the case of ownership though it's much more about whether the SDK could adopt it than 
-whether it could be added to the language.
+This is the crux of the problem with retrofitting languages with core features like ownership. The problem isn't just 
+extending a 20 year old language to understand ownership, it's also about extending a 20 year old SDK. Both present
+challenges that need to be overcome. In the case of ownership though it's much more about whether the SDK could adopt 
+it than whether it could be added to the language.
 
 That's not to say the version of borrowing laid out in this post is complete. It's in fact lacking a number of features
 that are necessary for a good borrowing system: relative lifetime annotations, borrowed fields, returning borrowed 
