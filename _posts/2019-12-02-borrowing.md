@@ -32,8 +32,8 @@ class Widget {
         borrowed = this;    // Okay: converting Widget to Widget&
         normal = borrowed;  // Error: can't convert Widget& to Widget
 
-        Field = normal;     // Okay: converting Widget to Widget&
-        Field = this;       // Okay: converting Widget to Widget&
+        Field = normal;     // Okay: converting Widget to Widget
+        Field = this;       // Okay: converting Widget to Widget
         Field = borrowed;   // Error: can't convert Widget& to Widget
     }
 }
@@ -77,7 +77,7 @@ class MyResource : Resource {
         normal.PrintStatus();   // Okay
 
         borrowed.Close();       // Error: can't call a normal method from a borrowed reference
-        normal.PrintStatus();   // Okay
+        normal.Close();         // Okay
     }
 }
 ``` 
