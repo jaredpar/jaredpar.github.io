@@ -5,6 +5,8 @@ layout: post
 
 The implementation will compare objects in a left to right fashion.  In this case the property corresponding to TA will be the left most, and TN the right most.  If all properties are equal (Compare returns 0) then the two items will be determined to be equal and will return 0.
 
+{% raw %}
+```powershell
     function script:Gen-CompareTo  
     {  
         param ( [int] $count = $(throw "Need a count") )   
@@ -19,6 +21,8 @@ The implementation will compare objects in a left to right fashion.  In this cas
             %{ "code = Comparer<T{0}>.Default.Compare(m_{1},other.m_{1}); if (code != 0) {{ return code; }}" -f $upperList[$_],$lowerList[$_] }   
         "return 0; }"   
     }
+```
+{% endraw %}
 
 Once again the same questions arise about implementing IComparable<Tuple> vs IComparable<ITuple> (or both).  The arguments are fairly similar and as a result I decided to skip implementing the ITuple version for now.
 

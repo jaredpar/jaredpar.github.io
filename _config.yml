@@ -12,16 +12,15 @@ gravatar_url: https://www.gravatar.com/avatar/529ba429a58902bef56c2fcb672d5ccb
 
 author:
     name: jaredpar
-    email: jaredpparsons@gmail.com
+    email: jared@paranoidcoding.org
     github: jaredpar
     twitter: jaredpar
-    email_md5: 529ba429a58902bef56c2fcb672d5ccb
     bio: The ramblings and rantings of <a href="https://twitter.com/jaredpar">@jaredpar</a>
     stackoverflowid: 23283
 
 title: Paranoid Coding
 
-gems: [jekyll-paginate]
+plugins: [jekyll-paginate]
 paginate: 5
 paginate_path: "page:num"
 

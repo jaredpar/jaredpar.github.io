@@ -20,7 +20,7 @@ I considered two approaches to this problem; inheritance and interface.  I debat
 In addition to defining the basic interface I added two methods to the base most interface.  These methods allow methods to operate on tuples in generic ways regardless of the pair count.
 
     
-``` csharp
+```csharp
 int Count { get; }
 object this[int index] { get; }
 ```
@@ -29,6 +29,8 @@ Generating the implementation is straight forward at this point considering the 
 
 Hopefully by now it's becoming clear why having a script to regenerate the large code base is a good idea.  It's easy to make sweeping changes to your implementation.
 
+{% raw %}
+```powershell
     function script:Gen-ITuple  
     {  
         param ( [int] $count = $(throw "Need a count") )   
@@ -58,4 +60,6 @@ Hopefully by now it's becoming clear why having a script to regenerate the large
         "default: throw new InvalidOperationException(""Bad Index"");"   
         "} } }"   
     }
+```
 
+{% endraw %}
