@@ -8,7 +8,7 @@ permalink: date
 name: Jared Parsons
 url: http://blog.paranoidcoding.com
 description: Rantings of a Programmer
-gravatar_url: https://www.gravatar.com/avatar/529ba429a58902bef56c2fcb672d5ccb
+gravatar_url: https://www.gravatar.com/avatar/704c8748a47dc407815d79591af8482e
 
 author:
     name: jaredpar
@@ -17,6 +17,7 @@ author:
     twitter: jaredpar
     bio: The ramblings and rantings of <a href="https://twitter.com/jaredpar">@jaredpar</a>
     stackoverflowid: 23283
+    email_md5: 704c8748a47dc407815d79591af8482e
 
 title: Paranoid Coding
 
