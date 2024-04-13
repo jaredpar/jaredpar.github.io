@@ -3,6 +3,9 @@ kramdown:
     input: GFM
     syntax_highlighter: rouge
 
+exclude:
+    scripts
+
 highlighter: rouge
 permalink: date
 name: Jared Parsons
