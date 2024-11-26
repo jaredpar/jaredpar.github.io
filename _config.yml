@@ -4,7 +4,7 @@ kramdown:
     syntax_highlighter: rouge
 
 exclude:
-    scripts
+    - scripts
 
 highlighter: rouge
 permalink: date
@@ -24,7 +24,12 @@ author:
 
 title: Paranoid Coding
 
-plugins: [jekyll-paginate]
+# https://github.com/pages-themes/hacker/tree/master
+remote_theme: pages-themes/hacker@v0.2.0
+plugins:
+    - jekyll-remote-theme
+    - jekyll-paginate
+
 paginate: 5
 paginate_path: "page:num"
 
